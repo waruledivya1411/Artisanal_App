@@ -37,5 +37,39 @@ void main() {
       findsOneWidget,
     );
 
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Learn step by step'), findsOneWidget);
+    expect(find.text('Listen'), findsOneWidget);
+    expect(find.text('Skip'), findsOneWidget);
+    expect(find.text('Next'), findsOneWidget);
+    expect(find.byType(Image), findsWidgets);
+
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Take beautiful photos'), findsOneWidget);
+    expect(find.text('Listen'), findsOneWidget);
+    expect(
+      find.text('The camera helps you keep the photo\nstraight and bright.'),
+      findsOneWidget,
+    );
+    expect(find.text('Skip'), findsOneWidget);
+    expect(find.text('Next'), findsOneWidget);
+    expect(find.byType(Image), findsWidgets);
+
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Share and sell'), findsOneWidget);
+    expect(find.text('Listen'), findsOneWidget);
+    expect(
+      find.text('Send your photos to Instagram and\nWhatsApp in a few taps.'),
+      findsOneWidget,
+    );
+    expect(find.text('Get started'), findsOneWidget);
+    expect(find.byType(Image), findsWidgets);
+
   });
 }

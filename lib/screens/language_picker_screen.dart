@@ -4,6 +4,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../widgets/button_shadow.dart';
+import 'welcome_learn_screen.dart';
 
 class LanguagePickerScreen extends StatefulWidget {
   const LanguagePickerScreen({super.key});
@@ -211,7 +212,18 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                     color: LanguagePickerScreen.teal,
                     borderRadius: BorderRadius.circular(18),
                     child: InkWell(
-                      onTap: () => _tts?.stop(),
+                      onTap: () {
+                        final language = _languages.firstWhere(
+                          (item) => item.id == _selectedId,
+                        );
+                        _tts?.stop();
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                WelcomeLearnScreen(locale: language.locale),
+                          ),
+                        );
+                      },
                       borderRadius: BorderRadius.circular(18),
                       child: SizedBox(
                         height: 56,
