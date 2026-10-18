@@ -159,6 +159,42 @@ class TaskPartsScreen extends StatefulWidget {
     );
   }
 
+  static TaskPartsScreen setUpPage(String locale) {
+    return TaskPartsScreen(
+      locale: locale,
+      taskLabel: 'TASK 2 OF 5',
+      title: 'Set up your page',
+      showChevron: true,
+      parts: [
+        TaskPart(
+          '1',
+          'Good name',
+          TaskPartState.current,
+          open: (_) => LearnPartScreen(
+            locale: locale,
+            partLabel: 'TASK 2 · PART 1 · GOOD NAME',
+            title: 'Short name with your craft',
+            image: 'assets/images/good_name_art.jpg',
+            nextBuilder: (_) => CheckPartScreen(
+              locale: locale,
+              partLabel: 'TASK 2 · PART 1 · GOOD NAME',
+              wrong: const CheckOption(
+                text: '@divya_w_\n1987_xyz',
+                label: 'Long',
+              ),
+              right: const CheckOption(text: '@divya\n.weaves', label: 'Short'),
+              rightReason: 'Easy to say and find',
+              wrongReason: 'Long names are hard to remember',
+            ),
+          ),
+        ),
+        const TaskPart('2', 'Clear photo', TaskPartState.pending),
+        const TaskPart('3', 'Professional', TaskPartState.pending),
+        const TaskPart('4', 'Try it', TaskPartState.pending),
+      ],
+    );
+  }
+
   @override
   State<TaskPartsScreen> createState() => _TaskPartsScreenState();
 }

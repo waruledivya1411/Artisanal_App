@@ -86,6 +86,31 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('TASK 1 OF 5'), findsNothing);
 
+    await tester.tap(find.text('Set up your page'));
+    await tester.pumpAndSettle();
+    expect(find.text('TASK 2 OF 5'), findsOneWidget);
+    expect(find.text('Good name'), findsOneWidget);
+    expect(find.text('Clear photo'), findsOneWidget);
+    expect(find.text('Professional'), findsOneWidget);
+    expect(find.text('Try it'), findsOneWidget);
+    await tester.tap(find.text('Good name'));
+    await tester.pumpAndSettle();
+    expect(find.text('TASK 2 · PART 1 · GOOD NAME'), findsOneWidget);
+    expect(find.text('Short name with your craft'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('@divya\n.weaves'), findsOneWidget);
+    expect(find.text('Easy to say and find'), findsNothing);
+    await tester.tap(find.text('B'));
+    await tester.pumpAndSettle();
+    expect(find.text('Easy to say and find'), findsOneWidget);
+    expect(find.text('Short'), findsOneWidget);
+    expect(find.text('Long'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.close_rounded).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.close_rounded).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Learn'));

@@ -83,6 +83,7 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
 
   VoidCallback? _openerFor(_Task task) {
     return switch (task.number) {
+      '02' => () => _open(TaskPartsScreen.setUpPage(widget.locale)),
       _ => null,
     };
   }
