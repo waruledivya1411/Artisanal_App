@@ -110,6 +110,35 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.close_rounded).first);
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Clear photo'));
+    await tester.pumpAndSettle();
+    expect(find.text('TASK 2 · PART 2 · CLEAR PHOTO'), findsOneWidget);
+    expect(find.text('Use your face or your loom'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('divya.weaves'), findsNWidgets(2));
+    expect(find.text('Buyers trust a clear face'), findsNothing);
+    await tester.tap(find.text('B'));
+    await tester.pumpAndSettle();
+    expect(find.text('Buyers trust a clear face'), findsOneWidget);
+    expect(find.text('Clear'), findsOneWidget);
+    expect(find.text('Blurry'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.close_rounded).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.close_rounded).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Posting plan'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Posting plan'));
+    await tester.pumpAndSettle();
+    expect(find.text('TASK 4 OF 5'), findsOneWidget);
+    expect(find.text('Post often'), findsOneWidget);
+    expect(find.text('Good time'), findsOneWidget);
+    expect(find.text('Mix posts'), findsOneWidget);
+    expect(find.text('Try it'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
 

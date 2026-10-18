@@ -7,11 +7,12 @@ import '../widgets/listen_playing_button.dart';
 import '../widgets/speak_circle_button.dart';
 
 class CheckOption {
-  const CheckOption({this.image, this.text, required this.label})
+  const CheckOption({this.image, this.text, this.caption, required this.label})
     : assert(image != null || text != null);
 
   final String? image;
   final String? text;
+  final String? caption;
   final String label;
 }
 
@@ -348,7 +349,12 @@ class _ChoiceCard extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(15),
-                    child: option.image != null
+                    child: option.image != null && option.caption != null
+                        ? _ProfilePreview(
+                            image: option.image!,
+                            caption: option.caption!,
+                          )
+                        : option.image != null
                         ? Image(
                             image: AssetImage(option.image!),
                             fit: BoxFit.cover,
@@ -432,6 +438,56 @@ class _ChoiceCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ProfilePreview extends StatelessWidget {
+  const _ProfilePreview({required this.image, required this.caption});
+
+  final String image;
+  final String caption;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: const Color(0xFFEBF1EF),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final size = (constraints.maxWidth * 0.82).clamp(
+            0.0,
+            constraints.maxHeight - 44,
+          );
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ClipOval(
+                child: Image(
+                  image: AssetImage(image),
+                  width: size,
+                  height: size,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    caption,
+                    style: GoogleFonts.plusJakartaSans(
+                      color: CheckPartScreen.ink,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -74,6 +74,9 @@ flutter:
     - assets/images/straight_angle_art.jpg
     - assets/images/try_it_art.jpg
     - assets/images/good_name_art.jpg
+    - assets/images/clear_photo_art.jpg
+    - assets/images/profile_clear.jpg
+    - assets/images/profile_blurry.jpg
     - assets/images/fabric_steady.jpg
     - assets/images/fabric_shaky.jpg
     - assets/images/fabric_messy.jpg

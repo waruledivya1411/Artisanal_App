@@ -188,9 +188,50 @@ class TaskPartsScreen extends StatefulWidget {
             ),
           ),
         ),
-        const TaskPart('2', 'Clear photo', TaskPartState.pending),
+        TaskPart(
+          '2',
+          'Clear photo',
+          TaskPartState.pending,
+          open: (_) => LearnPartScreen(
+            locale: locale,
+            partLabel: 'TASK 2 · PART 2 · CLEAR PHOTO',
+            title: 'Use your face or your loom',
+            image: 'assets/images/clear_photo_art.jpg',
+            nextBuilder: (_) => CheckPartScreen(
+              locale: locale,
+              partLabel: 'TASK 2 · PART 2 · CLEAR PHOTO',
+              wrong: const CheckOption(
+                image: 'assets/images/profile_blurry.jpg',
+                caption: 'divya.weaves',
+                label: 'Blurry',
+              ),
+              right: const CheckOption(
+                image: 'assets/images/profile_clear.jpg',
+                caption: 'divya.weaves',
+                label: 'Clear',
+              ),
+              rightReason: 'Buyers trust a clear face',
+              wrongReason: 'A blurry photo hides who you are',
+            ),
+          ),
+        ),
         const TaskPart('3', 'Professional', TaskPartState.pending),
         const TaskPart('4', 'Try it', TaskPartState.pending),
+      ],
+    );
+  }
+
+  static TaskPartsScreen postingPlan(String locale) {
+    return TaskPartsScreen(
+      locale: locale,
+      taskLabel: 'TASK 4 OF 5',
+      title: 'Posting plan',
+      showChevron: true,
+      parts: const [
+        TaskPart('1', 'Post often', TaskPartState.current),
+        TaskPart('2', 'Good time', TaskPartState.pending),
+        TaskPart('3', 'Mix posts', TaskPartState.pending),
+        TaskPart('4', 'Try it', TaskPartState.pending),
       ],
     );
   }
