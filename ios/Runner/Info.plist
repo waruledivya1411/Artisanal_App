@@ -8,6 +8,10 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Artisnal</string>
+	<key>NSCameraUsageDescription</key>
+	<string>The camera is used to take photos of your products.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Your photo library is used to choose product photos.</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

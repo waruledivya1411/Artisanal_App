@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../widgets/button_shadow.dart';
 import '../widgets/listen_playing_button.dart';
+import 'learn_home_screen.dart';
 
 class WelcomeShareScreen extends StatefulWidget {
   const WelcomeShareScreen({super.key, required this.locale});
@@ -146,7 +147,15 @@ class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
                         color: WelcomeShareScreen.teal,
                         borderRadius: BorderRadius.circular(18),
                         child: InkWell(
-                          onTap: () => _speech.stop(),
+                          onTap: () {
+                            _speech.stop();
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) =>
+                                    LearnHomeScreen(locale: widget.locale),
+                              ),
+                            );
+                          },
                           borderRadius: BorderRadius.circular(18),
                           child: SizedBox(
                             height: 56,
