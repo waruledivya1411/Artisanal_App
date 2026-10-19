@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:artisnal_app/core/speech/speech_player.dart';
 
-import '../widgets/button_shadow.dart';
-import '../widgets/listen_playing_button.dart';
-import 'welcome_shoot_screen.dart';
+import 'package:artisnal_app/core/theme/button_shadow.dart';
+import 'package:artisnal_app/core/widgets/listen_playing_button.dart';
+import 'package:artisnal_app/features/learn/screens/learn_home_screen.dart';
 
-class WelcomeLearnScreen extends StatefulWidget {
-  const WelcomeLearnScreen({super.key, required this.locale});
+class WelcomeShareScreen extends StatefulWidget {
+  const WelcomeShareScreen({super.key, required this.locale});
 
   final String locale;
 
@@ -18,14 +19,14 @@ class WelcomeLearnScreen extends StatefulWidget {
   static const Color dot = Color(0xFFC1DAD9);
 
   static const String spoken =
-      'Learn step by step. Short videos in your language show you how.';
+      'Share and sell. Send your photos to Instagram and WhatsApp in a few taps.';
 
   @override
-  State<WelcomeLearnScreen> createState() => _WelcomeLearnScreenState();
+  State<WelcomeShareScreen> createState() => _WelcomeShareScreenState();
 }
 
-class _WelcomeLearnScreenState extends State<WelcomeLearnScreen> {
-  late final WelcomeSpeech _speech = WelcomeSpeech((_) {
+class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
+  late final SpeechPlayer _speech = SpeechPlayer((_) {
     if (mounted) setState(() {});
   });
 
@@ -42,11 +43,11 @@ class _WelcomeLearnScreenState extends State<WelcomeLearnScreen> {
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: WelcomeLearnScreen.background,
+        systemNavigationBarColor: WelcomeShareScreen.background,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: WelcomeLearnScreen.background,
+        backgroundColor: WelcomeShareScreen.background,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
@@ -73,14 +74,14 @@ class _WelcomeLearnScreenState extends State<WelcomeLearnScreen> {
                           playing: _speech.playing,
                           onTap: () => _speech.toggle(
                             locale: widget.locale,
-                            text: WelcomeLearnScreen.spoken,
+                            text: WelcomeShareScreen.spoken,
                           ),
                         ),
                         const Spacer(),
                         TextButton(
                           onPressed: () {},
                           style: TextButton.styleFrom(
-                            foregroundColor: WelcomeLearnScreen.teal,
+                            foregroundColor: WelcomeShareScreen.teal,
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -88,7 +89,7 @@ class _WelcomeLearnScreenState extends State<WelcomeLearnScreen> {
                           child: Text(
                             'Skip',
                             style: GoogleFonts.plusJakartaSans(
-                              color: WelcomeLearnScreen.teal,
+                              color: WelcomeShareScreen.teal,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -100,7 +101,9 @@ class _WelcomeLearnScreenState extends State<WelcomeLearnScreen> {
                     Align(
                       alignment: Alignment.topCenter,
                       child: Image(
-                        image: const AssetImage('assets/images/learn_art.png'),
+                        image: const AssetImage(
+                          'assets/images/onboarding/share_art.png',
+                        ),
                         width: imageWidth,
                         height: imageHeight,
                         fit: BoxFit.contain,
@@ -109,18 +112,18 @@ class _WelcomeLearnScreenState extends State<WelcomeLearnScreen> {
                     const SizedBox(height: 16),
                     const Row(
                       children: [
+                        _PageDot(),
+                        SizedBox(width: 8),
+                        _PageDot(),
+                        SizedBox(width: 8),
                         _PageDash(),
-                        SizedBox(width: 8),
-                        _PageDot(),
-                        SizedBox(width: 8),
-                        _PageDot(),
                       ],
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      'Learn step by step',
+                      'Share and sell',
                       style: GoogleFonts.plusJakartaSans(
-                        color: WelcomeLearnScreen.ink,
+                        color: WelcomeShareScreen.ink,
                         fontSize: 26,
                         fontWeight: FontWeight.w800,
                         height: 1.15,
@@ -129,9 +132,9 @@ class _WelcomeLearnScreenState extends State<WelcomeLearnScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Short videos in your language show you\nhow.',
+                      'Send your photos to Instagram and\nWhatsApp in a few taps.',
                       style: GoogleFonts.plusJakartaSans(
-                        color: WelcomeLearnScreen.muted,
+                        color: WelcomeShareScreen.muted,
                         fontSize: 15,
                         fontWeight: FontWeight.w400,
                         height: 1.35,
@@ -144,7 +147,7 @@ class _WelcomeLearnScreenState extends State<WelcomeLearnScreen> {
                         boxShadow: kPrimaryButtonShadow,
                       ),
                       child: Material(
-                        color: WelcomeLearnScreen.teal,
+                        color: WelcomeShareScreen.teal,
                         borderRadius: BorderRadius.circular(18),
                         child: InkWell(
                           onTap: () {
@@ -152,7 +155,7 @@ class _WelcomeLearnScreenState extends State<WelcomeLearnScreen> {
                             Navigator.of(context).push(
                               MaterialPageRoute<void>(
                                 builder: (_) =>
-                                    WelcomeShootScreen(locale: widget.locale),
+                                    LearnHomeScreen(locale: widget.locale),
                               ),
                             );
                           },
@@ -160,24 +163,15 @@ class _WelcomeLearnScreenState extends State<WelcomeLearnScreen> {
                           child: SizedBox(
                             height: 56,
                             width: double.infinity,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.chevron_right_rounded,
+                            child: Center(
+                              child: Text(
+                                'Get started',
+                                style: GoogleFonts.plusJakartaSans(
                                   color: Colors.white,
-                                  size: 22,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
                                 ),
-                                const SizedBox(width: 2),
-                                Text(
-                                  'Next',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
@@ -203,7 +197,7 @@ class _PageDash extends StatelessWidget {
       width: 22,
       height: 6,
       decoration: BoxDecoration(
-        color: WelcomeLearnScreen.teal,
+        color: WelcomeShareScreen.teal,
         borderRadius: BorderRadius.circular(3),
       ),
     );
@@ -219,7 +213,7 @@ class _PageDot extends StatelessWidget {
       width: 8,
       height: 8,
       decoration: const BoxDecoration(
-        color: WelcomeLearnScreen.dot,
+        color: WelcomeShareScreen.dot,
         shape: BoxShape.circle,
       ),
     );

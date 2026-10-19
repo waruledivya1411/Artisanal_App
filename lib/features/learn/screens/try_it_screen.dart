@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:artisnal_app/core/speech/speech_player.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../widgets/button_shadow.dart';
-import '../widgets/listen_playing_button.dart';
-import '../widgets/speak_circle_button.dart';
+import 'package:artisnal_app/core/theme/button_shadow.dart';
+import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 
 class TryItScreen extends StatefulWidget {
   const TryItScreen({super.key, required this.locale});
@@ -24,7 +24,7 @@ class TryItScreen extends StatefulWidget {
 }
 
 class _TryItScreenState extends State<TryItScreen> {
-  late final WelcomeSpeech _speech = WelcomeSpeech((_) {
+  late final SpeechPlayer _speech = SpeechPlayer((_) {
     if (mounted) setState(() {});
   });
 
@@ -135,7 +135,7 @@ class _TryItScreenState extends State<TryItScreen> {
                                         padding: EdgeInsets.all(10),
                                         child: Image(
                                           image: AssetImage(
-                                            'assets/images/try_it_art.jpg',
+                                            'assets/images/lessons/photography/try_it_art.jpg',
                                           ),
                                           fit: BoxFit.contain,
                                         ),

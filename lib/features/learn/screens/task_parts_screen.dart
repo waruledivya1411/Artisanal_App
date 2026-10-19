@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:artisnal_app/core/speech/speech_player.dart';
 
-import '../widgets/app_bottom_nav.dart';
-import '../widgets/listen_playing_button.dart';
-import 'check_part_screen.dart';
-import 'learn_part_screen.dart';
-import 'try_it_screen.dart';
+import 'package:artisnal_app/core/widgets/app_bottom_nav.dart';
 
 enum TaskPartState { done, current, pending }
 
@@ -43,205 +40,12 @@ class TaskPartsScreen extends StatefulWidget {
   static const Color done = Color(0xFF1E7B45);
   static const Color chevron = Color(0xFF4F5F5D);
 
-  static TaskPartsScreen photography(String locale) {
-    return TaskPartsScreen(
-      locale: locale,
-      taskLabel: 'TASK 1 OF 5',
-      title: 'Photography',
-      parts: [
-        TaskPart(
-          '1',
-          'Hold steady',
-          TaskPartState.done,
-          open: (_) => LearnPartScreen(
-            locale: locale,
-            partLabel: 'PART 1 · HOLD STEADY',
-            title: 'Hold with two hands',
-            image: 'assets/images/hold_steady_art.jpg',
-            nextBuilder: (_) => CheckPartScreen(
-              locale: locale,
-              partLabel: 'PART 1 · HOLD STEADY',
-              wrong: const CheckOption(
-                image: 'assets/images/fabric_shaky.jpg',
-                label: 'Shaky',
-              ),
-              right: const CheckOption(
-                image: 'assets/images/fabric_steady.jpg',
-                label: 'Steady',
-              ),
-              rightReason: 'Sharp photos sell better',
-              wrongReason: 'Shaky photos look blurry',
-            ),
-          ),
-        ),
-        TaskPart(
-          '2',
-          'Plain sheet',
-          TaskPartState.done,
-          open: (_) => LearnPartScreen(
-            locale: locale,
-            partLabel: 'PART 2 · PLAIN SHEET',
-            title: 'Put a plain sheet behind',
-            image: 'assets/images/plain_sheet_art.jpg',
-            nextBuilder: (_) => CheckPartScreen(
-              locale: locale,
-              partLabel: 'PART 2 · PLAIN SHEET',
-              wrong: const CheckOption(
-                image: 'assets/images/fabric_messy.jpg',
-                label: 'Messy',
-              ),
-              right: const CheckOption(
-                image: 'assets/images/fabric_steady.jpg',
-                label: 'Plain',
-              ),
-              rightReason: 'The cloth stands out',
-              wrongReason: 'A messy background hides the cloth',
-            ),
-          ),
-        ),
-        TaskPart(
-          '3',
-          'Window light',
-          TaskPartState.current,
-          open: (_) => LearnPartScreen(
-            locale: locale,
-            partLabel: 'PART 3 · WINDOW LIGHT',
-            title: 'Stand near a window',
-            image: 'assets/images/window_light_art.jpg',
-            nextBuilder: (_) => CheckPartScreen(
-              locale: locale,
-              partLabel: 'PART 3 · WINDOW LIGHT',
-              wrong: const CheckOption(
-                image: 'assets/images/fabric_dark.jpg',
-                label: 'Dark corner',
-              ),
-              right: const CheckOption(
-                image: 'assets/images/fabric_window.jpg',
-                label: 'Near window',
-              ),
-              rightReason: 'True colours by the window',
-              wrongReason: 'A dark corner makes colours dull',
-            ),
-          ),
-        ),
-        TaskPart(
-          '4',
-          'Straight angle',
-          TaskPartState.pending,
-          open: (_) => LearnPartScreen(
-            locale: locale,
-            partLabel: 'PART 4 · STRAIGHT ANGLE',
-            title: 'Hold the phone straight',
-            image: 'assets/images/straight_angle_art.jpg',
-            nextBuilder: (_) => CheckPartScreen(
-              locale: locale,
-              partLabel: 'PART 4 · STRAIGHT ANGLE',
-              wrong: const CheckOption(
-                image: 'assets/images/fabric_tilted.jpg',
-                label: 'Tilted',
-              ),
-              right: const CheckOption(
-                image: 'assets/images/fabric_straight.jpg',
-                label: 'Straight',
-              ),
-              rightReason: 'Shows the full cloth',
-              wrongReason: 'A tilted photo cuts off the cloth',
-            ),
-          ),
-        ),
-        TaskPart(
-          '5',
-          'Try it',
-          TaskPartState.pending,
-          open: (_) => TryItScreen(locale: locale),
-        ),
-      ],
-    );
-  }
-
-  static TaskPartsScreen setUpPage(String locale) {
-    return TaskPartsScreen(
-      locale: locale,
-      taskLabel: 'TASK 2 OF 5',
-      title: 'Set up your page',
-      showChevron: true,
-      parts: [
-        TaskPart(
-          '1',
-          'Good name',
-          TaskPartState.current,
-          open: (_) => LearnPartScreen(
-            locale: locale,
-            partLabel: 'TASK 2 · PART 1 · GOOD NAME',
-            title: 'Short name with your craft',
-            image: 'assets/images/good_name_art.jpg',
-            nextBuilder: (_) => CheckPartScreen(
-              locale: locale,
-              partLabel: 'TASK 2 · PART 1 · GOOD NAME',
-              wrong: const CheckOption(
-                text: '@divya_w_\n1987_xyz',
-                label: 'Long',
-              ),
-              right: const CheckOption(text: '@divya\n.weaves', label: 'Short'),
-              rightReason: 'Easy to say and find',
-              wrongReason: 'Long names are hard to remember',
-            ),
-          ),
-        ),
-        TaskPart(
-          '2',
-          'Clear photo',
-          TaskPartState.pending,
-          open: (_) => LearnPartScreen(
-            locale: locale,
-            partLabel: 'TASK 2 · PART 2 · CLEAR PHOTO',
-            title: 'Use your face or your loom',
-            image: 'assets/images/clear_photo_art.jpg',
-            nextBuilder: (_) => CheckPartScreen(
-              locale: locale,
-              partLabel: 'TASK 2 · PART 2 · CLEAR PHOTO',
-              wrong: const CheckOption(
-                image: 'assets/images/profile_blurry.jpg',
-                caption: 'divya.weaves',
-                label: 'Blurry',
-              ),
-              right: const CheckOption(
-                image: 'assets/images/profile_clear.jpg',
-                caption: 'divya.weaves',
-                label: 'Clear',
-              ),
-              rightReason: 'Buyers trust a clear face',
-              wrongReason: 'A blurry photo hides who you are',
-            ),
-          ),
-        ),
-        const TaskPart('3', 'Professional', TaskPartState.pending),
-        const TaskPart('4', 'Try it', TaskPartState.pending),
-      ],
-    );
-  }
-
-  static TaskPartsScreen postingPlan(String locale) {
-    return TaskPartsScreen(
-      locale: locale,
-      taskLabel: 'TASK 4 OF 5',
-      title: 'Posting plan',
-      showChevron: true,
-      parts: const [
-        TaskPart('1', 'Post often', TaskPartState.current),
-        TaskPart('2', 'Good time', TaskPartState.pending),
-        TaskPart('3', 'Mix posts', TaskPartState.pending),
-        TaskPart('4', 'Try it', TaskPartState.pending),
-      ],
-    );
-  }
-
   @override
   State<TaskPartsScreen> createState() => _TaskPartsScreenState();
 }
 
 class _TaskPartsScreenState extends State<TaskPartsScreen> {
-  late final WelcomeSpeech _speech = WelcomeSpeech((_) {
+  late final SpeechPlayer _speech = SpeechPlayer((_) {
     if (mounted) setState(() {});
   });
 
@@ -409,7 +213,7 @@ class _SpeakerCircle extends StatelessWidget {
             height: 48,
             child: Center(
               child: Image(
-                image: AssetImage('assets/images/speaker.png'),
+                image: AssetImage('assets/images/icons/speaker.png'),
                 width: 22,
                 height: 22,
                 fit: BoxFit.contain,

@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../widgets/button_shadow.dart';
-import 'welcome_learn_screen.dart';
+import 'package:artisnal_app/core/theme/button_shadow.dart';
+import 'package:artisnal_app/features/onboarding/screens/welcome_learn_screen.dart';
 
 class LanguagePickerScreen extends StatefulWidget {
   const LanguagePickerScreen({super.key});
@@ -390,7 +390,7 @@ class _SpeakButton extends StatelessWidget {
               child: selected
                   ? const _WaveBars(color: Colors.white)
                   : const Image(
-                      image: AssetImage('assets/images/speaker.png'),
+                      image: AssetImage('assets/images/icons/speaker.png'),
                       width: 28,
                       height: 28,
                       fit: BoxFit.contain,

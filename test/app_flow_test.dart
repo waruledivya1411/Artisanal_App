@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:artisnal_app/main.dart';
+import 'package:artisnal_app/app/app.dart';
 
 void main() {
-  testWidgets('Splash leads to the language picker', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('Onboarding and Learn lessons flow', (WidgetTester tester) async {
     await tester.pumpWidget(const ArtisnalApp());
     expect(find.text('Click & Social'), findsOneWidget);
 
@@ -139,6 +137,56 @@ void main() {
     expect(find.text('Good time'), findsOneWidget);
     expect(find.text('Mix posts'), findsOneWidget);
     expect(find.text('Try it'), findsOneWidget);
+    await tester.tap(find.text('Post often'));
+    await tester.pumpAndSettle();
+    expect(find.text('TASK 4 · PART 1 · POST OFTEN'), findsOneWidget);
+    expect(find.text('Post 3 times a week'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 a month'), findsOneWidget);
+    expect(find.text('3 a week'), findsOneWidget);
+    expect(find.text('People remember you'), findsNothing);
+    await tester.tap(find.text('B'));
+    await tester.pumpAndSettle();
+    expect(find.text('People remember you'), findsOneWidget);
+    expect(find.text('Often'), findsOneWidget);
+    expect(find.text('Rarely'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.close_rounded).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.close_rounded).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Good time'));
+    await tester.pumpAndSettle();
+    expect(find.text('TASK 4 · PART 2 · GOOD TIME'), findsOneWidget);
+    expect(find.text('Post in the evening'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('More people see it'), findsNothing);
+    await tester.tap(find.text('B'));
+    await tester.pumpAndSettle();
+    expect(find.text('More people see it'), findsOneWidget);
+    expect(find.text('Buyers online'), findsOneWidget);
+    expect(find.text('All asleep'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.close_rounded).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.close_rounded).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mix posts'));
+    await tester.pumpAndSettle();
+    expect(find.text('TASK 4 · PART 3 · MIX POSTS'), findsOneWidget);
+    expect(find.text('Cloth, work, then price'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('Every post shows something new'), findsNothing);
+    await tester.tap(find.text('B'));
+    await tester.pumpAndSettle();
+    expect(find.text('Every post shows something new'), findsOneWidget);
+    expect(find.text('Mixed'), findsOneWidget);
+    expect(find.text('Same photo'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.close_rounded).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.close_rounded).first);
+    await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
 

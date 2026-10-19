@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:artisnal_app/core/speech/speech_player.dart';
 
-import '../widgets/app_bottom_nav.dart';
-import '../widgets/listen_playing_button.dart';
-import 'task_parts_screen.dart';
+import 'package:artisnal_app/core/widgets/app_bottom_nav.dart';
+import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
 
 class LearnHomeScreen extends StatefulWidget {
   const LearnHomeScreen({super.key, required this.locale});
@@ -39,7 +39,7 @@ class _Task {
 }
 
 class _LearnHomeScreenState extends State<LearnHomeScreen> {
-  late final WelcomeSpeech _speech = WelcomeSpeech((_) {
+  late final SpeechPlayer _speech = SpeechPlayer((_) {
     if (mounted) setState(() {});
   });
 
@@ -74,7 +74,7 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
     super.dispose();
   }
 
-  void _openPhotography() => _open(TaskPartsScreen.photography(widget.locale));
+  void _openPhotography() => _open(photographyTask(widget.locale));
 
   void _open(Widget screen) {
     _speech.stop();
@@ -83,8 +83,8 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
 
   VoidCallback? _openerFor(_Task task) {
     return switch (task.number) {
-      '02' => () => _open(TaskPartsScreen.setUpPage(widget.locale)),
-      '04' => () => _open(TaskPartsScreen.postingPlan(widget.locale)),
+      '02' => () => _open(setUpPageTask(widget.locale)),
+      '04' => () => _open(postingPlanTask(widget.locale)),
       _ => null,
     };
   }
@@ -255,7 +255,7 @@ class _Header extends StatelessWidget {
                 height: 46,
                 child: Center(
                   child: Image(
-                    image: AssetImage('assets/images/speaker.png'),
+                    image: AssetImage('assets/images/icons/speaker.png'),
                     width: 22,
                     height: 22,
                     fit: BoxFit.contain,

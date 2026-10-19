@@ -44,7 +44,7 @@ class AppBottomNav extends StatelessWidget {
                         behavior: HitTestBehavior.opaque,
                         onTap: onLearnTap,
                         child: const _NavItem(
-                          image: 'assets/images/book.png',
+                          image: 'assets/images/icons/book.png',
                           label: 'Learn',
                           selected: true,
                         ),
@@ -53,7 +53,7 @@ class AppBottomNav extends StatelessWidget {
                     const Expanded(child: SizedBox()),
                     const Expanded(
                       child: _NavItem(
-                        image: 'assets/images/user.png',
+                        image: 'assets/images/icons/user.png',
                         label: 'Me',
                       ),
                     ),

@@ -1,19 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:artisnal_app/core/speech/speech_player.dart';
 
-import '../widgets/button_shadow.dart';
-import '../widgets/listen_playing_button.dart';
-import '../widgets/speak_circle_button.dart';
+import 'package:artisnal_app/core/theme/button_shadow.dart';
+import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 
 class CheckOption {
-  const CheckOption({this.image, this.text, this.caption, required this.label})
-    : assert(image != null || text != null);
+  const CheckOption({
+    this.image,
+    this.text,
+    this.caption,
+    this.roundImage = true,
+    this.contain = false,
+    this.tile,
+    required this.label,
+  }) : assert(image != null || text != null || tile != null);
 
   final String? image;
   final String? text;
   final String? caption;
+  final bool roundImage;
+  final bool contain;
+  final CheckTile? tile;
   final String label;
+}
+
+class CheckTile {
+  const CheckTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.background,
+    required this.iconColor,
+    required this.titleColor,
+    required this.subtitleColor,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color background;
+  final Color iconColor;
+  final Color titleColor;
+  final Color subtitleColor;
 }
 
 class CheckPartScreen extends StatefulWidget {
@@ -52,7 +82,7 @@ class CheckPartScreen extends StatefulWidget {
 enum _Choice { a, b }
 
 class _CheckPartScreenState extends State<CheckPartScreen> {
-  late final WelcomeSpeech _speech = WelcomeSpeech((_) {
+  late final SpeechPlayer _speech = SpeechPlayer((_) {
     if (mounted) setState(() {});
   });
 
@@ -349,10 +379,29 @@ class _ChoiceCard extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(15),
-                    child: option.image != null && option.caption != null
-                        ? _ProfilePreview(
-                            image: option.image!,
-                            caption: option.caption!,
+                    child: option.tile != null
+                        ? _TilePreview(tile: option.tile!, revealed: revealed)
+                        : option.image != null && option.caption != null
+                        ? option.roundImage
+                              ? _ProfilePreview(
+                                  image: option.image!,
+                                  caption: option.caption!,
+                                )
+                              : _CaptionedPicture(
+                                  image: option.image!,
+                                  caption: option.caption!,
+                                  highlight: showRight,
+                                )
+                        : option.image != null && option.contain
+                        ? ColoredBox(
+                            color: Colors.white,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 10, 8, 4),
+                              child: Image(
+                                image: AssetImage(option.image!),
+                                fit: BoxFit.contain,
+                              ),
+                            ),
                           )
                         : option.image != null
                         ? Image(
@@ -370,13 +419,13 @@ class _ChoiceCard extends StatelessWidget {
                                     option.text!,
                                     textAlign: TextAlign.center,
                                     style: GoogleFonts.plusJakartaSans(
-                                      color: isRight
+                                      color: showRight
                                           ? CheckPartScreen.teal
                                           : CheckPartScreen.ink,
-                                      fontSize: isRight ? 27 : 18,
-                                      fontWeight: isRight
+                                      fontSize: 22,
+                                      fontWeight: showRight
                                           ? FontWeight.w800
-                                          : FontWeight.w600,
+                                          : FontWeight.w700,
                                       height: 1.45,
                                     ),
                                   ),
@@ -488,6 +537,96 @@ class _ProfilePreview extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _TilePreview extends StatelessWidget {
+  const _TilePreview({required this.tile, required this.revealed});
+
+  final CheckTile tile;
+  final bool revealed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: tile.background,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 36, 8, 12),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(tile.icon, color: tile.iconColor, size: 44),
+              const SizedBox(height: 10),
+              Text(
+                tile.title,
+                style: GoogleFonts.plusJakartaSans(
+                  color: tile.titleColor,
+                  fontSize: 34,
+                  fontWeight: FontWeight.w800,
+                  height: 1.1,
+                ),
+              ),
+              const SizedBox(height: 12),
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 220),
+                opacity: revealed ? 1 : 0,
+                child: Text(
+                  tile.subtitle,
+                  style: GoogleFonts.plusJakartaSans(
+                    color: tile.subtitleColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CaptionedPicture extends StatelessWidget {
+  const _CaptionedPicture({
+    required this.image,
+    required this.caption,
+    required this.highlight,
+  });
+
+  final String image;
+  final String caption;
+  final bool highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(4, 44, 4, 6),
+        child: Column(
+          children: [
+            Expanded(
+              child: Image(image: AssetImage(image), fit: BoxFit.contain),
+            ),
+            const SizedBox(height: 10),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                caption,
+                style: GoogleFonts.plusJakartaSans(
+                  color: highlight ? CheckPartScreen.teal : CheckPartScreen.ink,
+                  fontSize: 19,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

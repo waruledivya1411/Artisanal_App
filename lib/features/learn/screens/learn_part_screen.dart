@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:artisnal_app/core/speech/speech_player.dart';
 
-import '../widgets/button_shadow.dart';
-import '../widgets/listen_playing_button.dart';
-import '../widgets/speak_circle_button.dart';
+import 'package:artisnal_app/core/theme/button_shadow.dart';
+import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 
 class LearnPartScreen extends StatefulWidget {
   const LearnPartScreen({
@@ -32,7 +32,7 @@ class LearnPartScreen extends StatefulWidget {
 }
 
 class _LearnPartScreenState extends State<LearnPartScreen> {
-  late final WelcomeSpeech _speech = WelcomeSpeech((_) {
+  late final SpeechPlayer _speech = SpeechPlayer((_) {
     if (mounted) setState(() {});
   });
 

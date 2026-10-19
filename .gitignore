@@ -44,6 +44,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Design mockups and local build outputs kept outside the app
+# Design mockups, source art and local build outputs kept outside the app
+/design/
 /*.png
 /*.apk

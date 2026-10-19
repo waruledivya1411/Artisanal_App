@@ -38,7 +38,7 @@ class SpeakCircleButton extends StatelessWidget {
               child: playing
                   ? const _WaveBars()
                   : const Image(
-                      image: AssetImage('assets/images/speaker.png'),
+                      image: AssetImage('assets/images/icons/speaker.png'),
                       width: 24,
                       height: 24,
                       fit: BoxFit.contain,

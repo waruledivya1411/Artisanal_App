@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:artisnal_app/core/speech/speech_player.dart';
 
-import '../widgets/button_shadow.dart';
-import '../widgets/listen_playing_button.dart';
-import 'welcome_share_screen.dart';
+import 'package:artisnal_app/core/theme/button_shadow.dart';
+import 'package:artisnal_app/core/widgets/listen_playing_button.dart';
+import 'package:artisnal_app/features/onboarding/screens/welcome_share_screen.dart';
 
 class WelcomeShootScreen extends StatefulWidget {
   const WelcomeShootScreen({super.key, required this.locale});
@@ -25,7 +26,7 @@ class WelcomeShootScreen extends StatefulWidget {
 }
 
 class _WelcomeShootScreenState extends State<WelcomeShootScreen> {
-  late final WelcomeSpeech _speech = WelcomeSpeech((_) {
+  late final SpeechPlayer _speech = SpeechPlayer((_) {
     if (mounted) setState(() {});
   });
 
@@ -100,7 +101,9 @@ class _WelcomeShootScreenState extends State<WelcomeShootScreen> {
                     Align(
                       alignment: Alignment.topCenter,
                       child: Image(
-                        image: const AssetImage('assets/images/shoot_art.png'),
+                        image: const AssetImage(
+                          'assets/images/onboarding/shoot_art.png',
+                        ),
                         width: imageWidth,
                         height: imageHeight,
                         fit: BoxFit.contain,

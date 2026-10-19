@@ -61,29 +61,11 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/
-    - assets/images/learn_art.png
-    - assets/images/shoot_art.png
-    - assets/images/share_art.png
-    - assets/images/speaker.png
-    - assets/images/book.png
-    - assets/images/user.png
-    - assets/images/hold_steady_art.jpg
-    - assets/images/plain_sheet_art.jpg
-    - assets/images/window_light_art.jpg
-    - assets/images/straight_angle_art.jpg
-    - assets/images/try_it_art.jpg
-    - assets/images/good_name_art.jpg
-    - assets/images/clear_photo_art.jpg
-    - assets/images/profile_clear.jpg
-    - assets/images/profile_blurry.jpg
-    - assets/images/fabric_steady.jpg
-    - assets/images/fabric_shaky.jpg
-    - assets/images/fabric_messy.jpg
-    - assets/images/fabric_window.jpg
-    - assets/images/fabric_dark.jpg
-    - assets/images/fabric_straight.jpg
-    - assets/images/fabric_tilted.jpg
+    - assets/images/icons/
+    - assets/images/onboarding/
+    - assets/images/lessons/photography/
+    - assets/images/lessons/set_up_page/
+    - assets/images/lessons/posting_plan/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
