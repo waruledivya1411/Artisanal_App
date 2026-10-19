@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:artisnal_app/core/widgets/sharp_image.dart';
 
 class SpeakCircleButton extends StatelessWidget {
   const SpeakCircleButton({
@@ -37,8 +38,8 @@ class SpeakCircleButton extends StatelessWidget {
             child: Center(
               child: playing
                   ? const _WaveBars()
-                  : const Image(
-                      image: AssetImage('assets/images/icons/speaker.png'),
+                  : const SharpImage(
+                      'assets/images/icons/speaker.png',
                       width: 24,
                       height: 24,
                       fit: BoxFit.contain,

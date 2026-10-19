@@ -5,16 +5,21 @@ import 'package:artisnal_app/features/learn/screens/learn_part_screen.dart';
 import 'package:artisnal_app/features/learn/screens/task_parts_screen.dart';
 import 'package:artisnal_app/features/learn/screens/try_it_screen.dart';
 
+const photographyTaskId = 'photography';
+const setUpPageTaskId = 'set_up_page';
+const postingPlanTaskId = 'posting_plan';
+const readNumbersTaskId = 'read_numbers';
+
 TaskPartsScreen photographyTask(String locale) {
   return TaskPartsScreen(
     locale: locale,
+    taskId: photographyTaskId,
     taskLabel: 'TASK 1 OF 5',
-    title: 'Photography',
+    title: 'Learn',
     parts: [
       TaskPart(
         '1',
         'Hold steady',
-        TaskPartState.done,
         open: (_) => LearnPartScreen(
           locale: locale,
           partLabel: 'PART 1 · HOLD STEADY',
@@ -39,7 +44,6 @@ TaskPartsScreen photographyTask(String locale) {
       TaskPart(
         '2',
         'Plain sheet',
-        TaskPartState.done,
         open: (_) => LearnPartScreen(
           locale: locale,
           partLabel: 'PART 2 · PLAIN SHEET',
@@ -64,7 +68,6 @@ TaskPartsScreen photographyTask(String locale) {
       TaskPart(
         '3',
         'Window light',
-        TaskPartState.current,
         open: (_) => LearnPartScreen(
           locale: locale,
           partLabel: 'PART 3 · WINDOW LIGHT',
@@ -89,7 +92,6 @@ TaskPartsScreen photographyTask(String locale) {
       TaskPart(
         '4',
         'Straight angle',
-        TaskPartState.pending,
         open: (_) => LearnPartScreen(
           locale: locale,
           partLabel: 'PART 4 · STRAIGHT ANGLE',
@@ -111,12 +113,7 @@ TaskPartsScreen photographyTask(String locale) {
           ),
         ),
       ),
-      TaskPart(
-        '5',
-        'Try it',
-        TaskPartState.pending,
-        open: (_) => TryItScreen(locale: locale),
-      ),
+      TaskPart('5', 'Try it', open: (_) => TryItScreen(locale: locale)),
     ],
   );
 }
@@ -124,6 +121,7 @@ TaskPartsScreen photographyTask(String locale) {
 TaskPartsScreen setUpPageTask(String locale) {
   return TaskPartsScreen(
     locale: locale,
+    taskId: setUpPageTaskId,
     taskLabel: 'TASK 2 OF 5',
     title: 'Set up your page',
     showChevron: true,
@@ -131,7 +129,6 @@ TaskPartsScreen setUpPageTask(String locale) {
       TaskPart(
         '1',
         'Good name',
-        TaskPartState.current,
         open: (_) => LearnPartScreen(
           locale: locale,
           partLabel: 'TASK 2 · PART 1 · GOOD NAME',
@@ -153,7 +150,6 @@ TaskPartsScreen setUpPageTask(String locale) {
       TaskPart(
         '2',
         'Clear photo',
-        TaskPartState.pending,
         open: (_) => LearnPartScreen(
           locale: locale,
           partLabel: 'TASK 2 · PART 2 · CLEAR PHOTO',
@@ -177,8 +173,8 @@ TaskPartsScreen setUpPageTask(String locale) {
           ),
         ),
       ),
-      const TaskPart('3', 'Professional', TaskPartState.pending),
-      const TaskPart('4', 'Try it', TaskPartState.pending),
+      const TaskPart('3', 'Professional'),
+      const TaskPart('4', 'Try it'),
     ],
   );
 }
@@ -186,6 +182,7 @@ TaskPartsScreen setUpPageTask(String locale) {
 TaskPartsScreen postingPlanTask(String locale) {
   return TaskPartsScreen(
     locale: locale,
+    taskId: postingPlanTaskId,
     taskLabel: 'TASK 4 OF 5',
     title: 'Posting plan',
     showChevron: true,
@@ -193,7 +190,6 @@ TaskPartsScreen postingPlanTask(String locale) {
       TaskPart(
         '1',
         'Post often',
-        TaskPartState.current,
         open: (_) => LearnPartScreen(
           locale: locale,
           partLabel: 'TASK 4 · PART 1 · POST OFTEN',
@@ -222,7 +218,6 @@ TaskPartsScreen postingPlanTask(String locale) {
       TaskPart(
         '2',
         'Good time',
-        TaskPartState.pending,
         open: (_) => LearnPartScreen(
           locale: locale,
           partLabel: 'TASK 4 · PART 2 · GOOD TIME',
@@ -263,7 +258,6 @@ TaskPartsScreen postingPlanTask(String locale) {
       TaskPart(
         '3',
         'Mix posts',
-        TaskPartState.pending,
         open: (_) => LearnPartScreen(
           locale: locale,
           partLabel: 'TASK 4 · PART 3 · MIX POSTS',
@@ -287,7 +281,89 @@ TaskPartsScreen postingPlanTask(String locale) {
           ),
         ),
       ),
-      const TaskPart('4', 'Try it', TaskPartState.pending),
+      const TaskPart('4', 'Try it'),
+    ],
+  );
+}
+
+TaskPartsScreen readNumbersTask(String locale) {
+  return TaskPartsScreen(
+    locale: locale,
+    taskId: readNumbersTaskId,
+    taskLabel: 'TASK 5 OF 5',
+    title: 'Read the numbers',
+    showChevron: true,
+    parts: [
+      TaskPart(
+        '1',
+        'Saves matter',
+        open: (_) => LearnPartScreen(
+          locale: locale,
+          partLabel: 'TASK 5 · PART 1 · SAVES MATTER',
+          title: 'Saves mean buyers',
+          image: 'assets/images/lessons/read_numbers/saves_matter_art.jpg',
+          nextBuilder: (_) => CheckPartScreen(
+            locale: locale,
+            partLabel: 'TASK 5 · PART 1 · SAVES MATTER',
+            wrong: const CheckOption(
+              image: 'assets/images/lessons/read_numbers/post_only_likes.jpg',
+              stats: [
+                CheckStat(Icons.favorite_border_rounded, '120 likes'),
+                CheckStat(Icons.bookmark_border_rounded, '0 saves'),
+              ],
+              label: 'Only likes',
+            ),
+            right: const CheckOption(
+              image: 'assets/images/lessons/read_numbers/post_many_saves.jpg',
+              stats: [
+                CheckStat(Icons.favorite_border_rounded, '60 likes'),
+                CheckStat(Icons.bookmark_border_rounded, '18 saves'),
+              ],
+              label: 'Many saves',
+            ),
+            rightReason: 'Saves show they want to buy',
+            wrongReason: 'Likes alone do not bring buyers',
+          ),
+        ),
+      ),
+      TaskPart(
+        '2',
+        'Reply fast',
+        open: (_) => LearnPartScreen(
+          locale: locale,
+          partLabel: 'TASK 5 · PART 2 · REPLY FAST',
+          title: 'Reply the same day',
+          image: 'assets/images/lessons/read_numbers/reply_fast_art.jpg',
+          nextBuilder: (_) => CheckPartScreen(
+            locale: locale,
+            partLabel: 'TASK 5 · PART 2 · REPLY FAST',
+            wrong: const CheckOption(
+              chat: CheckChat(
+                image:
+                    'assets/images/lessons/read_numbers/reply_cloth_post.jpg',
+                question: 'Price please?',
+                time: 'After 3 days',
+                reply: '₹4,500',
+              ),
+              label: 'Late',
+            ),
+            right: const CheckOption(
+              chat: CheckChat(
+                image:
+                    'assets/images/lessons/read_numbers/reply_cloth_post.jpg',
+                question: 'Price please?',
+                time: 'In 1 hour',
+                reply: '₹4,500',
+              ),
+              label: 'Fast',
+            ),
+            rightReason: 'Fast replies make sales',
+            wrongReason: 'Buyers leave when you reply late',
+          ),
+        ),
+      ),
+      const TaskPart('3', 'Best posts'),
+      const TaskPart('4', 'Try it'),
     ],
   );
 }

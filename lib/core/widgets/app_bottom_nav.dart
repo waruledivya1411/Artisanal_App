@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:artisnal_app/core/widgets/sharp_image.dart';
 
 class AppBottomNav extends StatelessWidget {
   const AppBottomNav({super.key, this.onLearnTap});
@@ -128,12 +129,7 @@ class _NavItem extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Image(
-          image: AssetImage(image),
-          width: 24,
-          height: 24,
-          fit: BoxFit.contain,
-        ),
+        SharpImage(image, width: 24, height: 24, fit: BoxFit.contain),
         const SizedBox(height: 8),
         Text(
           label,

@@ -4,15 +4,17 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/widgets/app_bottom_nav.dart';
+import 'package:artisnal_app/core/widgets/sharp_image.dart';
+import 'package:artisnal_app/features/learn/data/learn_progress.dart';
+import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
 
 enum TaskPartState { done, current, pending }
 
 class TaskPart {
-  const TaskPart(this.number, this.title, this.state, {this.open});
+  const TaskPart(this.number, this.title, {this.open});
 
   final String number;
   final String title;
-  final TaskPartState state;
   final WidgetBuilder? open;
 }
 
@@ -20,6 +22,7 @@ class TaskPartsScreen extends StatefulWidget {
   const TaskPartsScreen({
     super.key,
     required this.locale,
+    required this.taskId,
     required this.taskLabel,
     required this.title,
     required this.parts,
@@ -27,6 +30,7 @@ class TaskPartsScreen extends StatefulWidget {
   });
 
   final String locale;
+  final String taskId;
   final String taskLabel;
   final String title;
   final List<TaskPart> parts;
@@ -49,18 +53,65 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
     if (mounted) setState(() {});
   });
 
+  final _progress = LearnProgress.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _progress.addListener(_onProgress);
+  }
+
   @override
   void dispose() {
+    _progress.removeListener(_onProgress);
     _speech.stop();
     super.dispose();
   }
 
-  VoidCallback? _openerFor(TaskPart part) {
-    final builder = part.open;
-    if (builder == null) return null;
+  void _onProgress() {
+    if (mounted) setState(() {});
+  }
+
+  TaskPartState _stateOf(int index) {
+    final completed = _progress.completedParts(widget.taskId);
+    if (index < completed) return TaskPartState.done;
+    if (index == completed) return TaskPartState.current;
+    return TaskPartState.pending;
+  }
+
+  bool _canOpen(int index) =>
+      index < widget.parts.length && widget.parts[index].open != null;
+
+  Route<void> _routeFor(int index) {
+    final next = index + 1;
+    return MaterialPageRoute<void>(
+      builder: (_) => LessonStep(
+        nextTitle: _canOpen(next) ? widget.parts[next].title : null,
+        onFinished: () => _finish(index),
+        child: Builder(builder: widget.parts[index].open!),
+      ),
+    );
+  }
+
+  void _finish(int index) {
+    _progress.completePart(widget.taskId, index);
+    final listRoute = ModalRoute.of(context);
+    bool isList(Route<dynamic> route) => route == listRoute;
+    final navigator = Navigator.of(context);
+    if (_canOpen(index + 1)) {
+      navigator.pushAndRemoveUntil(_routeFor(index + 1), isList);
+    } else {
+      navigator.popUntil(isList);
+    }
+  }
+
+  VoidCallback? _openerFor(int index) {
+    if (!_canOpen(index) || _stateOf(index) == TaskPartState.pending) {
+      return null;
+    }
     return () {
       _speech.stop();
-      Navigator.of(context).push(MaterialPageRoute<void>(builder: builder));
+      Navigator.of(context).push(_routeFor(index));
     };
   }
 
@@ -70,7 +121,9 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
   @override
   Widget build(BuildContext context) {
     final parts = widget.parts;
-    final doneCount = parts.where((p) => p.state == TaskPartState.done).length;
+    final doneCount = _progress
+        .completedParts(widget.taskId)
+        .clamp(0, parts.length);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -161,12 +214,13 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
                       ],
                     ),
                     const SizedBox(height: 14),
-                    for (final part in parts) ...[
+                    for (var i = 0; i < parts.length; i++) ...[
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: _openerFor(part),
+                        onTap: _openerFor(i),
                         child: _PartCard(
-                          part: part,
+                          part: parts[i],
+                          state: _stateOf(i),
                           showChevron: widget.showChevron,
                         ),
                       ),
@@ -212,8 +266,8 @@ class _SpeakerCircle extends StatelessWidget {
             width: 48,
             height: 48,
             child: Center(
-              child: Image(
-                image: AssetImage('assets/images/icons/speaker.png'),
+              child: SharpImage(
+                'assets/images/icons/speaker.png',
                 width: 22,
                 height: 22,
                 fit: BoxFit.contain,
@@ -227,15 +281,20 @@ class _SpeakerCircle extends StatelessWidget {
 }
 
 class _PartCard extends StatelessWidget {
-  const _PartCard({required this.part, required this.showChevron});
+  const _PartCard({
+    required this.part,
+    required this.state,
+    required this.showChevron,
+  });
 
   final TaskPart part;
+  final TaskPartState state;
   final bool showChevron;
 
   @override
   Widget build(BuildContext context) {
-    final current = part.state == TaskPartState.current;
-    final isDone = part.state == TaskPartState.done;
+    final current = state == TaskPartState.current;
+    final isDone = state == TaskPartState.done;
 
     return DecoratedBox(
       decoration: BoxDecoration(

@@ -71,8 +71,10 @@ lib/
     onboarding/screens/           Splash, language picker, welcome pages
     learn/
       data/learn_tasks.dart       Lesson content for each task
+      data/learn_progress.dart    Which parts of each task are done
       screens/                    Learn home, task parts, learn page,
                                   "Which is better?" check, Try it
+      widgets/lesson_step.dart    Links each part to the next one
 assets/images/
   icons/                          Speaker, Learn and Me icons
   onboarding/                     Welcome page illustrations

@@ -5,6 +5,8 @@ import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
+import 'package:artisnal_app/core/widgets/sharp_image.dart';
+import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
 
 class LearnPartScreen extends StatefulWidget {
   const LearnPartScreen({
@@ -43,10 +45,16 @@ class _LearnPartScreenState extends State<LearnPartScreen> {
   }
 
   void _next() {
-    final builder = widget.nextBuilder;
-    if (builder == null) return;
     _speech.stop();
-    Navigator.of(context).push(MaterialPageRoute<void>(builder: builder));
+    final step = LessonStep.maybeOf(context);
+    final builder = widget.nextBuilder;
+    if (builder == null) {
+      step == null ? Navigator.of(context).maybePop() : step.onFinished();
+      return;
+    }
+    Navigator.of(context).push(
+      step?.routeFor(builder) ?? MaterialPageRoute<void>(builder: builder),
+    );
   }
 
   @override
@@ -75,9 +83,9 @@ class _LearnPartScreenState extends State<LearnPartScreen> {
                         alignment: Alignment.centerLeft,
                         child: IconButton(
                           onPressed: () => Navigator.of(context).maybePop(),
-                          icon: const Icon(Icons.close_rounded),
+                          icon: const Icon(Icons.arrow_back_rounded),
                           color: LearnPartScreen.ink,
-                          iconSize: 26,
+                          iconSize: 24,
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(
                             minWidth: 40,
@@ -160,8 +168,8 @@ class _LearnPartScreenState extends State<LearnPartScreen> {
                               borderRadius: BorderRadius.circular(24),
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
-                                child: Image(
-                                  image: AssetImage(widget.image),
+                                child: SharpImage(
+                                  widget.image,
                                   fit: BoxFit.contain,
                                 ),
                               ),

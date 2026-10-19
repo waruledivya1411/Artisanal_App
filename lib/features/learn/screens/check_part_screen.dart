@@ -5,6 +5,8 @@ import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
+import 'package:artisnal_app/core/widgets/sharp_image.dart';
+import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
 
 class CheckOption {
   const CheckOption({
@@ -14,8 +16,10 @@ class CheckOption {
     this.roundImage = true,
     this.contain = false,
     this.tile,
+    this.stats = const [],
+    this.chat,
     required this.label,
-  }) : assert(image != null || text != null || tile != null);
+  }) : assert(image != null || text != null || tile != null || chat != null);
 
   final String? image;
   final String? text;
@@ -23,7 +27,30 @@ class CheckOption {
   final bool roundImage;
   final bool contain;
   final CheckTile? tile;
+  final List<CheckStat> stats;
+  final CheckChat? chat;
   final String label;
+}
+
+class CheckStat {
+  const CheckStat(this.icon, this.text);
+
+  final IconData icon;
+  final String text;
+}
+
+class CheckChat {
+  const CheckChat({
+    required this.question,
+    required this.time,
+    required this.reply,
+    this.image,
+  });
+
+  final String question;
+  final String time;
+  final String reply;
+  final String? image;
 }
 
 class CheckTile {
@@ -55,7 +82,6 @@ class CheckPartScreen extends StatefulWidget {
     required this.right,
     required this.rightReason,
     required this.wrongReason,
-    this.nextBuilder,
   });
 
   final String locale;
@@ -64,7 +90,6 @@ class CheckPartScreen extends StatefulWidget {
   final CheckOption right;
   final String rightReason;
   final String wrongReason;
-  final WidgetBuilder? nextBuilder;
 
   static const Color background = Color(0xFFF6F7F4);
   static const Color teal = Color(0xFF1B7574);
@@ -110,9 +135,15 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
 
   void _next() {
     _speech.stop();
-    final builder = widget.nextBuilder;
-    if (builder == null) return;
-    Navigator.of(context).push(MaterialPageRoute<void>(builder: builder));
+    final step = LessonStep.maybeOf(context);
+    step == null ? Navigator.of(context).maybePop() : step.onFinished();
+  }
+
+  String _nextLabel() {
+    final step = LessonStep.maybeOf(context);
+    if (step == null) return 'Next';
+    final nextTitle = step.nextTitle;
+    return nextTitle == null ? 'Finish' : 'Next part · $nextTitle';
   }
 
   @override
@@ -144,9 +175,9 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
                         alignment: Alignment.centerLeft,
                         child: IconButton(
                           onPressed: () => Navigator.of(context).maybePop(),
-                          icon: const Icon(Icons.close_rounded),
+                          icon: const Icon(Icons.arrow_back_rounded),
                           color: CheckPartScreen.ink,
-                          iconSize: 26,
+                          iconSize: 24,
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(
                             minWidth: 40,
@@ -302,12 +333,16 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
                                 size: 22,
                               ),
                               const SizedBox(width: 2),
-                              Text(
-                                'Next',
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
+                              Flexible(
+                                child: Text(
+                                  _nextLabel(),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
                             ],
@@ -379,8 +414,20 @@ class _ChoiceCard extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(15),
-                    child: option.tile != null
+                    child: option.chat != null
+                        ? _ChatPreview(
+                            chat: option.chat!,
+                            revealed: revealed,
+                            isRight: isRight,
+                          )
+                        : option.tile != null
                         ? _TilePreview(tile: option.tile!, revealed: revealed)
+                        : option.image != null && option.stats.isNotEmpty
+                        ? _PostPreview(
+                            image: option.image!,
+                            stats: option.stats,
+                            highlight: showRight,
+                          )
                         : option.image != null && option.caption != null
                         ? option.roundImage
                               ? _ProfilePreview(
@@ -397,17 +444,14 @@ class _ChoiceCard extends StatelessWidget {
                             color: Colors.white,
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(8, 10, 8, 4),
-                              child: Image(
-                                image: AssetImage(option.image!),
+                              child: SharpImage(
+                                option.image!,
                                 fit: BoxFit.contain,
                               ),
                             ),
                           )
                         : option.image != null
-                        ? Image(
-                            image: AssetImage(option.image!),
-                            fit: BoxFit.cover,
-                          )
+                        ? SharpImage(option.image!, fit: BoxFit.cover)
                         : ColoredBox(
                             color: const Color(0xFFEBF1EF),
                             child: Padding(
@@ -512,8 +556,8 @@ class _ProfilePreview extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ClipOval(
-                child: Image(
-                  image: AssetImage(image),
+                child: SharpImage(
+                  image,
                   width: size,
                   height: size,
                   fit: BoxFit.cover,
@@ -610,9 +654,7 @@ class _CaptionedPicture extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(4, 44, 4, 6),
         child: Column(
           children: [
-            Expanded(
-              child: Image(image: AssetImage(image), fit: BoxFit.contain),
-            ),
+            Expanded(child: SharpImage(image, fit: BoxFit.contain)),
             const SizedBox(height: 10),
             FittedBox(
               fit: BoxFit.scaleDown,
@@ -626,6 +668,195 @@ class _CaptionedPicture extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PostPreview extends StatelessWidget {
+  const _PostPreview({
+    required this.image,
+    required this.stats,
+    required this.highlight,
+  });
+
+  final String image;
+  final List<CheckStat> stats;
+  final bool highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: SharpImage(image, fit: BoxFit.cover),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            for (var i = 0; i < stats.length; i++) ...[
+              if (i > 0) const SizedBox(height: 6),
+              Builder(
+                builder: (context) {
+                  final color = highlight && i == stats.length - 1
+                      ? CheckPartScreen.green
+                      : CheckPartScreen.ink;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(stats[i].icon, color: color, size: 18),
+                          const SizedBox(width: 6),
+                          Text(
+                            stats[i].text,
+                            style: GoogleFonts.plusJakartaSans(
+                              color: color,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatPreview extends StatelessWidget {
+  const _ChatPreview({
+    required this.chat,
+    required this.revealed,
+    required this.isRight,
+  });
+
+  final CheckChat chat;
+  final bool revealed;
+  final bool isRight;
+
+  @override
+  Widget build(BuildContext context) {
+    final timeColor = !revealed
+        ? CheckPartScreen.muted
+        : isRight
+        ? CheckPartScreen.green
+        : CheckPartScreen.red;
+    final image = chat.image;
+
+    return ColoredBox(
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 30, 8, 6),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: 150,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEBF1EF),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (image != null) ...[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(9),
+                            child: SharpImage(
+                              image,
+                              width: 104,
+                              height: 78,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                        ],
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Text(
+                            chat.question,
+                            style: GoogleFonts.plusJakartaSans(
+                              color: CheckPartScreen.ink,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.timer_outlined, color: timeColor, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        chat.time,
+                        style: GoogleFonts.plusJakartaSans(
+                          color: timeColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 9,
+                    ),
+                    decoration: BoxDecoration(
+                      color: CheckPartScreen.teal,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(
+                      chat.reply,
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

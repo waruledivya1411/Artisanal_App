@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/features/onboarding/screens/welcome_learn_screen.dart';
+import 'package:artisnal_app/core/widgets/sharp_image.dart';
 
 class LanguagePickerScreen extends StatefulWidget {
   const LanguagePickerScreen({super.key});
@@ -389,8 +390,8 @@ class _SpeakButton extends StatelessWidget {
             child: Center(
               child: selected
                   ? const _WaveBars(color: Colors.white)
-                  : const Image(
-                      image: AssetImage('assets/images/icons/speaker.png'),
+                  : const SharpImage(
+                      'assets/images/icons/speaker.png',
                       width: 28,
                       height: 28,
                       fit: BoxFit.contain,

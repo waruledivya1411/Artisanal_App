@@ -4,7 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/widgets/app_bottom_nav.dart';
+import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
+import 'package:artisnal_app/core/widgets/sharp_image.dart';
 
 class LearnHomeScreen extends StatefulWidget {
   const LearnHomeScreen({super.key, required this.locale});
@@ -29,12 +31,14 @@ class _Task {
     required this.number,
     required this.title,
     required this.detail,
+    required this.image,
     this.active = false,
   });
 
   final String number;
   final String title;
   final String detail;
+  final String image;
   final bool active;
 }
 
@@ -47,34 +51,74 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
     _Task(
       number: '01',
       title: 'Photography',
-      detail: 'Continue · Window light',
+      detail: 'Continue · Hold steady',
+      image: 'assets/images/lessons/photography/try_it_art.jpg',
       active: true,
     ),
     _Task(
       number: '02',
       title: 'Set up your page',
       detail: 'On Instagram · 7 min',
+      image: 'assets/images/lessons/set_up_page/good_name_art.jpg',
     ),
     _Task(
       number: '03',
       title: 'Create a post',
       detail: 'Post and story · 6 min',
+      image: 'assets/images/lessons/create_post/create_post_art.jpg',
     ),
-    _Task(number: '04', title: 'Posting plan', detail: 'What and when · 5 min'),
+    _Task(
+      number: '04',
+      title: 'Posting plan',
+      detail: 'What and when · 5 min',
+      image: 'assets/images/lessons/posting_plan/post_often_art.jpg',
+    ),
     _Task(
       number: '05',
       title: 'Read the numbers',
       detail: 'Views, likes, saves · 4 min',
+      image: 'assets/images/lessons/read_numbers/read_numbers_art.jpg',
     ),
   ];
 
+  final _progress = LearnProgress.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _progress.addListener(_onProgress);
+  }
+
   @override
   void dispose() {
+    _progress.removeListener(_onProgress);
     _speech.stop();
     super.dispose();
   }
 
-  void _openPhotography() => _open(photographyTask(widget.locale));
+  void _onProgress() {
+    if (mounted) setState(() {});
+  }
+
+  String _photographyDetail() {
+    final parts = photographyTask(widget.locale).parts;
+    final completed = _progress.completedParts(photographyTaskId);
+    if (completed >= parts.length) return 'Done';
+    return 'Continue · ${parts[completed].title}';
+  }
+
+  _Task _withProgress(_Task task) {
+    if (task.number != '01') return task;
+    return _Task(
+      number: task.number,
+      title: task.title,
+      detail: _photographyDetail(),
+      image: task.image,
+      active: task.active,
+    );
+  }
+
+  void _openLearn() => _open(photographyTask(widget.locale));
 
   void _open(Widget screen) {
     _speech.stop();
@@ -85,6 +129,7 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
     return switch (task.number) {
       '02' => () => _open(setUpPageTask(widget.locale)),
       '04' => () => _open(postingPlanTask(widget.locale)),
+      '05' => () => _open(readNumbersTask(widget.locale)),
       _ => null,
     };
   }
@@ -162,18 +207,27 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 14),
-                    for (final task in _tasks) ...[
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: _openerFor(task),
-                        child: _TaskCard(task: task),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: EdgeInsets.zero,
+                      itemCount: _tasks.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 12,
+                            crossAxisSpacing: 12,
+                            childAspectRatio: 0.76,
+                          ),
+                      itemBuilder: (context, index) {
+                        final task = _withProgress(_tasks[index]);
+                        return _TaskCard(task: task, onTap: _openerFor(task));
+                      },
+                    ),
                   ],
                 ),
               ),
-              AppBottomNav(onLearnTap: _openPhotography),
+              AppBottomNav(onLearnTap: _openLearn),
             ],
           ),
         ),
@@ -254,8 +308,8 @@ class _Header extends StatelessWidget {
                 width: 46,
                 height: 46,
                 child: Center(
-                  child: Image(
-                    image: AssetImage('assets/images/icons/speaker.png'),
+                  child: SharpImage(
+                    'assets/images/icons/speaker.png',
                     width: 22,
                     height: 22,
                     fit: BoxFit.contain,
@@ -380,20 +434,17 @@ class _LocationCard extends StatelessWidget {
 }
 
 class _TaskCard extends StatelessWidget {
-  const _TaskCard({required this.task});
+  const _TaskCard({required this.task, this.onTap});
 
   final _Task task;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final active = task.active;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: task.active ? LearnHomeScreen.teal : const Color(0xFFE4EEEC),
-          width: task.active ? 1.6 : 1,
-        ),
         boxShadow: const [
           BoxShadow(
             color: Color(0x10000000),
@@ -402,78 +453,103 @@ class _TaskCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: task.active
-                    ? LearnHomeScreen.teal
-                    : LearnHomeScreen.mint,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                task.number,
-                style: GoogleFonts.plusJakartaSans(
-                  color: task.active ? Colors.white : LearnHomeScreen.muted,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    task.title,
-                    style: GoogleFonts.plusJakartaSans(
-                      color: LearnHomeScreen.ink,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      height: 1.2,
-                    ),
+      child: Material(
+        color: Colors.white,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: BorderSide(
+            color: active ? LearnHomeScreen.teal : const Color(0xFFE4EEEC),
+            width: active ? 1.6 : 1,
+          ),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 10, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      SharpImage(task.image, fit: BoxFit.contain),
+                      if (active)
+                        Positioned(
+                          top: 2,
+                          right: 2,
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: const BoxDecoration(
+                              color: LearnHomeScreen.teal,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.play_arrow_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    task.detail,
-                    style: GoogleFonts.plusJakartaSans(
-                      color: task.active
-                          ? LearnHomeScreen.teal
-                          : LearnHomeScreen.muted,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Container(
+                      width: 26,
+                      height: 26,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: active
+                            ? LearnHomeScreen.teal
+                            : LearnHomeScreen.mint,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        task.number,
+                        style: GoogleFonts.plusJakartaSans(
+                          color: active ? Colors.white : LearnHomeScreen.muted,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                     ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        task.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.plusJakartaSans(
+                          color: LearnHomeScreen.ink,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          height: 1.15,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  task.detail,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.plusJakartaSans(
+                    color: active
+                        ? LearnHomeScreen.teal
+                        : LearnHomeScreen.muted,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            if (task.active)
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: LearnHomeScreen.teal,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.play_arrow_rounded,
-                  color: Colors.white,
-                  size: 26,
-                ),
-              )
-            else
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: Color(0xFF9AABA8),
-                size: 22,
-              ),
-          ],
+          ),
         ),
       ),
     );

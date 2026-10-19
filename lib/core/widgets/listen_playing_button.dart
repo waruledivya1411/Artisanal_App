@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:artisnal_app/core/widgets/sharp_image.dart';
 
 class ListenPlayingButton extends StatelessWidget {
   const ListenPlayingButton({
@@ -51,8 +52,8 @@ class ListenPlayingButton extends StatelessWidget {
                       ),
                     ),
                   ] else ...[
-                    const Image(
-                      image: AssetImage('assets/images/icons/speaker.png'),
+                    const SharpImage(
+                      'assets/images/icons/speaker.png',
                       width: 22,
                       height: 22,
                       fit: BoxFit.contain,

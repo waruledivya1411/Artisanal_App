@@ -6,6 +6,7 @@ import 'package:artisnal_app/core/speech/speech_player.dart';
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/listen_playing_button.dart';
 import 'package:artisnal_app/features/learn/screens/learn_home_screen.dart';
+import 'package:artisnal_app/core/widgets/sharp_image.dart';
 
 class WelcomeShareScreen extends StatefulWidget {
   const WelcomeShareScreen({super.key, required this.locale});
@@ -100,10 +101,8 @@ class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
                     const SizedBox(height: 16),
                     Align(
                       alignment: Alignment.topCenter,
-                      child: Image(
-                        image: const AssetImage(
-                          'assets/images/onboarding/share_art.png',
-                        ),
+                      child: SharpImage(
+                        'assets/images/onboarding/share_art.png',
                         width: imageWidth,
                         height: imageHeight,
                         fit: BoxFit.contain,
