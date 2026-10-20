@@ -15,6 +15,12 @@ class LearnProgress extends ChangeNotifier {
     notifyListeners();
   }
 
+  void finishTask(String taskId, int partCount) {
+    if (completedParts(taskId) >= partCount) return;
+    _completed[taskId] = partCount;
+    notifyListeners();
+  }
+
   @visibleForTesting
   void reset() {
     _completed.clear();

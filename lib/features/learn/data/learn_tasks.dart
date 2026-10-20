@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:artisnal_app/features/learn/screens/check_part_screen.dart';
+import 'package:artisnal_app/features/learn/screens/find_numbers_screen.dart';
 import 'package:artisnal_app/features/learn/screens/learn_part_screen.dart';
+import 'package:artisnal_app/features/learn/screens/numbers_mean_screen.dart';
 import 'package:artisnal_app/features/learn/screens/task_parts_screen.dart';
 import 'package:artisnal_app/features/learn/screens/try_it_screen.dart';
 
@@ -362,8 +364,18 @@ TaskPartsScreen readNumbersTask(String locale) {
           ),
         ),
       ),
-      const TaskPart('3', 'Best posts'),
-      const TaskPart('4', 'Try it'),
+      TaskPart(
+        '3',
+        'What they mean',
+        open: (_) => NumbersMeanScreen(
+          locale: locale,
+          nextBuilder: (_) => FindNumbersScreen(
+            locale: locale,
+            taskId: readNumbersTaskId,
+            partCount: 3,
+          ),
+        ),
+      ),
     ],
   );
 }
