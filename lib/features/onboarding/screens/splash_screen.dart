@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:artisnal_app/features/onboarding/screens/language_picker_screen.dart';
+import 'package:artisnal_app/features/auth/screens/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,15 +20,15 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer(const Duration(milliseconds: 1800), _openLanguagePicker);
+    _timer = Timer(const Duration(milliseconds: 1800), _openLogin);
   }
 
-  void _openLanguagePicker() {
+  void _openLogin() {
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 350),
-        pageBuilder: (_, _, _) => const LanguagePickerScreen(),
+        pageBuilder: (_, _, _) => const LoginScreen(),
         transitionsBuilder: (_, animation, _, child) {
           return FadeTransition(opacity: animation, child: child);
         },

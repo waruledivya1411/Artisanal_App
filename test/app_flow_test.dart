@@ -15,6 +15,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1800));
     await tester.pumpAndSettle();
 
+    expect(find.text('Forgot password?'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('login-submit')));
+    await tester.pumpAndSettle();
+
     expect(find.text('Choose your language'), findsOneWidget);
     expect(find.text('Assamese'), findsOneWidget);
     expect(find.text('English'), findsOneWidget);

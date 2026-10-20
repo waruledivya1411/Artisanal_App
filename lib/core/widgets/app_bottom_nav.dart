@@ -2,10 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 
-class AppBottomNav extends StatelessWidget {
-  const AppBottomNav({super.key, this.onLearnTap});
+enum AppNavTab { learn, me }
 
+class AppBottomNav extends StatelessWidget {
+  const AppBottomNav({
+    super.key,
+    this.selectedTab = AppNavTab.learn,
+    this.onLearnTap,
+    this.onMeTap,
+  });
+
+  final AppNavTab selectedTab;
   final VoidCallback? onLearnTap;
+  final VoidCallback? onMeTap;
 
   static const Color teal = Color(0xFF1B7574);
   static const Color muted = Color(0xFF4F5F5D);
@@ -44,18 +53,23 @@ class AppBottomNav extends StatelessWidget {
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: onLearnTap,
-                        child: const _NavItem(
+                        child: _NavItem(
                           image: 'assets/images/icons/book.png',
                           label: 'Learn',
-                          selected: true,
+                          selected: selectedTab == AppNavTab.learn,
                         ),
                       ),
                     ),
                     const Expanded(child: SizedBox()),
-                    const Expanded(
-                      child: _NavItem(
-                        image: 'assets/images/icons/user.png',
-                        label: 'Me',
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: onMeTap,
+                        child: _NavItem(
+                          image: 'assets/images/icons/user.png',
+                          label: 'Me',
+                          selected: selectedTab == AppNavTab.me,
+                        ),
                       ),
                     ),
                   ],

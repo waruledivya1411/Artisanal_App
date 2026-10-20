@@ -6,7 +6,7 @@ import 'package:artisnal_app/core/speech/speech_player.dart';
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/listen_playing_button.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
-import 'package:artisnal_app/features/learn/screens/learn_home_screen.dart';
+import 'package:artisnal_app/features/shell/main_tab_screen.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 
 class WelcomeShareScreen extends StatefulWidget {
@@ -158,7 +158,7 @@ class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
                                   name: LearnTaskNavigation.learnHomeRoute,
                                 ),
                                 builder: (_) =>
-                                    LearnHomeScreen(locale: widget.locale),
+                                    MainTabScreen(locale: widget.locale),
                               ),
                             );
                           },
