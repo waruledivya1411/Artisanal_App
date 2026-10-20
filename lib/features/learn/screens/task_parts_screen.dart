@@ -129,6 +129,9 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
       done++;
     }
     _progress.completePart(widget.taskId, index);
+    if (_lastOpenPartIndex() == index) {
+      _progress.finishTask(widget.taskId, widget.parts.length);
+    }
     final listRoute = ModalRoute.of(context);
     bool isList(Route<dynamic> route) => route == listRoute;
     final navigator = Navigator.of(context);

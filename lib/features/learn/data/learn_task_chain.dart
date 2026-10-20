@@ -6,13 +6,26 @@ class LearnTaskChain {
 
   static const createPostTaskId = 'create_post';
 
-  static const _order = <String>[
+  static const taskOrder = <String>[
     photographyTaskId,
     setUpPageTaskId,
     createPostTaskId,
     postingPlanTaskId,
     readNumbersTaskId,
   ];
+
+  static const _order = taskOrder;
+
+  /// Parts required to count a Learn home task as fully done (badge / last step).
+  static const partCounts = <String, int>{
+    photographyTaskId: 4,
+    setUpPageTaskId: 4,
+    createPostTaskId: 3,
+    postingPlanTaskId: 3,
+    readNumbersTaskId: 3,
+  };
+
+  static int get totalTasks => taskOrder.length;
 
   static const _titles = <String, String>{
     photographyTaskId: 'Photography',

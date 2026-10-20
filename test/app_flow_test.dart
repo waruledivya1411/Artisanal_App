@@ -15,6 +15,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1800));
     await tester.pumpAndSettle();
 
+    expect(find.text('Forgot password?'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('login-submit')));
+    await tester.pumpAndSettle();
+
     expect(find.text('Choose your language'), findsOneWidget);
     expect(find.text('Assamese'), findsOneWidget);
     expect(find.text('English'), findsOneWidget);
@@ -45,7 +49,6 @@ void main() {
 
     expect(find.text('Learn step by step'), findsOneWidget);
     expect(find.text('Listen'), findsOneWidget);
-    expect(find.text('Skip'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
     expect(find.byType(Image), findsWidgets);
 
@@ -58,7 +61,6 @@ void main() {
       find.text('The camera helps you keep the photo\nstraight and bright.'),
       findsOneWidget,
     );
-    expect(find.text('Skip'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
     expect(find.byType(Image), findsWidgets);
 
@@ -119,8 +121,11 @@ void main() {
     await tester.tap(find.text('Yes, I posted'));
     await tester.pumpAndSettle();
     expect(find.text('Share a story'), findsWidgets);
-    await tester.tap(find.text('Got it'));
-    await tester.pumpAndSettle();
+    expect(find.text('Scroll down'), findsOneWidget);
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.pumpAndSettle();
+    }
     expect(find.text('Read the numbers'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Photography'));
@@ -131,7 +136,6 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
     expect(find.text('What are you photographing?'), findsNothing);
-    expect(find.text('What is it made of?'), findsNothing);
 
     await tester.ensureVisible(find.text('Set up your page'));
     await tester.pumpAndSettle();
@@ -318,9 +322,26 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Learn'));
+    await tester.tap(find.text('Photo'));
     await tester.pumpAndSettle();
 
+    expect(find.text('Hold steady'), findsOneWidget);
+    expect(find.text('Plain sheet'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Photo'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Hold steady'));
+    await tester.pumpAndSettle();
+    expect(find.text('PART 1 · HOLD STEADY'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Photography'));
+    await tester.pumpAndSettle();
     expect(find.text('What are you photographing?'), findsOneWidget);
     // Photo cards build a row at a time, so walk down the grid.
     final productGrid = find.descendant(

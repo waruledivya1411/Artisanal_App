@@ -2,10 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 
-class AppBottomNav extends StatelessWidget {
-  const AppBottomNav({super.key, this.onLearnTap});
+enum AppNavTab { learn, me }
 
+class AppBottomNav extends StatelessWidget {
+  const AppBottomNav({
+    super.key,
+    this.selectedTab = AppNavTab.learn,
+    this.onLearnTap,
+    this.onPhotoTap,
+    this.onMeTap,
+  });
+
+  final AppNavTab selectedTab;
   final VoidCallback? onLearnTap;
+  final VoidCallback? onPhotoTap;
+  final VoidCallback? onMeTap;
 
   static const Color teal = Color(0xFF1B7574);
   static const Color muted = Color(0xFF4F5F5D);
@@ -44,18 +55,23 @@ class AppBottomNav extends StatelessWidget {
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: onLearnTap,
-                        child: const _NavItem(
+                        child: _NavItem(
                           image: 'assets/images/icons/book.png',
                           label: 'Learn',
-                          selected: true,
+                          selected: selectedTab == AppNavTab.learn,
                         ),
                       ),
                     ),
                     const Expanded(child: SizedBox()),
-                    const Expanded(
-                      child: _NavItem(
-                        image: 'assets/images/icons/user.png',
-                        label: 'Me',
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: onMeTap,
+                        child: _NavItem(
+                          image: 'assets/images/icons/user.png',
+                          label: 'Me',
+                          selected: selectedTab == AppNavTab.me,
+                        ),
                       ),
                     ),
                   ],
@@ -67,43 +83,47 @@ class AppBottomNav extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            child: Column(
-              children: [
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x591B7574),
-                        blurRadius: 16,
-                        offset: Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Container(
-                    width: 56,
-                    height: 56,
+            child: GestureDetector(
+              onTap: onPhotoTap,
+              behavior: HitTestBehavior.opaque,
+              child: Column(
+                children: [
+                  DecoratedBox(
                     decoration: BoxDecoration(
-                      color: teal,
                       borderRadius: BorderRadius.circular(18),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x591B7574),
+                          blurRadius: 16,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
                     ),
-                    child: const Icon(
-                      Icons.photo_camera_outlined,
-                      color: Colors.white,
-                      size: 24,
+                    child: Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: teal,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: const Icon(
+                        Icons.photo_camera_outlined,
+                        color: Colors.white,
+                        size: 24,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Photo',
-                  style: GoogleFonts.plusJakartaSans(
-                    color: muted,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                  const SizedBox(height: 8),
+                  Text(
+                    'Photo',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: muted,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

@@ -1,33 +1,39 @@
 # Artisnal — Click & Social
 
 A Flutter app that teaches artisans, step by step and in their own language,
-how to photograph their crafts and sell them on Instagram.
+how to photograph their crafts, set up Instagram, post content, and read
+their numbers.
 
 ## Features
 
-- **Onboarding** — splash screen, language picker (Assamese, English, Odia,
-  Telugu) with spoken language names, and three welcome pages.
-- **Learn home** — the artisan's tasks, progress and location, with a bottom
-  bar (Learn, Photo, Me).
-- **Lessons** — each task is split into short parts. Every part has a learn
-  page with an illustration and a "Which is better?" check that reveals the
+- **Log in** — after the splash screen, email and password with **Forgot
+  password?** (reset link flow; no backend yet—continues into onboarding).
+- **Onboarding** — language picker (Assamese, English, Odia, Telugu) with
+  spoken language names, and three welcome pages.
+- **Learn home** — five tasks, live **progress bar** (tasks done out of 5),
+  and a bottom bar (Learn, Photo, Me).
+- **Me** — all five lesson badges shown **locked** until you finish the
+  matching Learn task; they unlock as you earn badges in lessons.
+- **Next task** — finishing a task (or its badge) can jump you to the next
+  Learn task from the same chain.
+- **Lessons** — each task is split into short parts. Most parts have a learn
+  page with an illustration and a “Which is better?” check that reveals the
   answer only after the user picks one.
-  - Photography is a three-step setup: the product being photographed
-    (saree, mekhala sador, stole, gamusa, shawl, jod kappur, yardages,
-    cushion covers), the material it is woven from (cotton, mulberry,
-    tussar, muga, eri), and how it will be shown. A saree or mekhala sador
-    can be shown six ways (full display, close-up texture, draped,
-    embroidery and border, folded, hanging); everything else is shown
-    full or folded. Each display card shows that shot in the chosen
-    material, and tapping one opens a short guide — line drawings of how to
-    set the shot up, then a worked example — ending in "Take the shot",
-    which opens the camera with a dotted outline shaped for that display to
-    fit the product into.
-  - Set up your page: Good name, Clear photo
-  - Posting plan: Post often, Good time, Mix posts
-- **Read aloud** — every screen has a Listen button that reads the text using
-  the device's text-to-speech in the chosen language.
-- On a laptop browser the app is shown in a phone-sized frame.
+  - **Photography** — product → material → display pickers, per-display
+    shooting guides, then camera with a dotted outline for that shot.
+  - **Set up your page** — Good name, Clear photo, Professional (profile
+    quiz), then a hidden in-flow “try it” wizard (name, bio, category, pro
+    page) without a separate row on the task list.
+  - **Create a post** — photo access, then Post → Story → Reel in order, with
+    badge and confetti when all three are done.
+  - **Posting plan** — Post often, Good time, Mix posts.
+  - **Read the numbers** — Saves matter, Reply fast, What they mean, plus
+    Find your numbers and a completion badge.
+- **Celebration** — confetti keeps falling on badge screens while you stay
+  on them.
+- **Read aloud** — Listen buttons use device text-to-speech in the chosen
+  language.
+- On a wide browser window the app is shown in a phone-sized frame.
 
 ## Getting started
 
@@ -72,39 +78,37 @@ lib/
     app.dart                      MaterialApp and theme
     phone_frame.dart              Phone-sized frame on wide browser windows
   core/
-    speech/speech_player.dart     Text-to-speech playback for Listen buttons
+    speech/speech_player.dart     Text-to-speech for Listen buttons
     theme/button_shadow.dart      Shared shadow for primary buttons
-    widgets/                      Shared widgets (bottom bar, Listen and
-                                  speaker buttons)
+    widgets/                      Bottom bar, confetti, speaker buttons
   features/
+    auth/screens/                 Log in and forgot password
     onboarding/screens/           Splash, language picker, welcome pages
+    shell/                        Main tab (Learn + Me)
+    me/screens/                   Badge gallery
     learn/
-      data/learn_tasks.dart       Lesson content for each task
-      data/learn_progress.dart    Which parts of each task are done
-      data/products.dart          Product list, photos and current choice
-      data/materials.dart         Material list, photos and current choice
-      data/displays.dart          Which displays suit each product
-      data/display_guides.dart    The steps of each display's shooting guide
-      screens/                    Learn home, the product, material and
-                                  display pickers, task parts, learn page,
-                                  "Which is better?" check
-      widgets/lesson_step.dart    Links each part to the next one
-      widgets/guide_diagram.dart  Line drawings used by the guides
-      widgets/shot_outline.dart   The dotted camera outline per display
+      data/                       Tasks, progress, task chain, navigation,
+                                  products, materials, displays, guides,
+                                  create-post progress
+      screens/                    Learn home, pickers, lessons, badges,
+                                  create-post flow, professional / try-it
+      widgets/                    Lesson step, IG previews, next-task button
 assets/images/
   icons/                          Speaker, Learn and Me icons
-  onboarding/                     Welcome page illustrations
-  lessons/<task>/                 Illustrations and photos for each lesson
-  lessons/displays/               <material>_<display>.jpg example shots
-  lessons/products/               product_<name>.jpg picker photos
+  onboarding/                     Welcome illustrations
+  lessons/<task>/                 Lesson art and photos
 test/
-  app_flow_test.dart              Walks through onboarding and every lesson
+  app_flow_test.dart              Onboarding, login, and lesson walkthrough
 ```
 
 ### Adding a new lesson part
 
 Lesson content lives in `lib/features/learn/data/learn_tasks.dart`. Add a
 `TaskPart` to the task, open a `LearnPartScreen` from it, and pass a
-`CheckPartScreen` as its `nextBuilder`. Put the images in
-`assets/images/lessons/<task>/`; that folder is already listed in
-`pubspec.yaml`.
+`CheckPartScreen` as its `nextBuilder`. Use `showOnList: false` on a part
+if it should run in order via **Next** but not appear as its own row on the
+task list. Put images in `assets/images/lessons/<task>/` (folders are listed
+in `pubspec.yaml`).
+
+Task completion for the home progress bar and Me badges uses part counts in
+`lib/features/learn/data/learn_task_chain.dart`.

@@ -8,15 +8,22 @@ import 'package:artisnal_app/features/learn/data/displays.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/data/materials.dart';
 import 'package:artisnal_app/features/learn/data/products.dart';
+import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
+import 'package:artisnal_app/features/me/screens/me_screen.dart';
 import 'package:artisnal_app/features/learn/screens/photo_access_screen.dart';
 import 'package:artisnal_app/features/learn/screens/choose_content_type_screen.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 
 class LearnHomeScreen extends StatefulWidget {
-  const LearnHomeScreen({super.key, required this.locale});
+  const LearnHomeScreen({
+    super.key,
+    required this.locale,
+    this.showBottomNav = true,
+  });
 
   final String locale;
+  final bool showBottomNav;
 
   static const Color background = Color(0xFFF6F7F4);
   static const Color teal = Color(0xFF1B7574);
@@ -139,7 +146,12 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
     );
   }
 
-  void _openLearn() {
+  void _open(Widget screen) {
+    _speech.stop();
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
+  }
+
+  void _openPhotographySetup() {
     _speech.stop();
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -149,14 +161,9 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
     );
   }
 
-  void _open(Widget screen) {
-    _speech.stop();
-    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
-  }
-
   VoidCallback? _openerFor(_Task task) {
     return switch (task.number) {
-      '01' => _openLearn,
+      '01' => _openPhotographySetup,
       '02' => () => _open(setUpPageTask(widget.locale)),
       '03' => () => _open(
         PhotoAccessScreen(
@@ -172,6 +179,10 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tasksDone = _progress.completedLearnTasks;
+    final tasksTotal = LearnTaskChain.totalTasks;
+    final progressValue = _progress.learnTasksProgress;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -211,7 +222,7 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
                     Row(
                       children: [
                         Text(
-                          '0 OF 5 TASKS DONE',
+                          '$tasksDone OF $tasksTotal TASKS DONE',
                           style: GoogleFonts.plusJakartaSans(
                             color: LearnHomeScreen.muted,
                             fontSize: 11,
@@ -221,7 +232,7 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
                         ),
                         const Spacer(),
                         Text(
-                          '10%',
+                          '${(progressValue * 100).round()}%',
                           style: GoogleFonts.plusJakartaSans(
                             color: LearnHomeScreen.teal,
                             fontSize: 13,
@@ -233,8 +244,8 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
                     const SizedBox(height: 8),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: const LinearProgressIndicator(
-                        value: 0.1,
+                      child: LinearProgressIndicator(
+                        value: progressValue,
                         minHeight: 8,
                         backgroundColor: LearnHomeScreen.mint,
                         color: LearnHomeScreen.teal,
@@ -261,7 +272,15 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
                   ],
                 ),
               ),
-              AppBottomNav(onLearnTap: _openLearn),
+              if (widget.showBottomNav)
+                AppBottomNav(
+                  selectedTab: AppNavTab.learn,
+                  onMeTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const MeScreen(),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
