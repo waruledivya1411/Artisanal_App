@@ -38,6 +38,7 @@ dependencies:
   flutter_tts: ^4.2.5
   image_picker: ^1.2.4
   url_launcher: ^6.3.2
+  camera: ^0.12.1
 
 dev_dependencies:
   flutter_test:
@@ -69,6 +70,8 @@ flutter:
     - assets/images/lessons/posting_plan/
     - assets/images/lessons/create_post/
     - assets/images/lessons/read_numbers/
+    - assets/images/lessons/displays/
+    - assets/images/lessons/products/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

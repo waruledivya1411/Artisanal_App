@@ -12,8 +12,17 @@ how to photograph their crafts and sell them on Instagram.
 - **Lessons** — each task is split into short parts. Every part has a learn
   page with an illustration and a "Which is better?" check that reveals the
   answer only after the user picks one.
-  - Photography: Hold steady, Plain sheet, Window light, Straight angle, Try it
-    (opens the camera)
+  - Photography is a three-step setup: the product being photographed
+    (saree, mekhala sador, stole, gamusa, shawl, jod kappur, yardages,
+    cushion covers), the material it is woven from (cotton, mulberry,
+    tussar, muga, eri), and how it will be shown. A saree or mekhala sador
+    can be shown six ways (full display, close-up texture, draped,
+    embroidery and border, folded, hanging); everything else is shown
+    full or folded. Each display card shows that shot in the chosen
+    material, and tapping one opens a short guide — line drawings of how to
+    set the shot up, then a worked example — ending in "Take the shot",
+    which opens the camera with a dotted outline shaped for that display to
+    fit the product into.
   - Set up your page: Good name, Clear photo
   - Posting plan: Post often, Good time, Mix posts
 - **Read aloud** — every screen has a Listen button that reads the text using
@@ -72,13 +81,22 @@ lib/
     learn/
       data/learn_tasks.dart       Lesson content for each task
       data/learn_progress.dart    Which parts of each task are done
-      screens/                    Learn home, task parts, learn page,
-                                  "Which is better?" check, Try it
+      data/products.dart          Product list, photos and current choice
+      data/materials.dart         Material list, photos and current choice
+      data/displays.dart          Which displays suit each product
+      data/display_guides.dart    The steps of each display's shooting guide
+      screens/                    Learn home, the product, material and
+                                  display pickers, task parts, learn page,
+                                  "Which is better?" check
       widgets/lesson_step.dart    Links each part to the next one
+      widgets/guide_diagram.dart  Line drawings used by the guides
+      widgets/shot_outline.dart   The dotted camera outline per display
 assets/images/
   icons/                          Speaker, Learn and Me icons
   onboarding/                     Welcome page illustrations
   lessons/<task>/                 Illustrations and photos for each lesson
+  lessons/displays/               <material>_<display>.jpg example shots
+  lessons/products/               product_<name>.jpg picker photos
 test/
   app_flow_test.dart              Walks through onboarding and every lesson
 ```

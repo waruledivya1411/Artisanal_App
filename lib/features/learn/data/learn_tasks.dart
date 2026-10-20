@@ -1,16 +1,49 @@
 import 'package:flutter/material.dart';
 
 import 'package:artisnal_app/features/learn/screens/check_part_screen.dart';
+import 'package:artisnal_app/features/learn/screens/display_picker_screen.dart';
 import 'package:artisnal_app/features/learn/screens/find_numbers_screen.dart';
 import 'package:artisnal_app/features/learn/screens/learn_part_screen.dart';
+import 'package:artisnal_app/features/learn/screens/material_picker_screen.dart';
+import 'package:artisnal_app/features/learn/data/materials.dart';
+import 'package:artisnal_app/features/learn/data/products.dart';
 import 'package:artisnal_app/features/learn/screens/numbers_mean_screen.dart';
+import 'package:artisnal_app/features/learn/screens/product_picker_screen.dart';
 import 'package:artisnal_app/features/learn/screens/task_parts_screen.dart';
-import 'package:artisnal_app/features/learn/screens/try_it_screen.dart';
+
+/// Shared by every route of the photography setup, so finishing the last
+/// step can pop back past all of them in one go.
+const photographySetupRoute = 'photography-setup';
 
 const photographyTaskId = 'photography';
 const setUpPageTaskId = 'set_up_page';
 const postingPlanTaskId = 'posting_plan';
 const readNumbersTaskId = 'read_numbers';
+
+ProductPickerScreen photographyEntry(String locale) {
+  return ProductPickerScreen(
+    locale: locale,
+    taskLabel: 'TASK 1 OF 5',
+    onPicked: (_) => photographyMaterialPicker(locale),
+  );
+}
+
+MaterialPickerScreen photographyMaterialPicker(String locale) {
+  return MaterialPickerScreen(
+    locale: locale,
+    taskLabel: 'TASK 1 OF 5',
+    onPicked: (_) => photographyDisplayPicker(locale),
+  );
+}
+
+DisplayPickerScreen photographyDisplayPicker(String locale) {
+  return DisplayPickerScreen(
+    locale: locale,
+    taskLabel: 'TASK 1 OF 5',
+    product: SelectedProduct.instance.name,
+    material: SelectedMaterial.instance.name,
+  );
+}
 
 TaskPartsScreen photographyTask(String locale) {
   return TaskPartsScreen(
@@ -18,6 +51,8 @@ TaskPartsScreen photographyTask(String locale) {
     taskId: photographyTaskId,
     taskLabel: 'TASK 1 OF 5',
     title: 'Learn',
+    product: SelectedProduct.instance.name,
+    material: SelectedMaterial.instance.name,
     parts: [
       TaskPart(
         '1',
@@ -115,7 +150,6 @@ TaskPartsScreen photographyTask(String locale) {
           ),
         ),
       ),
-      TaskPart('5', 'Try it', open: (_) => TryItScreen(locale: locale)),
     ],
   );
 }
@@ -176,7 +210,6 @@ TaskPartsScreen setUpPageTask(String locale) {
         ),
       ),
       const TaskPart('3', 'Professional'),
-      const TaskPart('4', 'Try it'),
     ],
   );
 }
@@ -283,7 +316,6 @@ TaskPartsScreen postingPlanTask(String locale) {
           ),
         ),
       ),
-      const TaskPart('4', 'Try it'),
     ],
   );
 }

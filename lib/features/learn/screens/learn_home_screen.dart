@@ -4,7 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/widgets/app_bottom_nav.dart';
+import 'package:artisnal_app/features/learn/data/displays.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
+import 'package:artisnal_app/features/learn/data/materials.dart';
+import 'package:artisnal_app/features/learn/data/products.dart';
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 
@@ -83,15 +86,28 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
 
   final _progress = LearnProgress.instance;
 
+  /// The setup pickers replace one another, so the push future completes
+  /// early; listen to the choices themselves to keep the card current.
+  late final List<Listenable> _sources = [
+    _progress,
+    SelectedProduct.instance,
+    SelectedMaterial.instance,
+    SelectedDisplay.instance,
+  ];
+
   @override
   void initState() {
     super.initState();
-    _progress.addListener(_onProgress);
+    for (final source in _sources) {
+      source.addListener(_onProgress);
+    }
   }
 
   @override
   void dispose() {
-    _progress.removeListener(_onProgress);
+    for (final source in _sources) {
+      source.removeListener(_onProgress);
+    }
     _speech.stop();
     super.dispose();
   }
@@ -101,10 +117,13 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
   }
 
   String _photographyDetail() {
-    final parts = photographyTask(widget.locale).parts;
-    final completed = _progress.completedParts(photographyTaskId);
-    if (completed >= parts.length) return 'Done';
-    return 'Continue · ${parts[completed].title}';
+    final picked = [
+      SelectedProduct.instance.name,
+      SelectedMaterial.instance.name,
+      SelectedDisplay.instance.name,
+    ].whereType<String>().toList();
+    if (picked.isEmpty) return 'Choose what to shoot';
+    return picked.join(' · ');
   }
 
   _Task _withProgress(_Task task) {
@@ -118,7 +137,15 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
     );
   }
 
-  void _openLearn() => _open(photographyTask(widget.locale));
+  void _openLearn() {
+    _speech.stop();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        settings: const RouteSettings(name: photographySetupRoute),
+        builder: (_) => photographyEntry(widget.locale),
+      ),
+    );
+  }
 
   void _open(Widget screen) {
     _speech.stop();
@@ -127,6 +154,7 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
 
   VoidCallback? _openerFor(_Task task) {
     return switch (task.number) {
+      '01' => _openLearn,
       '02' => () => _open(setUpPageTask(widget.locale)),
       '04' => () => _open(postingPlanTask(widget.locale)),
       '05' => () => _open(readNumbersTask(widget.locale)),

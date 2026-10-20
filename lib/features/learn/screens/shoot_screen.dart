@@ -1,0 +1,453 @@
+import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:artisnal_app/core/speech/speech_player.dart';
+
+import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
+import 'package:artisnal_app/features/learn/data/displays.dart';
+import 'package:artisnal_app/features/learn/widgets/shot_outline.dart';
+
+/// Live camera with the dotted box the product should fill.
+///
+/// Pops `true` once a photo is kept, so the caller knows the shot was taken.
+class ShootScreen extends StatefulWidget {
+  const ShootScreen({
+    super.key,
+    required this.locale,
+    required this.display,
+    required this.product,
+  });
+
+  final String locale;
+  final DisplayOption display;
+  final String? product;
+
+  static const Color ink = Color(0xFF152322);
+  static const Color teal = Color(0xFF1B7574);
+
+  @override
+  State<ShootScreen> createState() => _ShootScreenState();
+}
+
+class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
+  late final SpeechPlayer _speech = SpeechPlayer((_) {
+    if (mounted) setState(() {});
+  });
+
+  late final ShotOutline _outline =
+      ShotOutline.forShot(widget.product, widget.display.key);
+
+  CameraController? _controller;
+  String? _problem;
+  bool _busy = false;
+  Uint8List? _photo;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _startCamera();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _speech.stop();
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final controller = _controller;
+    if (controller == null || !controller.value.isInitialized) return;
+    if (state == AppLifecycleState.inactive) {
+      controller.dispose();
+      _controller = null;
+    } else if (state == AppLifecycleState.resumed) {
+      _startCamera();
+    }
+  }
+
+  Future<void> _startCamera() async {
+    try {
+      final cameras = await availableCameras();
+      if (cameras.isEmpty) {
+        if (mounted) setState(() => _problem = 'No camera found on this device.');
+        return;
+      }
+      final back = cameras.firstWhere(
+        (c) => c.lensDirection == CameraLensDirection.back,
+        orElse: () => cameras.first,
+      );
+      final controller = CameraController(
+        back,
+        ResolutionPreset.high,
+        enableAudio: false,
+      );
+      await controller.initialize();
+      if (!mounted) {
+        await controller.dispose();
+        return;
+      }
+      setState(() {
+        _controller = controller;
+        _problem = null;
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() => _problem = 'The camera could not be opened. Allow '
+            'camera access, then try again.');
+      }
+    }
+  }
+
+  String get _hint {
+    if (_outline.window != null) {
+      return 'Put the border / motif in this window';
+    }
+    if (_outline.silhouette == ShotSilhouette.draped) {
+      return 'Cover the pale shape with your cloth';
+    }
+    final product = widget.product?.toLowerCase();
+    return product == null
+        ? 'Fit the whole piece inside the dotted line'
+        : 'Fit the $product inside the dotted line';
+  }
+
+  /// The one thing to do next, called out in yellow.
+  String get _prompt {
+    final product = widget.product?.toLowerCase() ?? 'piece';
+    return 'Move the $product into the frame';
+  }
+
+  String get _spokenText => '${widget.display.name}. $_hint.';
+
+  Future<void> _capture() async {
+    final controller = _controller;
+    if (controller == null || !controller.value.isInitialized || _busy) return;
+    setState(() => _busy = true);
+    try {
+      final file = await controller.takePicture();
+      final bytes = await file.readAsBytes();
+      if (mounted) setState(() => _photo = bytes);
+    } catch (_) {
+      if (mounted) {
+        setState(() => _problem = 'That shot did not save. Try again.');
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final photo = _photo;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.black,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (photo != null)
+              Image.memory(photo, fit: BoxFit.cover)
+            else ...[
+              _preview(),
+              ShotOutlineOverlay(outline: _outline),
+            ],
+            SafeArea(
+              child: Column(
+                children: [
+                  _topBar(),
+                  if (photo == null) _checkPills(),
+                  const Spacer(),
+                  if (photo == null) ...[
+                    _hintBar(),
+                    const SizedBox(height: 8),
+                    _promptPill(),
+                  ],
+                  const SizedBox(height: 14),
+                  photo == null ? _shutterRow() : _keepRow(),
+                  const SizedBox(height: 18),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _preview() {
+    final controller = _controller;
+    if (controller != null && controller.value.isInitialized) {
+      return FittedBox(
+        fit: BoxFit.cover,
+        child: SizedBox(
+          width: controller.value.previewSize?.height ?? 1080,
+          height: controller.value.previewSize?.width ?? 1920,
+          child: CameraPreview(controller),
+        ),
+      );
+    }
+    return ColoredBox(
+      color: const Color(0xFF101614),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 36),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _problem == null
+                    ? Icons.photo_camera_outlined
+                    : Icons.no_photography_outlined,
+                color: Colors.white70,
+                size: 34,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _problem ?? 'Opening the camera…',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.plusJakartaSans(
+                  color: Colors.white70,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _topBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 20, 0),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () => Navigator.of(context).maybePop(),
+            icon: const Icon(Icons.arrow_back_rounded),
+            color: Colors.white,
+            iconSize: 24,
+          ),
+          Expanded(
+            child: Text(
+              widget.display.name.toUpperCase(),
+              style: GoogleFonts.plusJakartaSans(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.8,
+              ),
+            ),
+          ),
+          SpeakCircleButton(
+            playing: _speech.playing,
+            onTap: () =>
+                _speech.toggle(locale: widget.locale, text: _spokenText),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Reminders of the three things that spoil a shot.
+  Widget _checkPills() {
+    const checks = <(IconData, String)>[
+      (Icons.wb_sunny_outlined, 'Light'),
+      (Icons.straighten_rounded, 'Distance'),
+      (Icons.center_focus_strong_outlined, 'Centre'),
+    ];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 6,
+        children: [
+          for (final (icon, label) in checks)
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: const Color(0x8C0E1413),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0x4DFFFFFF)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, color: Colors.white, size: 14),
+                    const SizedBox(width: 5),
+                    Text(
+                      label,
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _promptPill() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5C84C),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Text(
+            _prompt,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.plusJakartaSans(
+              color: const Color(0xFF2A2109),
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              height: 1.3,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _hintBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: const Color(0xCC0E1413),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Text(
+            _hint,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.plusJakartaSans(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              height: 1.3,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _shutterRow() {
+    final ready = _controller?.value.isInitialized ?? false;
+    return Semantics(
+      button: true,
+      label: 'Take photo',
+      child: GestureDetector(
+        onTap: ready && !_busy ? _capture : null,
+        child: Container(
+          width: 74,
+          height: 74,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: ready ? 1 : 0.4),
+            border: Border.all(color: const Color(0x66FFFFFF), width: 5),
+          ),
+          child: _busy
+              ? const Padding(
+                  padding: EdgeInsets.all(22),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: ShootScreen.teal,
+                  ),
+                )
+              : const Icon(
+                  Icons.photo_camera_rounded,
+                  color: ShootScreen.ink,
+                  size: 30,
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _keepRow() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          Expanded(
+            child: _flatButton(
+              label: 'Retake',
+              background: const Color(0xCC0E1413),
+              foreground: Colors.white,
+              onTap: () => setState(() => _photo = null),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _flatButton(
+              label: 'Use this photo',
+              background: ShootScreen.teal,
+              foreground: Colors.white,
+              onTap: () => Navigator.of(context).pop(true),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _flatButton({
+    required String label,
+    required Color background,
+    required Color foreground,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: background,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: SizedBox(
+          height: 54,
+          child: Center(
+            child: Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                color: foreground,
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

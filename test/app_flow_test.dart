@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:artisnal_app/app/app.dart';
+import 'package:artisnal_app/features/learn/data/display_guides.dart';
+import 'package:artisnal_app/features/learn/widgets/shot_outline.dart';
+import 'package:artisnal_app/features/learn/data/displays.dart';
 
 void main() {
   testWidgets('Onboarding and Learn lessons flow', (WidgetTester tester) async {
@@ -87,7 +90,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Photography'));
     await tester.pumpAndSettle();
-    expect(find.text('TASK 1 OF 5'), findsNothing);
+    expect(find.text('What are you photographing?'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('What are you photographing?'), findsNothing);
+    expect(find.text('What is it made of?'), findsNothing);
 
     await tester.ensureVisible(find.text('Set up your page'));
     await tester.pumpAndSettle();
@@ -97,7 +104,7 @@ void main() {
     expect(find.text('Good name'), findsOneWidget);
     expect(find.text('Clear photo'), findsOneWidget);
     expect(find.text('Professional'), findsOneWidget);
-    expect(find.text('Try it'), findsOneWidget);
+    expect(find.text('Try it'), findsNothing);
     await tester.tap(find.text('Good name'));
     await tester.pumpAndSettle();
     expect(find.text('TASK 2 · PART 1 · GOOD NAME'), findsOneWidget);
@@ -138,7 +145,7 @@ void main() {
     expect(find.text('Post often'), findsOneWidget);
     expect(find.text('Good time'), findsOneWidget);
     expect(find.text('Mix posts'), findsOneWidget);
-    expect(find.text('Try it'), findsOneWidget);
+    expect(find.text('Try it'), findsNothing);
     await tester.tap(find.text('Post often'));
     await tester.pumpAndSettle();
     expect(find.text('TASK 4 · PART 1 · POST OFTEN'), findsOneWidget);
@@ -258,106 +265,206 @@ void main() {
     await tester.tap(find.text('Learn'));
     await tester.pumpAndSettle();
 
-    expect(find.text('TASK 1 OF 5'), findsOneWidget);
-    expect(find.text('Learn'), findsNWidgets(2));
-    expect(find.text('Photography'), findsNothing);
-    expect(find.text('Hold steady'), findsOneWidget);
-    expect(find.text('Window light'), findsOneWidget);
-    expect(find.text('Try it'), findsOneWidget);
-    expect(find.text('Done'), findsNothing);
+    expect(find.text('What are you photographing?'), findsOneWidget);
+    // Photo cards build a row at a time, so walk down the grid.
+    final productGrid = find.descendant(
+      of: find.byType(GridView),
+      matching: find.byType(Scrollable),
+    );
+    expect(find.text('Saree'), findsOneWidget);
+    expect(find.text('Mekhala sador'), findsOneWidget);
 
-    await tester.tap(find.text('Plain sheet'));
+    for (final row in [
+      ['Stole', 'Gamusa'],
+      ['Shawl', 'Jod kappur'],
+      ['Yardages', 'Cushion covers'],
+    ]) {
+      await tester.scrollUntilVisible(
+        find.text(row.first),
+        200,
+        scrollable: productGrid,
+      );
+      expect(find.text(row.first), findsOneWidget);
+      expect(find.text(row.last), findsOneWidget);
+    }
+
+    await tester.scrollUntilVisible(
+      find.text('Saree'),
+      -200,
+      scrollable: productGrid,
+    );
+    await tester.ensureVisible(find.text('Saree'));
     await tester.pumpAndSettle();
-    expect(find.text('PART 2 · PLAIN SHEET'), findsNothing);
-
-    await tester.tap(find.text('Hold steady'));
+    await tester.tap(find.text('Saree'));
     await tester.pumpAndSettle();
-
-    expect(find.text('PART 1 · HOLD STEADY'), findsOneWidget);
-    expect(find.text('Hold with two hands'), findsOneWidget);
-    expect(find.text('Next'), findsOneWidget);
-
-    await tester.tap(find.text('Next'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Which is better?'), findsOneWidget);
-    expect(find.text('Yes! B is better'), findsNothing);
-
-    await tester.tap(find.text('B'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Yes! B is better'), findsOneWidget);
-    expect(find.text('Steady'), findsOneWidget);
-    expect(find.text('Shaky'), findsOneWidget);
-
-    await tester.tap(find.text('Next part · Plain sheet'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('PART 2 · PLAIN SHEET'), findsOneWidget);
-    expect(find.text('Put a plain sheet behind'), findsOneWidget);
-
-    await tester.tap(find.text('Next'));
+    await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Which is better?'), findsOneWidget);
-    expect(find.text('Not quite. B is better'), findsNothing);
+    expect(find.text('What are you photographing?'), findsNothing);
+    expect(find.text('What is it made of?'), findsOneWidget);
 
-    await tester.tap(find.text('A'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Not quite. B is better'), findsOneWidget);
-    expect(find.text('Messy'), findsOneWidget);
-    expect(find.text('Plain'), findsOneWidget);
-
-    await tester.tap(find.text('Next part · Window light'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('PART 3 · WINDOW LIGHT'), findsOneWidget);
-    expect(find.text('Stand near a window'), findsOneWidget);
-
-    await tester.tap(find.text('Next'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Which is better?'), findsOneWidget);
-    expect(find.text('Yes! B is better'), findsNothing);
-
-    await tester.tap(find.text('B'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Yes! B is better'), findsOneWidget);
-    expect(find.text('True colours by the window'), findsOneWidget);
-    expect(find.text('Near window'), findsOneWidget);
-    expect(find.text('Dark corner'), findsOneWidget);
-
-    await tester.tap(find.text('Next part · Straight angle'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('PART 4 · STRAIGHT ANGLE'), findsOneWidget);
-    expect(find.text('Hold the phone straight'), findsOneWidget);
-
-    await tester.tap(find.text('Next'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Which is better?'), findsOneWidget);
-    expect(find.text('Shows the full cloth'), findsNothing);
-
-    await tester.tap(find.text('B'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Shows the full cloth'), findsOneWidget);
-    expect(find.text('Straight'), findsOneWidget);
-    expect(find.text('Tilted'), findsOneWidget);
-
-    await tester.tap(find.text('Next part · Try it'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Now you try'), findsOneWidget);
-    expect(find.text('Open camera'), findsOneWidget);
-
+    // Back steps to the previous question, it does not leave the setup.
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
+    expect(find.text('What are you photographing?'), findsOneWidget);
+    expect(find.text('Hello, Divya Warule'), findsNothing);
 
-    expect(find.text('TASK 1 OF 5'), findsOneWidget);
-    expect(find.text('Done'), findsNWidgets(4));
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(find.text('What is it made of?'), findsOneWidget);
+    // The grid builds a row at a time, so walk down it.
+    final materialGrid = find.descendant(
+      of: find.byType(GridView),
+      matching: find.byType(Scrollable),
+    );
+    expect(find.text('Cotton'), findsOneWidget);
+    expect(find.text('Mulberry'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('Tussar'),
+      200,
+      scrollable: materialGrid,
+    );
+    expect(find.text('Tussar'), findsOneWidget);
+    expect(find.text('Muga'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Muga'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Muga'));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Eri'),
+      200,
+      scrollable: materialGrid,
+    );
+    expect(find.text('Eri'), findsOneWidget);
+
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('What is it made of?'), findsNothing);
+    expect(find.text('How will you show it?'), findsOneWidget);
+
+    // A saree is shown every way, a row at a time.
+    final displayGrid = find.descendant(
+      of: find.byType(GridView),
+      matching: find.byType(Scrollable),
+    );
+    expect(find.text('Full display'), findsOneWidget);
+    expect(find.text('Close-up texture'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('Draped'),
+      200,
+      scrollable: displayGrid,
+    );
+    expect(find.text('Draped'), findsOneWidget);
+    expect(find.text('Embroidery and border'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('Folded'),
+      200,
+      scrollable: displayGrid,
+    );
+    expect(find.text('Folded'), findsOneWidget);
+    expect(find.text('Hanging'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Folded'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Folded'));
+    await tester.pumpAndSettle();
+
+    // Tapping a display opens its shooting guide.
+    expect(find.text('Fold from the middle'), findsOneWidget);
+    expect(find.text('Flat on the floor · fold in half'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Fold a corner back'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Good examples'), findsOneWidget);
+    expect(find.text('Take the shot'), findsOneWidget);
+    await tester.tap(find.text('Take the shot'));
+    await tester.pumpAndSettle();
+
+    // The camera opens with the dotted box to fit the product into. There is
+    // no camera under test, so it says so and keeps the outline.
+    expect(find.byType(ShotOutlineOverlay), findsOneWidget);
+    expect(
+      find.text('Fit the saree inside the dotted line'),
+      findsOneWidget,
+    );
+
+    // Backing out of the camera leaves the guide open on its last step.
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('Good examples'), findsOneWidget);
+
+    // Back steps through the guide, then out of it.
+    for (final title in ['Fold a corner back', 'Fold from the middle']) {
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text(title), findsOneWidget);
+    }
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('How will you show it?'), findsOneWidget);
+
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+
+    // Setup is the whole of Photography now, so Done lands back on the home
+    // screen with the three choices on the card.
+    expect(find.text('How will you show it?'), findsNothing);
+    await tester.ensureVisible(find.text('Photography'));
+    await tester.pumpAndSettle();
+    expect(find.text('Saree · Muga · Folded'), findsOneWidget);
+  });
+
+  test('each product offers the displays that suit it', () {
+    const everyName = [
+      'Full display',
+      'Close-up texture',
+      'Draped',
+      'Embroidery and border',
+      'Folded',
+      'Hanging',
+    ];
+    for (final product in ['Saree', 'Mekhala sador']) {
+      expect(
+        displaysFor(product).map((d) => d.name),
+        everyName,
+        reason: product,
+      );
+    }
+    for (final product in [
+      'Stole',
+      'Shawl',
+      'Gamusa',
+      'Jod kappur',
+      'Yardages',
+      'Cushion covers',
+    ]) {
+      expect(
+        displaysFor(product).map((d) => d.name),
+        ['Full display', 'Folded'],
+        reason: product,
+      );
+    }
+  });
+
+  test('every display has a guide that ends on a worked example', () {
+    for (final display in everyDisplay) {
+      final steps = guideFor(display.key);
+      expect(steps, isNotEmpty, reason: display.name);
+      expect(steps.last.showExample, isTrue, reason: display.name);
+      // Every setup step draws something; only the example step has no art.
+      for (final step in steps.where((s) => !s.showExample)) {
+        expect(step.art, isNotNull, reason: '${display.name}: ${step.title}');
+      }
+    }
   });
 }
