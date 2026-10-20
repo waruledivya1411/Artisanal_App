@@ -110,6 +110,9 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     if (_outline.silhouette == ShotSilhouette.draped) {
       return 'Cover the pale shape with your cloth';
     }
+    if (_outline.silhouette == ShotSilhouette.foldedSari) {
+      return 'One folded sari in this box — border on the side';
+    }
     final product = widget.product?.toLowerCase();
     return product == null
         ? 'Fit the whole piece inside the dotted line'

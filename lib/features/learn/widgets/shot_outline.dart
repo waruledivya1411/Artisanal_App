@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// A plain shape drawn inside the frame showing roughly how the piece should
 /// sit. Deliberately one outline with no labels: the artisan reads the shape,
 /// not words.
-enum ShotSilhouette { draped }
+enum ShotSilhouette { draped, foldedSari }
 
 /// The dotted box the product should sit inside, shaped for the display being
 /// shot: tall for a hanging piece, square for a close-up, a wide band for a
@@ -37,7 +37,7 @@ class ShotOutline {
       aspectRatio: 0.82,
       window: Rect.fromLTRB(0.45, 0.07, 0.90, 0.48),
     ),
-    'folded_stack': ShotOutline(widthFactor: 0.80, aspectRatio: 1.25),
+    'folded_stack': ShotOutline(widthFactor: 0.80, aspectRatio: 0.78),
     'hanging_display': ShotOutline(widthFactor: 0.55, aspectRatio: 0.55),
   };
 
@@ -53,6 +53,13 @@ class ShotOutline {
         widthFactor: 0.74,
         aspectRatio: 0.66,
         silhouette: ShotSilhouette.draped,
+      );
+    }
+    if (displayKey == 'folded_stack') {
+      return const ShotOutline(
+        widthFactor: 0.80,
+        aspectRatio: 0.78,
+        silhouette: ShotSilhouette.foldedSari,
       );
     }
     return forDisplay(displayKey);
@@ -108,9 +115,15 @@ class _OutlinePainter extends CustomPainter {
     _dashedPath(canvas, Path()..addRRect(rrect), _blue, 2.5);
     _corners(canvas, rect);
 
-    if (outline.silhouette != null) {
-      _thirds(canvas, rect);
-      _drapedCloth(canvas, rect);
+    switch (outline.silhouette) {
+      case ShotSilhouette.draped:
+        _thirds(canvas, rect);
+        _drapedCloth(canvas, rect);
+      case ShotSilhouette.foldedSari:
+        _foldedGuides(canvas, rect);
+        _foldedSari(canvas, rect);
+      case null:
+        break;
     }
 
     final window = outline.window;
@@ -213,6 +226,67 @@ class _OutlinePainter extends CustomPainter {
       ]),
       fold,
     );
+  }
+
+  /// Shot from above: two horizontals and one diagonal to square the piece
+  /// up against.
+  void _foldedGuides(Canvas canvas, Rect r) {
+    Offset at(double x, double y) =>
+        Offset(r.left + r.width * x / 100, r.top + r.height * y / 100);
+    final guide = Paint()
+      ..color = const Color(0x8CFFFFFF)
+      ..strokeWidth = 1.4;
+    canvas.drawLine(at(0, 33), at(100, 33), guide);
+    canvas.drawLine(at(0, 66), at(100, 66), guide);
+    canvas.drawLine(at(6, 94), at(94, 6), guide);
+  }
+
+  /// One sari folded into a rectangle, border along the edge facing the
+  /// camera - not a pile.
+  void _foldedSari(Canvas canvas, Rect r) {
+    Offset at(double x, double y) =>
+        Offset(r.left + r.width * x / 100, r.top + r.height * y / 100);
+
+    final line = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.6
+      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = StrokeCap.round;
+
+    // 78% of the box wide, 52% tall, centred.
+    const left = (100 - 78) / 2;
+    const right = left + 78;
+    const top = (100 - 52) / 2;
+    const bottom = top + 52;
+    final body = Rect.fromPoints(at(left, top), at(right, bottom));
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(body, const Radius.circular(8)),
+      line,
+    );
+    _label(canvas, 'Folded sari', at(left, top - 7));
+
+    // The border is the right 22% of the piece; show where it starts.
+    const borderLeft = right - 78 * 0.22;
+    canvas.drawLine(at(borderLeft, top), at(borderLeft, bottom), line);
+    _label(canvas, 'Border', at(borderLeft + 1, bottom + 2.5));
+  }
+
+  void _label(Canvas canvas, String text, Offset at) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          height: 1,
+          shadows: [Shadow(color: Color(0xCC000000), blurRadius: 3)],
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    painter.paint(canvas, at);
   }
 
   void _dashedPath(Canvas canvas, Path path, Color color, double width) {

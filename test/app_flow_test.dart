@@ -450,7 +450,7 @@ void main() {
     // no camera under test, so it says so and keeps the outline.
     expect(find.byType(ShotOutlineOverlay), findsOneWidget);
     expect(
-      find.text('Fit the saree inside the dotted line'),
+      find.text('One folded sari in this box — border on the side'),
       findsOneWidget,
     );
 
