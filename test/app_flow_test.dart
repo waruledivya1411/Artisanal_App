@@ -49,7 +49,6 @@ void main() {
 
     expect(find.text('Learn step by step'), findsOneWidget);
     expect(find.text('Listen'), findsOneWidget);
-    expect(find.text('Skip'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
     expect(find.byType(Image), findsWidgets);
 
@@ -62,7 +61,6 @@ void main() {
       find.text('The camera helps you keep the photo\nstraight and bright.'),
       findsOneWidget,
     );
-    expect(find.text('Skip'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
     expect(find.byType(Image), findsWidgets);
 

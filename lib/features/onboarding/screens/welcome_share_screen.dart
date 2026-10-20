@@ -70,34 +70,12 @@ class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        ListenPlayingButton(
-                          playing: _speech.playing,
-                          onTap: () => _speech.toggle(
-                            locale: widget.locale,
-                            text: WelcomeShareScreen.spoken,
-                          ),
-                        ),
-                        const Spacer(),
-                        TextButton(
-                          onPressed: () {},
-                          style: TextButton.styleFrom(
-                            foregroundColor: WelcomeShareScreen.teal,
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: Text(
-                            'Skip',
-                            style: GoogleFonts.plusJakartaSans(
-                              color: WelcomeShareScreen.teal,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
+                    ListenPlayingButton(
+                      playing: _speech.playing,
+                      onTap: () => _speech.toggle(
+                        locale: widget.locale,
+                        text: WelcomeShareScreen.spoken,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Align(
