@@ -35,14 +35,37 @@ class _PostInInstagramScreenState extends State<PostInInstagramScreen> {
   late final SpeechPlayer _stepSpeech = SpeechPlayer((_) {
     if (mounted) setState(() {});
   });
+  late final ScrollController _scroll = ScrollController();
 
   int _activeGuideStep = 0;
+  bool _showScrollHint = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateScrollHint());
+  }
 
   @override
   void dispose() {
     _speech.stop();
     _stepSpeech.stop();
+    _scroll.dispose();
     super.dispose();
+  }
+
+  void _onScroll() => _updateScrollHint();
+
+  void _updateScrollHint() {
+    if (!_scroll.hasClients) return;
+    final position = _scroll.position;
+    final canScroll = position.maxScrollExtent > 12;
+    final nearBottom = position.pixels >= position.maxScrollExtent - 28;
+    final show = canScroll && !nearBottom;
+    if (show != _showScrollHint && mounted) {
+      setState(() => _showScrollHint = show);
+    }
   }
 
   CreateContentGuide get _guide => CreateContentGuide.forKind(widget.kind);
@@ -93,13 +116,6 @@ class _PostInInstagramScreenState extends State<PostInInstagramScreen> {
         ),
       ),
     );
-  }
-
-  void _finishLesson() {
-    final navigator = Navigator.of(context);
-    navigator.pop();
-    if (navigator.canPop()) navigator.pop();
-    if (navigator.canPop()) navigator.pop();
   }
 
   @override
@@ -166,7 +182,10 @@ class _PostInInstagramScreenState extends State<PostInInstagramScreen> {
                 const SizedBox(height: 10),
                 Expanded(
                   child: SingleChildScrollView(
+                    controller: _scroll,
+                    padding: const EdgeInsets.only(bottom: 16),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         IgCreateIllustration(
                           kind: widget.kind,
@@ -193,38 +212,20 @@ class _PostInInstagramScreenState extends State<PostInInstagramScreen> {
                             height: 1.35,
                           ),
                         ),
+                        if (_showScrollHint) ...[
+                          const SizedBox(height: 10),
+                          const _ScrollDownCue(),
+                        ],
                         const SizedBox(height: 14),
-                        _StepList(
+                        _StepListWithDoodle(
                           steps: _guide.steps,
                           activeStep: _activeGuideStep,
                           onStepTap: _onGuideStepTap,
                           stepAudioPlaying: _stepSpeech.playing,
                           onStepSpeak: _playStepAudio,
                         ),
+                        const SizedBox(height: 24),
                       ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Material(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                  child: InkWell(
-                    onTap: _finishLesson,
-                    borderRadius: BorderRadius.circular(18),
-                    child: SizedBox(
-                      height: 56,
-                      width: double.infinity,
-                      child: Center(
-                        child: Text(
-                          'Got it',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: PostInInstagramScreen.teal,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ),
@@ -233,6 +234,84 @@ class _PostInInstagramScreenState extends State<PostInInstagramScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Plain label — not tappable, not button-shaped.
+class _ScrollDownCue extends StatelessWidget {
+  const _ScrollDownCue();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.south_rounded,
+            size: 14,
+            color: PostInInstagramScreen.muted.withValues(alpha: 0.85),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            'Scroll down',
+            style: GoogleFonts.plusJakartaSans(
+              color: PostInInstagramScreen.muted,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StepListWithDoodle extends StatelessWidget {
+  const _StepListWithDoodle({
+    required this.steps,
+    required this.activeStep,
+    required this.onStepTap,
+    required this.stepAudioPlaying,
+    required this.onStepSpeak,
+  });
+
+  final List<String> steps;
+  final int activeStep;
+  final void Function(int index) onStepTap;
+  final bool stepAudioPlaying;
+  final VoidCallback onStepSpeak;
+
+  static const _doodleAsset =
+      'assets/images/lessons/create_post/click_here_doodle.png';
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (activeStep == 0)
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 0),
+            child: IgnorePointer(
+              child: Image.asset(
+                _doodleAsset,
+                width: 152,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.medium,
+              ),
+            ),
+          ),
+        _StepList(
+          steps: steps,
+          activeStep: activeStep,
+          onStepTap: onStepTap,
+          stepAudioPlaying: stepAudioPlaying,
+          onStepSpeak: onStepSpeak,
+        ),
+      ],
     );
   }
 }

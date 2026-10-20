@@ -146,7 +146,12 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
     );
   }
 
-  void _openLearn() {
+  void _open(Widget screen) {
+    _speech.stop();
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
+  }
+
+  void _openPhotographySetup() {
     _speech.stop();
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -156,14 +161,9 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
     );
   }
 
-  void _open(Widget screen) {
-    _speech.stop();
-    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
-  }
-
   VoidCallback? _openerFor(_Task task) {
     return switch (task.number) {
-      '01' => _openLearn,
+      '01' => _openPhotographySetup,
       '02' => () => _open(setUpPageTask(widget.locale)),
       '03' => () => _open(
         PhotoAccessScreen(
@@ -275,7 +275,6 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
               if (widget.showBottomNav)
                 AppBottomNav(
                   selectedTab: AppNavTab.learn,
-                  onLearnTap: _openLearn,
                   onMeTap: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (_) => const MeScreen(),

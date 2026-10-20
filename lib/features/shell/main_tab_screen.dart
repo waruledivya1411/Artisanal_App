@@ -37,13 +37,8 @@ class _MainTabScreenState extends State<MainTabScreen> {
           ),
           AppBottomNav(
             selectedTab: _tab,
-            onLearnTap: () {
-              if (_tab == AppNavTab.learn) {
-                _openPhotographyFromLearn();
-              } else {
-                setState(() => _tab = AppNavTab.learn);
-              }
-            },
+            onLearnTap: () => setState(() => _tab = AppNavTab.learn),
+            onPhotoTap: _openPhotographyLessons,
             onMeTap: () => setState(() => _tab = AppNavTab.me),
           ),
         ],
@@ -51,11 +46,10 @@ class _MainTabScreenState extends State<MainTabScreen> {
     );
   }
 
-  void _openPhotographyFromLearn() {
+  void _openPhotographyLessons() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        settings: const RouteSettings(name: photographySetupRoute),
-        builder: (_) => photographyEntry(widget.locale),
+        builder: (_) => photographyTask(widget.locale),
       ),
     );
   }

@@ -52,7 +52,7 @@ TaskPartsScreen photographyTask(String locale) {
     locale: locale,
     taskId: photographyTaskId,
     taskLabel: 'TASK 1 OF 5',
-    title: 'Learn',
+    title: 'Photography',
     product: SelectedProduct.instance.name,
     material: SelectedMaterial.instance.name,
     parts: [
