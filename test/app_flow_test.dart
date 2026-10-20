@@ -4,9 +4,11 @@ import 'package:artisnal_app/app/app.dart';
 import 'package:artisnal_app/features/learn/data/display_guides.dart';
 import 'package:artisnal_app/features/learn/widgets/shot_outline.dart';
 import 'package:artisnal_app/features/learn/data/displays.dart';
+import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 
 void main() {
   testWidgets('Onboarding and Learn lessons flow', (WidgetTester tester) async {
+    LearnProgress.instance.reset();
     await tester.pumpWidget(const ArtisnalApp());
     expect(find.text('Click & Social'), findsOneWidget);
 
@@ -76,7 +78,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Hello, Divya Warule'), findsOneWidget);
-    expect(find.text('Sualkuchi, Assam'), findsOneWidget);
     expect(find.text('Photography'), findsOneWidget);
     expect(find.text('0 OF 5 TASKS DONE'), findsOneWidget);
     expect(find.text('Learn'), findsOneWidget);
@@ -84,6 +85,42 @@ void main() {
     expect(find.text('Me'), findsOneWidget);
 
     expect(find.text('Create a post'), findsOneWidget);
+    await tester.ensureVisible(find.text('Create a post'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Create a post'));
+    await tester.pumpAndSettle();
+    expect(find.text('TASK 3 OF 5'), findsOneWidget);
+    expect(find.text('Allow photo access'), findsOneWidget);
+    expect(find.text('Photos and videos'), findsOneWidget);
+    expect(find.text('Allow all'), findsOneWidget);
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(find.text('What do you want to make?'), findsOneWidget);
+    await tester.tap(find.text('Photo on your page'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(find.text('Post in Instagram'), findsWidgets);
+    expect(find.text('Tap +'), findsOneWidget);
+    await tester.ensureVisible(find.text('Tap +'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tap +'));
+    await tester.pumpAndSettle();
+    expect(find.text('New post'), findsOneWidget);
+    expect(find.text('STEP 2 OF 4'), findsOneWidget);
+    expect(find.text('Pick your photo'), findsWidgets);
+    await tester.tap(find.byKey(const ValueKey('gallery-photo-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Next').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Did you post it?'), findsOneWidget);
+    expect(find.text('Look at your Instagram page'), findsOneWidget);
+    expect(find.text('Yes, I posted'), findsOneWidget);
+    await tester.tap(find.text('Yes, I posted'));
+    await tester.pumpAndSettle();
+    expect(find.text('Share a story'), findsWidgets);
+    await tester.tap(find.text('Got it'));
+    await tester.pumpAndSettle();
     expect(find.text('Read the numbers'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Photography'));
@@ -131,9 +168,28 @@ void main() {
     expect(find.text('Buyers trust a clear face'), findsOneWidget);
     expect(find.text('Clear'), findsOneWidget);
     expect(find.text('Blurry'), findsOneWidget);
-    await tester.tap(find.text('Finish'));
+    await tester.tap(find.text('Next part · Professional'));
     await tester.pumpAndSettle();
-    expect(find.text('Done'), findsNWidgets(2));
+    expect(find.text('Use a professional page'), findsOneWidget);
+    await tester.tap(find.text('Professional dashboard').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Which is better?'), findsOneWidget);
+    expect(find.text('Buyers can message you'), findsNothing);
+    await tester.tap(find.text('B'));
+    await tester.pumpAndSettle();
+    expect(find.text('Buyers can message you'), findsOneWidget);
+    expect(find.text('Professional'), findsWidgets);
+    expect(find.text('Personal'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('Pick your name'), findsOneWidget);
+    expect(find.text('Short. Easy to say.'), findsOneWidget);
+    expect(find.text('@ divya.weaves'), findsOneWidget);
+    expect(find.text('Best'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('TASK 2 OF 5'), findsOneWidget);
+    expect(find.text('Done'), findsNWidgets(3));
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
 

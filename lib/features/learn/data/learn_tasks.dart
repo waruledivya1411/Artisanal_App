@@ -10,6 +10,8 @@ import 'package:artisnal_app/features/learn/data/products.dart';
 import 'package:artisnal_app/features/learn/screens/numbers_mean_screen.dart';
 import 'package:artisnal_app/features/learn/screens/product_picker_screen.dart';
 import 'package:artisnal_app/features/learn/screens/task_parts_screen.dart';
+import 'package:artisnal_app/features/learn/screens/professional_part_screen.dart';
+import 'package:artisnal_app/features/learn/screens/setup_try_it_flow_screen.dart';
 
 /// Shared by every route of the photography setup, so finishing the last
 /// step can pop back past all of them in one go.
@@ -209,7 +211,17 @@ TaskPartsScreen setUpPageTask(String locale) {
           ),
         ),
       ),
-      const TaskPart('3', 'Professional'),
+      TaskPart(
+        '3',
+        'Professional',
+        open: (_) => ProfessionalPartScreen(locale: locale),
+      ),
+      TaskPart(
+        '4',
+        'Try it',
+        showOnList: false,
+        open: (_) => SetupTryItFlowScreen(locale: locale),
+      ),
     ],
   );
 }

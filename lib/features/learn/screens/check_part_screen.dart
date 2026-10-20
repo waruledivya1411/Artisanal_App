@@ -6,6 +6,8 @@ import 'package:artisnal_app/core/speech/speech_player.dart';
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
+import 'package:artisnal_app/features/learn/widgets/ig_profile_preview.dart';
+import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
 
 class CheckOption {
@@ -18,8 +20,15 @@ class CheckOption {
     this.tile,
     this.stats = const [],
     this.chat,
+    this.profileVariant,
     required this.label,
-  }) : assert(image != null || text != null || tile != null || chat != null);
+  }) : assert(
+         image != null ||
+             text != null ||
+             tile != null ||
+             chat != null ||
+             profileVariant != null,
+       );
 
   final String? image;
   final String? text;
@@ -29,6 +38,7 @@ class CheckOption {
   final CheckTile? tile;
   final List<CheckStat> stats;
   final CheckChat? chat;
+  final IgProfileVariant? profileVariant;
   final String label;
 }
 
@@ -115,6 +125,10 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
 
   bool get _correct => _choice == _Choice.b;
 
+  bool get _profileQuiz =>
+      widget.wrong.profileVariant != null &&
+      widget.right.profileVariant != null;
+
   String get _spokenText {
     if (_choice == null) return 'Which is better? Tap one.';
     return _correct
@@ -135,15 +149,40 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
 
   void _next() {
     _speech.stop();
+    if (_choice == null) return;
     final step = LessonStep.maybeOf(context);
-    step == null ? Navigator.of(context).maybePop() : step.onFinished();
+    if (step != null) {
+      final goToNextTask = step.nextTitle == null &&
+          step.nextLearnTaskTitle != null &&
+          step.learnTaskId != null &&
+          step.locale != null;
+      if (goToNextTask) {
+        final navigator = Navigator.of(context);
+        LearnTaskNavigation.finishLessonAndOpenNext(
+          navigator: navigator,
+          finishedTaskId: step.learnTaskId!,
+          locale: step.locale!,
+          finishLesson: step.onFinished,
+        );
+        return;
+      }
+      step.onFinished();
+      return;
+    }
+    Navigator.of(context).maybePop();
   }
 
   String _nextLabel() {
     final step = LessonStep.maybeOf(context);
     if (step == null) return 'Next';
     final nextTitle = step.nextTitle;
-    return nextTitle == null ? 'Finish' : 'Next part · $nextTitle';
+    final nextTask = step.nextLearnTaskTitle;
+    if (nextTitle == null && nextTask != null) {
+      return 'Next task: $nextTask';
+    }
+    if (nextTitle == null) return 'Finish';
+    if (step.nextPartHidden) return 'Next';
+    return 'Next part · $nextTitle';
   }
 
   @override
@@ -254,38 +293,66 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
                 Expanded(
                   child: Column(
                     children: [
-                      Flexible(
-                        child: AspectRatio(
-                          aspectRatio: 320 / 253,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(
-                                child: _ChoiceCard(
-                                  option: widget.wrong,
-                                  letter: 'A',
-                                  isRight: false,
-                                  revealed: revealed,
-                                  selected: _choice == _Choice.a,
-                                  onTap: () => _select(_Choice.a),
+                      Expanded(
+                        flex: _profileQuiz ? 5 : 3,
+                        child: _profileQuiz
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Expanded(
+                                    child: _ChoiceCard(
+                                      option: widget.wrong,
+                                      letter: 'A',
+                                      isRight: false,
+                                      revealed: revealed,
+                                      selected: _choice == _Choice.a,
+                                      onTap: () => _select(_Choice.a),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: _ChoiceCard(
+                                      option: widget.right,
+                                      letter: 'B',
+                                      isRight: true,
+                                      revealed: revealed,
+                                      selected: _choice == _Choice.b,
+                                      onTap: () => _select(_Choice.b),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : AspectRatio(
+                                aspectRatio: 320 / 253,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      child: _ChoiceCard(
+                                        option: widget.wrong,
+                                        letter: 'A',
+                                        isRight: false,
+                                        revealed: revealed,
+                                        selected: _choice == _Choice.a,
+                                        onTap: () => _select(_Choice.a),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: _ChoiceCard(
+                                        option: widget.right,
+                                        letter: 'B',
+                                        isRight: true,
+                                        revealed: revealed,
+                                        selected: _choice == _Choice.b,
+                                        onTap: () => _select(_Choice.b),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _ChoiceCard(
-                                  option: widget.right,
-                                  letter: 'B',
-                                  isRight: true,
-                                  revealed: revealed,
-                                  selected: _choice == _Choice.b,
-                                  onTap: () => _select(_Choice.b),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 220),
                         child: revealed
@@ -296,7 +363,7 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
                                     ? widget.rightReason
                                     : widget.wrongReason,
                               )
-                            : const SizedBox(height: 72),
+                            : SizedBox(height: _profileQuiz ? 56 : 72),
                       ),
                     ],
                   ),
@@ -414,7 +481,30 @@ class _ChoiceCard extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(15),
-                    child: option.chat != null
+                    child: option.profileVariant != null
+                        ? ColoredBox(
+                            color: Colors.white,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(6, 8, 6, 4),
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return SingleChildScrollView(
+                                    physics: const ClampingScrollPhysics(),
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        minWidth: constraints.maxWidth,
+                                      ),
+                                      child: IgProfilePreview(
+                                        variant: option.profileVariant!,
+                                        quizCard: true,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          )
+                        : option.chat != null
                         ? _ChatPreview(
                             chat: option.chat!,
                             revealed: revealed,

@@ -49,7 +49,10 @@ class SpeechPlayer {
 
   Future<void> stop() async {
     _token++;
-    playing = false;
+    if (playing) {
+      playing = false;
+      onPlayingChanged(false);
+    }
     try {
       await _tts?.stop();
     } catch (_) {}

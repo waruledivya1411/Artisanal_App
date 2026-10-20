@@ -10,6 +10,7 @@ import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
+import 'package:artisnal_app/features/learn/widgets/ig_profile_preview.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
 
 class FindNumbersScreen extends StatefulWidget {
@@ -65,7 +66,7 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
     _speech.stop();
     LearnProgress.instance.finishTask(widget.taskId, widget.partCount);
     setState(() => _earned = true);
-    _confetti.forward(from: 0);
+    _confetti.repeat();
   }
 
   void _leave() {
@@ -170,7 +171,9 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
-                            _PagePreview(),
+                            const IgProfilePreview(
+                              variant: IgProfileVariant.business,
+                            ),
                             SizedBox(height: 12),
                             _Steps(),
                           ],
@@ -436,12 +439,11 @@ class _ConfettiPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (final piece in pieces) {
-      final span = 1 - piece.delay;
-      final local = ((t - piece.delay) / span).clamp(0.0, 1.0);
-      if (local == 0) continue;
-      final fade = local < 0.82 ? 1.0 : (1 - local) / 0.18;
-      final paint = Paint()
-        ..color = piece.color.withValues(alpha: fade.clamp(0.0, 1.0));
+      final local = (t + piece.delay) % 1.0;
+      final fadeOut = local > 0.9 ? (1.0 - local) / 0.1 : 1.0;
+      final fadeIn = local < 0.06 ? local / 0.06 : 1.0;
+      final fade = (fadeOut * fadeIn).clamp(0.0, 1.0);
+      final paint = Paint()..color = piece.color.withValues(alpha: fade);
       final dx =
           (piece.x + math.sin(local * math.pi * 3) * piece.drift) * size.width;
       final dy = (-0.12 + local * 1.3) * size.height;
@@ -467,214 +469,6 @@ class _ConfettiPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_ConfettiPainter oldDelegate) => oldDelegate.t != t;
-}
-
-class _PagePreview extends StatelessWidget {
-  const _PagePreview();
-
-  static const _posts = [
-    'assets/images/lessons/read_numbers/post_many_saves.jpg',
-    'assets/images/lessons/read_numbers/reply_cloth_post.jpg',
-    'assets/images/lessons/photography/fabric_straight.jpg',
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x12000000),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                const ClipOval(
-                  child: SharpImage(
-                    'assets/images/lessons/set_up_page/profile_clear.jpg',
-                    width: 52,
-                    height: 52,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'divya.weaves',
-                        style: GoogleFonts.plusJakartaSans(
-                          color: FindNumbersScreen.ink,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      const Row(
-                        children: [
-                          _Stat('12', 'posts'),
-                          _Stat('86', 'followers'),
-                          _Stat('4', 'following'),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Divya Warule\nHandwoven cloth · Sualkuchi, Assam',
-                style: GoogleFonts.plusJakartaSans(
-                  color: FindNumbersScreen.ink,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  height: 1.35,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFFBF4),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: FindNumbersScreen.gold, width: 1.6),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    'Professional dashboard',
-                    style: GoogleFonts.plusJakartaSans(
-                      color: FindNumbersScreen.ink,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Tools and resources just for businesses.',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.plusJakartaSans(
-                      color: FindNumbersScreen.muted,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Row(
-              children: [
-                _ProfileButton('Edit profile'),
-                SizedBox(width: 6),
-                _ProfileButton('Share profile'),
-                SizedBox(width: 6),
-                _ProfileButton('Contact'),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                for (var i = 0; i < _posts.length; i++) ...[
-                  if (i > 0) const SizedBox(width: 6),
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: SharpImage(_posts[i], fit: BoxFit.cover),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileButton extends StatelessWidget {
-  const _ProfileButton(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        height: 30,
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        decoration: BoxDecoration(
-          color: const Color(0xFFEFEFEF),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            label,
-            style: GoogleFonts.plusJakartaSans(
-              color: FindNumbersScreen.ink,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Stat extends StatelessWidget {
-  const _Stat(this.value, this.label);
-
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: GoogleFonts.plusJakartaSans(
-              color: FindNumbersScreen.ink,
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          Text(
-            label,
-            style: GoogleFonts.plusJakartaSans(
-              color: FindNumbersScreen.muted,
-              fontSize: 10,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _Steps extends StatelessWidget {

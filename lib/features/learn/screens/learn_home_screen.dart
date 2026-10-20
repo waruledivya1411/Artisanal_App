@@ -9,6 +9,8 @@ import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/data/materials.dart';
 import 'package:artisnal_app/features/learn/data/products.dart';
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
+import 'package:artisnal_app/features/learn/screens/photo_access_screen.dart';
+import 'package:artisnal_app/features/learn/screens/choose_content_type_screen.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 
 class LearnHomeScreen extends StatefulWidget {
@@ -156,6 +158,12 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
     return switch (task.number) {
       '01' => _openLearn,
       '02' => () => _open(setUpPageTask(widget.locale)),
+      '03' => () => _open(
+        PhotoAccessScreen(
+          locale: widget.locale,
+          nextBuilder: (_) => ChooseContentTypeScreen(locale: widget.locale),
+        ),
+      ),
       '04' => () => _open(postingPlanTask(widget.locale)),
       '05' => () => _open(readNumbersTask(widget.locale)),
       _ => null,
@@ -199,9 +207,7 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
                         letterSpacing: -0.4,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    const _LocationCard(),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 18),
                     Row(
                       children: [
                         Text(
@@ -399,66 +405,6 @@ class _GemPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _LocationCard extends StatelessWidget {
-  const _LocationCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: LearnHomeScreen.mint,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.location_on_outlined,
-                color: LearnHomeScreen.teal,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Sualkuchi, Assam',
-                style: GoogleFonts.plusJakartaSans(
-                  color: LearnHomeScreen.ink,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            Text(
-              'Change',
-              style: GoogleFonts.plusJakartaSans(
-                color: LearnHomeScreen.teal,
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _TaskCard extends StatelessWidget {

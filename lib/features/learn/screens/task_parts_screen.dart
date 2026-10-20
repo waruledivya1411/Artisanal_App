@@ -6,16 +6,25 @@ import 'package:artisnal_app/core/speech/speech_player.dart';
 import 'package:artisnal_app/core/widgets/app_bottom_nav.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
+import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
 
 enum TaskPartState { done, current, pending }
 
 class TaskPart {
-  const TaskPart(this.number, this.title, {this.open});
+  const TaskPart(
+    this.number,
+    this.title, {
+    this.open,
+    this.showOnList = true,
+  });
 
   final String number;
   final String title;
   final WidgetBuilder? open;
+
+  /// When false, the part still runs in order via Next, but has no row on the list.
+  final bool showOnList;
 }
 
 class TaskPartsScreen extends StatefulWidget {
@@ -86,11 +95,27 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
   bool _canOpen(int index) =>
       index < widget.parts.length && widget.parts[index].open != null;
 
+  int? _lastOpenPartIndex() {
+    for (var i = widget.parts.length - 1; i >= 0; i--) {
+      if (_canOpen(i)) return i;
+    }
+    return null;
+  }
+
   Route<void> _routeFor(int index) {
     final next = index + 1;
+    final isLastPart = _lastOpenPartIndex() == index;
+    final hasNext = _canOpen(next);
+    final nextHidden = hasNext && !widget.parts[next].showOnList;
     return MaterialPageRoute<void>(
       builder: (_) => LessonStep(
-        nextTitle: _canOpen(next) ? widget.parts[next].title : null,
+        nextTitle: hasNext ? widget.parts[next].title : null,
+        nextPartHidden: nextHidden,
+        nextLearnTaskTitle: isLastPart
+            ? LearnTaskChain.nextTaskTitle(widget.taskId)
+            : null,
+        learnTaskId: widget.taskId,
+        locale: widget.locale,
         onFinished: () => _finish(index),
         child: Builder(builder: widget.parts[index].open!),
       ),
@@ -98,6 +123,11 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
   }
 
   void _finish(int index) {
+    var done = _progress.completedParts(widget.taskId);
+    while (done < index) {
+      _progress.completePart(widget.taskId, done);
+      done++;
+    }
     _progress.completePart(widget.taskId, index);
     final listRoute = ModalRoute.of(context);
     bool isList(Route<dynamic> route) => route == listRoute;
@@ -109,10 +139,14 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
     }
   }
 
+  bool _mayOpenPart(int index) {
+    if (!_canOpen(index)) return false;
+    if (widget.taskId == 'set_up_page') return true;
+    return _stateOf(index) != TaskPartState.pending;
+  }
+
   VoidCallback? _openerFor(int index) {
-    if (!_canOpen(index) || _stateOf(index) == TaskPartState.pending) {
-      return null;
-    }
+    if (!_mayOpenPart(index)) return null;
     return () {
       _speech.stop();
       Navigator.of(context).push(_routeFor(index));
@@ -129,18 +163,48 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
   }
 
   String get _spokenText {
-    final titles = widget.parts.map((p) => p.title).join('. ');
+    final titles = widget.parts
+        .where((p) => p.showOnList)
+        .map((p) => p.title)
+        .join('. ');
     final picked = _pickedLabel;
     if (picked == null) return '${widget.title}. $titles.';
     return '${widget.title}. $picked. $titles.';
   }
 
+  void _onPartTap(int index) {
+    final open = _openerFor(index);
+    if (open != null) {
+      open();
+      return;
+    }
+    if (!_canOpen(index)) return;
+    final completed = _progress.completedParts(widget.taskId);
+    if (index > completed && completed < widget.parts.length) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Finish ${widget.parts[completed].title} first',
+            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  List<int> get _listedPartIndices => [
+        for (var i = 0; i < widget.parts.length; i++)
+          if (widget.parts[i].showOnList) i,
+      ];
+
   @override
   Widget build(BuildContext context) {
     final parts = widget.parts;
-    final doneCount = _progress
-        .completedParts(widget.taskId)
-        .clamp(0, parts.length);
+    final listed = _listedPartIndices;
+    final completed = _progress.completedParts(widget.taskId);
+    final doneCount =
+        listed.where((i) => i < completed).length.clamp(0, listed.length);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -218,31 +282,32 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        for (var i = 0; i < parts.length; i++) ...[
+                        for (var li = 0; li < listed.length; li++) ...[
                           Expanded(
                             child: Container(
                               height: 7,
                               decoration: BoxDecoration(
-                                color: i < doneCount
+                                color: li < doneCount
                                     ? TaskPartsScreen.teal
                                     : TaskPartsScreen.track,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
                           ),
-                          if (i != parts.length - 1) const SizedBox(width: 6),
+                          if (li != listed.length - 1) const SizedBox(width: 6),
                         ],
                       ],
                     ),
                     const SizedBox(height: 14),
-                    for (var i = 0; i < parts.length; i++) ...[
+                    for (final i in listed) ...[
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: _openerFor(i),
+                        onTap: () => _onPartTap(i),
                         child: _PartCard(
                           part: parts[i],
                           state: _stateOf(i),
-                          showChevron: widget.showChevron,
+                          showChevron:
+                              widget.showChevron && _mayOpenPart(i),
                         ),
                       ),
                       const SizedBox(height: 13),

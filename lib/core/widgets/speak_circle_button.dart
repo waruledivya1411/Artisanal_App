@@ -53,7 +53,10 @@ class SpeakCircleButton extends StatelessWidget {
 }
 
 class _WaveBars extends StatelessWidget {
-  const _WaveBars();
+  const _WaveBars({this.color = Colors.white, this.barWidth = 3});
+
+  final Color color;
+  final double barWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -63,16 +66,58 @@ class _WaveBars extends StatelessWidget {
       children: [
         for (var i = 0; i < heights.length; i++) ...[
           Container(
-            width: 3,
-            height: heights[i],
+            width: barWidth,
+            height: heights[i] * (barWidth / 3),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: color,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          if (i != heights.length - 1) const SizedBox(width: 3),
+          if (i != heights.length - 1) SizedBox(width: barWidth),
         ],
       ],
+    );
+  }
+}
+
+/// Speaker in lesson steps — tap to hear the step, then shows wave bars.
+class SpeakIconButton extends StatelessWidget {
+  const SpeakIconButton({
+    super.key,
+    required this.playing,
+    required this.onTap,
+    this.iconSize = 22,
+  });
+
+  final bool playing;
+  final VoidCallback onTap;
+  final double iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: SizedBox(
+            width: iconSize + 4,
+            height: iconSize + 4,
+            child: Center(
+              child: playing
+                  ? _WaveBars(color: SpeakCircleButton.teal, barWidth: 2.5)
+                  : SharpImage(
+                      'assets/images/icons/speaker.png',
+                      width: iconSize,
+                      height: iconSize,
+                      fit: BoxFit.contain,
+                    ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
