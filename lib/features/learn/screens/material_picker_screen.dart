@@ -21,11 +21,13 @@ class MaterialPickerScreen extends StatefulWidget {
     super.key,
     required this.locale,
     required this.taskLabel,
+    required this.product,
     required this.onPicked,
   });
 
   final String locale;
   final String taskLabel;
+  final String? product;
   final WidgetBuilder onPicked;
 
   static const Color background = Color(0xFFF6F7F4);
@@ -45,7 +47,14 @@ class _MaterialPickerScreenState extends State<MaterialPickerScreen> {
     if (mounted) setState(() {});
   });
 
-  late String? _selected = SelectedMaterial.instance.name;
+  late final List<MaterialOption> _materials = materialsFor(widget.product);
+
+  /// A yarn chosen for another product may not be offered for this one.
+  late String? _selected = _materials.any(
+    (m) => m.name == SelectedMaterial.instance.name,
+  )
+      ? SelectedMaterial.instance.name
+      : null;
 
   @override
   void dispose() {
@@ -55,7 +64,7 @@ class _MaterialPickerScreenState extends State<MaterialPickerScreen> {
 
   String get _spokenText =>
       'What is it made of? '
-      '${photographyMaterials.map((m) => m.name).join('. ')}.';
+      '${_materials.map((m) => m.name).join('. ')}.';
 
   void _select(String material) {
     HapticFeedback.selectionClick();
@@ -161,7 +170,7 @@ class _MaterialPickerScreenState extends State<MaterialPickerScreen> {
                 Expanded(
                   child: GridView.builder(
                     padding: EdgeInsets.zero,
-                    itemCount: photographyMaterials.length,
+                    itemCount: _materials.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
@@ -170,7 +179,7 @@ class _MaterialPickerScreenState extends State<MaterialPickerScreen> {
                           childAspectRatio: kPickerCardRatio,
                         ),
                     itemBuilder: (context, index) {
-                      final material = photographyMaterials[index];
+                      final material = _materials[index];
                       return _MaterialCard(
                         material: material,
                         selected: material.name == _selected,

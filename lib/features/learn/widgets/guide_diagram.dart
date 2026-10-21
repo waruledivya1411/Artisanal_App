@@ -5,6 +5,9 @@ enum GuideArt {
   /// A rod with the piece hanging straight off it.
   hang,
 
+  /// The whole piece laid flat, every edge in view.
+  spread,
+
   /// Thirds grid with the piece squared to it.
   grid,
 
@@ -87,6 +90,21 @@ class _GuidePainter extends CustomPainter {
         canvas.drawRect(cloth, accent);
         canvas.drawLine(const Offset(50, 22), const Offset(50, 86), faint);
         _tick(canvas, faint, 36, 64, 86);
+
+      case GuideArt.spread:
+        // plain sheet, the whole piece laid flat inside it
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            const Rect.fromLTRB(8, 12, 92, 88),
+            const Radius.circular(3),
+          ),
+          faint,
+        );
+        final flat = Rect.fromLTRB(18, 20, 82, 80);
+        canvas.drawRect(flat, fill);
+        canvas.drawRect(flat, accent);
+        canvas.drawLine(const Offset(68, 20), const Offset(68, 80), faint);
+        canvas.drawLine(const Offset(18, 66), const Offset(82, 66), faint);
 
       case GuideArt.grid:
         _thirds(canvas, faint);

@@ -70,25 +70,25 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
     _Task(
       number: '02',
       title: 'Set up your page',
-      detail: 'On Instagram · 7 min',
+      detail: 'On Instagram',
       image: 'assets/images/lessons/set_up_page/good_name_art.jpg',
     ),
     _Task(
       number: '03',
       title: 'Create a post',
-      detail: 'Post and story · 6 min',
+      detail: 'Post and story',
       image: 'assets/images/lessons/create_post/create_post_art.jpg',
     ),
     _Task(
       number: '04',
       title: 'Posting plan',
-      detail: 'What and when · 5 min',
+      detail: 'What and when',
       image: 'assets/images/lessons/posting_plan/post_often_art.jpg',
     ),
     _Task(
       number: '05',
       title: 'Read the numbers',
-      detail: 'Views, likes, saves · 4 min',
+      detail: 'Views, likes, saves',
       image: 'assets/images/lessons/read_numbers/read_numbers_art.jpg',
     ),
   ];

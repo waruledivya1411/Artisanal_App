@@ -10,8 +10,18 @@ class DisplayOption {
   final String name;
   final String key;
 
-  String imageFor(String material) =>
-      'assets/images/lessons/displays/${material.toLowerCase()}_$key.jpg';
+  /// Example photo for this display.
+  ///
+  /// The default set is shot on a sari, so a product with its own photos is
+  /// looked up first - otherwise a gamusa would be illustrated by a sari.
+  String imageFor(String material, {String? product}) {
+    const dir = 'assets/images/lessons/displays';
+    final m = material.toLowerCase();
+    if (product != null && productsWithOwnPhotos.contains(product)) {
+      return '$dir/${product.toLowerCase()}_${m}_$key.jpg';
+    }
+    return '$dir/${m}_$key.jpg';
+  }
 }
 
 const _fullDisplay = DisplayOption(name: 'Full display', key: 'full_display');
@@ -41,6 +51,10 @@ const everyDisplay = <DisplayOption>[
 const basicDisplays = <DisplayOption>[_fullDisplay, _folded];
 
 const _drapedProducts = {'Saree', 'Mekhala sador'};
+
+/// Products that have their own example photos for every display they offer.
+/// Everything else falls back to the sari set.
+const productsWithOwnPhotos = {'Gamusa'};
 
 List<DisplayOption> displaysFor(String? product) =>
     _drapedProducts.contains(product) ? everyDisplay : basicDisplays;

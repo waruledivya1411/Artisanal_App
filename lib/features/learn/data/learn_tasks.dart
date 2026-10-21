@@ -34,6 +34,7 @@ MaterialPickerScreen photographyMaterialPicker(String locale) {
   return MaterialPickerScreen(
     locale: locale,
     taskLabel: 'TASK 1 OF 5',
+    product: SelectedProduct.instance.name,
     onPicked: (_) => photographyDisplayPicker(locale),
   );
 }
@@ -53,8 +54,6 @@ TaskPartsScreen photographyTask(String locale) {
     taskId: photographyTaskId,
     taskLabel: 'TASK 1 OF 5',
     title: 'Photography',
-    product: SelectedProduct.instance.name,
-    material: SelectedMaterial.instance.name,
     parts: [
       TaskPart(
         '1',

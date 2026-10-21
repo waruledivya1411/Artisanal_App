@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:artisnal_app/app/app.dart';
 import 'package:artisnal_app/features/learn/data/display_guides.dart';
+import 'package:artisnal_app/features/learn/widgets/guide_diagram.dart';
 import 'package:artisnal_app/features/learn/widgets/shot_outline.dart';
 import 'package:artisnal_app/features/learn/data/displays.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
@@ -244,15 +245,8 @@ void main() {
     expect(find.text('Every post shows something new'), findsOneWidget);
     expect(find.text('Mixed'), findsOneWidget);
     expect(find.text('Same photo'), findsOneWidget);
-    await tester.tap(find.text('Finish'));
-    await tester.pumpAndSettle();
-    expect(find.text('Done'), findsNWidgets(3));
-    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.text('Read the numbers'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Read the numbers'));
+    // The last part of a task now leads straight into the next task.
+    await tester.tap(find.text('Next task: Read the numbers'));
     await tester.pumpAndSettle();
     expect(find.text('TASK 5 OF 5'), findsOneWidget);
     expect(find.text('Saves matter'), findsOneWidget);
@@ -531,6 +525,15 @@ void main() {
         reason: product,
       );
     }
+  });
+
+  test('full display is a flat lay and hanging is a hang', () {
+    final full = guideFor('full_display');
+    expect(full.first.title, 'Lay the whole piece flat');
+    expect(full.first.art, GuideArt.spread);
+    expect(full.any((step) => step.art == GuideArt.hang), isFalse);
+
+    expect(guideFor('hanging_display').first.art, GuideArt.hang);
   });
 
   test('every display has a guide that ends on a worked example', () {

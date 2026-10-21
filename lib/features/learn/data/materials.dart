@@ -47,6 +47,21 @@ const photographyMaterials = <MaterialOption>[
   ),
 ];
 
+/// Yarns each product is actually woven in. Anything not listed here is
+/// offered in every material.
+const _materialsByProduct = <String, Set<String>>{
+  'Gamusa': {'Cotton', 'Mulberry', 'Tussar'},
+  'Stole': {'Cotton', 'Eri'},
+  'Shawl': {'Cotton', 'Eri'},
+};
+
+/// Materials to offer for [product], in the usual order.
+List<MaterialOption> materialsFor(String? product) {
+  final allowed = _materialsByProduct[product];
+  if (allowed == null) return photographyMaterials;
+  return photographyMaterials.where((m) => allowed.contains(m.name)).toList();
+}
+
 class SelectedMaterial extends ChangeNotifier {
   SelectedMaterial._();
 

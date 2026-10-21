@@ -36,8 +36,6 @@ class TaskPartsScreen extends StatefulWidget {
     required this.title,
     required this.parts,
     this.showChevron = false,
-    this.product,
-    this.material,
   });
 
   final String locale;
@@ -46,8 +44,6 @@ class TaskPartsScreen extends StatefulWidget {
   final String title;
   final List<TaskPart> parts;
   final bool showChevron;
-  final String? product;
-  final String? material;
 
   static const Color background = Color(0xFFF6F7F4);
   static const Color teal = Color(0xFF1B7574);
@@ -156,23 +152,12 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
     };
   }
 
-  /// "Saree", "Muga", or "Saree · Muga" — whichever of the two was chosen.
-  String? get _pickedLabel {
-    final picked = [
-      widget.product,
-      widget.material,
-    ].whereType<String>().toList();
-    return picked.isEmpty ? null : picked.join(' · ');
-  }
-
   String get _spokenText {
     final titles = widget.parts
         .where((p) => p.showOnList)
         .map((p) => p.title)
         .join('. ');
-    final picked = _pickedLabel;
-    if (picked == null) return '${widget.title}. $titles.';
-    return '${widget.title}. $picked. $titles.';
+    return '${widget.title}. $titles.';
   }
 
   void _onPartTap(int index) {
@@ -278,10 +263,6 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
                         letterSpacing: -0.4,
                       ),
                     ),
-                    if (_pickedLabel != null) ...[
-                      const SizedBox(height: 12),
-                      _ProductBanner(name: _pickedLabel!),
-                    ],
                     const SizedBox(height: 12),
                     Row(
                       children: [
@@ -363,60 +344,6 @@ class _SpeakerCircle extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ProductBanner extends StatelessWidget {
-  const _ProductBanner({required this.name});
-
-  final String name;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Row(
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: TaskPartsScreen.mint,
-                borderRadius: BorderRadius.circular(11),
-              ),
-              child: const Icon(
-                Icons.checkroom_outlined,
-                color: TaskPartsScreen.teal,
-                size: 19,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                name,
-                style: GoogleFonts.plusJakartaSans(
-                  color: TaskPartsScreen.ink,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

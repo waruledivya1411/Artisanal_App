@@ -57,8 +57,21 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
 
   /// Tapping a display opens its guide; taking the shot there is what picks
   /// it, so the artisan sees how to frame it before choosing.
-  void _open(DisplayOption display) {
+  void _select(DisplayOption display) {
     HapticFeedback.selectionClick();
+    SelectedDisplay.instance.select(display.name);
+    setState(() => _selected = display.name);
+  }
+
+  /// Continue goes on to the chosen display's guide, which ends at the
+  /// camera - it does not leave the setup.
+  void _continue() {
+    final name = _selected;
+    if (name == null) return;
+    _openGuide(_displays.firstWhere((d) => d.name == name));
+  }
+
+  void _openGuide(DisplayOption display) {
     _speech.stop();
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -67,6 +80,7 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
           locale: widget.locale,
           display: display,
           material: widget.material,
+          product: widget.product,
           onTakeShot: () => _shoot(routeContext, display),
         ),
       ),
@@ -76,23 +90,6 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
   /// Last step of the setup. Every step is its own route so Back steps once,
   /// which means finishing has to unwind all of them: they share a route name,
   /// so pop until the first route that is not part of the setup.
-  void _done() {
-    final display = _selected;
-    if (display == null) return;
-    _speech.stop();
-    SelectedDisplay.instance.select(display);
-    final navigator = Navigator.of(context);
-    final setup = ModalRoute.of(context)?.settings.name;
-    if (setup == null) {
-      navigator.pop();
-      return;
-    }
-    navigator.popUntil((route) => route.settings.name != setup);
-  }
-
-  /// The end of a guide opens the camera. Reaching it is what picks the
-  /// display; keeping a photo also closes the guide, while backing out of the
-  /// camera leaves the guide open to read again.
   Future<void> _shoot(BuildContext guideContext, DisplayOption display) async {
     SelectedDisplay.instance.select(display.name);
     if (mounted) setState(() => _selected = display.name);
@@ -210,8 +207,9 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
                       return _DisplayCard(
                         display: display,
                         material: material,
+                        product: widget.product,
                         selected: display.name == _selected,
-                        onTap: () => _open(display),
+                        onTap: () => _select(display),
                       );
                     },
                   ),
@@ -234,14 +232,14 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
                       color: Colors.transparent,
                       borderRadius: BorderRadius.circular(18),
                       child: InkWell(
-                        onTap: picked ? _done : null,
+                        onTap: picked ? _continue : null,
                         borderRadius: BorderRadius.circular(18),
                         child: SizedBox(
                           height: 56,
                           width: double.infinity,
                           child: Center(
                             child: Text(
-                              'Done',
+                              'Continue',
                               style: GoogleFonts.plusJakartaSans(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -267,12 +265,14 @@ class _DisplayCard extends StatelessWidget {
   const _DisplayCard({
     required this.display,
     required this.material,
+    required this.product,
     required this.selected,
     required this.onTap,
   });
 
   final DisplayOption display;
   final String? material;
+  final String? product;
   final bool selected;
   final VoidCallback onTap;
 
@@ -315,7 +315,11 @@ class _DisplayCard extends StatelessWidget {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: _Example(display: display, material: material),
+                        child: _Example(
+                          display: display,
+                          material: material,
+                          product: product,
+                        ),
                       ),
                       if (selected)
                         const Align(
@@ -362,17 +366,22 @@ class _DisplayCard extends StatelessWidget {
 /// The example photo for this display in the chosen material, falling back to
 /// a plain tile when no material is set or its photo is missing.
 class _Example extends StatelessWidget {
-  const _Example({required this.display, required this.material});
+  const _Example({
+    required this.display,
+    required this.material,
+    required this.product,
+  });
 
   final DisplayOption display;
   final String? material;
+  final String? product;
 
   @override
   Widget build(BuildContext context) {
     final name = material;
     if (name == null) return const _NoExample();
     return Image.asset(
-      display.imageFor(name),
+      display.imageFor(name, product: product),
       fit: BoxFit.cover,
       errorBuilder: (context, error, stack) => const _NoExample(),
     );

@@ -16,12 +16,14 @@ class DisplayGuideScreen extends StatefulWidget {
     required this.locale,
     required this.display,
     required this.material,
+    required this.product,
     required this.onTakeShot,
   });
 
   final String locale;
   final DisplayOption display;
   final String? material;
+  final String? product;
 
   /// Called from the last step, to record the shot and leave the guide.
   final VoidCallback onTakeShot;
@@ -269,7 +271,7 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
                   ),
                 )
               : Image.asset(
-                  widget.display.imageFor(material),
+                  widget.display.imageFor(material, product: widget.product),
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stack) => const ColoredBox(
                     color: DisplayGuideScreen.track,

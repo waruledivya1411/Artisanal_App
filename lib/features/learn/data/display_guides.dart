@@ -25,20 +25,20 @@ class GuideStep {
 
 const _fullDisplay = <GuideStep>[
   GuideStep(
-    title: 'Hang the whole piece',
-    subtitle: 'Bamboo rod or dress form · plain wall behind',
-    art: GuideArt.hang,
+    title: 'Lay the whole piece flat',
+    subtitle: 'Floor or table · plain sheet under it',
+    art: GuideArt.spread,
   ),
   GuideStep(
-    title: 'Align with the gridlines',
-    subtitle: 'Edges along the lines · borders straight',
+    title: 'Straighten every edge',
+    subtitle: 'Corners square · borders even · no folds',
     art: GuideArt.grid,
   ),
   GuideStep(
     title: 'Good examples',
-    subtitle: 'Whole piece in frame — on a form, a chair, or spread flat',
+    subtitle: 'The whole piece in frame, laid flat',
     showExample: true,
-    caption: 'Show the whole piece straight, not draped on a form.',
+    caption: 'Show every edge. Keep it flat, not hanging.',
   ),
 ];
 
@@ -138,7 +138,7 @@ const _hanging = <GuideStep>[
     title: 'Good examples',
     subtitle: 'Hung straight — whole piece in frame, not draped',
     showExample: true,
-    caption: 'Full display stays a hang. Show the whole piece straight.',
+    caption: 'Hang it straight so the whole piece shows. Do not drape it.',
   ),
 ];
 
