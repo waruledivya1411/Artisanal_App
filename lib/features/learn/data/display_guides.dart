@@ -106,13 +106,10 @@ const _border = <GuideStep>[
 
 const _folded = <GuideStep>[
   GuideStep(
-    title: 'One folded sari in the box',
-    subtitle: 'Shot from above — not a pile, a single stack',
-    art: GuideArt.foldedStack,
-  ),
-  GuideStep(
-    title: 'Border on the side',
-    subtitle: 'Long edge facing the camera · edges parallel to the frame',
+    title: 'One folded sari, border on the side',
+    subtitle:
+        'Shot from above — a single stack, long edge facing the camera, '
+        'edges parallel to the frame',
     art: GuideArt.foldedStack,
   ),
   GuideStep(

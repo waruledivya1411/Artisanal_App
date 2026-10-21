@@ -33,6 +33,9 @@ class ShotOutline {
     required this.aspectRatio,
     this.silhouette,
     this.window,
+    this.windowLabel,
+    this.strip,
+    this.stripLabel,
     this.placement = ShotFramePlacement.centered,
     this.inset = const EdgeInsets.fromLTRB(22, 112, 22, 196),
     this.kind = ShotOverlayKind.standard,
@@ -50,6 +53,15 @@ class ShotOutline {
   /// of the piece that matters. Null when the whole frame is the target.
   final Rect? window;
 
+  /// Short word shown inside [window], naming what goes there.
+  final String? windowLabel;
+
+  /// A tall band inside the frame, as fractions of it, for a part that runs
+  /// along an edge - the border of a sari.
+  final Rect? strip;
+
+  final String? stripLabel;
+
   final ShotFramePlacement placement;
 
   /// Margins for [ShotFramePlacement.inset].
@@ -66,7 +78,10 @@ class ShotOutline {
       aspectRatio: 0.58,
       placement: ShotFramePlacement.inset,
       kind: ShotOverlayKind.embroideryBorder,
-      window: Rect.fromLTRB(0.40, 0.05, 0.90, 0.40),
+      window: Rect.fromLTRB(0.07, 0.07, 0.62, 0.48),
+      windowLabel: 'Motif',
+      strip: Rect.fromLTRB(0.74, 0.05, 0.93, 0.95),
+      stripLabel: 'Border',
     ),
     'folded_stack': ShotOutline(widthFactor: 0.80, aspectRatio: 0.78),
     'hanging_display': ShotOutline(widthFactor: 0.55, aspectRatio: 0.55),
@@ -202,8 +217,12 @@ class _OutlinePainter extends CustomPainter {
 
     switch (outline.kind) {
       case ShotOverlayKind.embroideryBorder:
+        final strip = outline.strip;
+        if (strip != null) {
+          _strip(canvas, _inside(rect, strip), outline.stripLabel);
+        }
         final inner = ShotOutline.innerWindow(rect, outline);
-        if (inner != null) _window(canvas, inner);
+        if (inner != null) _window(canvas, inner, outline.windowLabel);
       case ShotOverlayKind.foldedStack:
         _foldedStackGuide(canvas, rect);
       case ShotOverlayKind.hangingDisplay:
@@ -303,15 +322,86 @@ class _OutlinePainter extends CustomPainter {
     FoldedStackOverlay.paintContent(canvas, frame);
   }
 
-  /// Rounded blue window: border and motif land here.
-  void _window(Canvas canvas, Rect box) {
+  Rect _inside(Rect frame, Rect f) => Rect.fromLTRB(
+    frame.left + frame.width * f.left,
+    frame.top + frame.height * f.top,
+    frame.left + frame.width * f.right,
+    frame.top + frame.height * f.bottom,
+  );
+
+  /// The motif window, top left.
+  void _window(Canvas canvas, Rect box, String? label) {
     canvas.drawRRect(
-      RRect.fromRectAndRadius(box, const Radius.circular(10)),
+      RRect.fromRectAndRadius(box, const Radius.circular(8)),
       Paint()
-        ..color = _blue
+        ..color = Colors.white
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3,
     );
+    if (label != null) _centredLabel(canvas, label, box.center);
+  }
+
+  /// The border band down the right: faintly filled, with a few cross-ticks
+  /// so it reads as a woven strip rather than an empty box.
+  void _strip(Canvas canvas, Rect band, String? label) {
+    final rrect = RRect.fromRectAndRadius(band, const Radius.circular(6));
+    canvas.drawRRect(rrect, Paint()..color = const Color(0x26FFFFFF));
+    canvas.drawRRect(
+      rrect,
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5,
+    );
+    final tick = Paint()
+      ..color = const Color(0x66FFFFFF)
+      ..strokeWidth = 1.5;
+    for (var y = band.top + 18; y < band.bottom - 10; y += 18) {
+      canvas.drawLine(
+        Offset(band.left + 6, y),
+        Offset(band.right - 6, y),
+        tick,
+      );
+    }
+    if (label != null) _centredLabel(canvas, label, band.center, boxed: true);
+  }
+
+  void _centredLabel(
+    Canvas canvas,
+    String text,
+    Offset centre, {
+    bool boxed = false,
+  }) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+          height: 1,
+          shadows: [Shadow(color: Color(0xCC000000), blurRadius: 3)],
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final topLeft = centre - Offset(painter.width / 2, painter.height / 2);
+    if (boxed) {
+      // Sits over the ticks, so give it a backing to stay legible.
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(
+            topLeft.dx - 4,
+            topLeft.dy - 3,
+            painter.width + 8,
+            painter.height + 6,
+          ),
+          const Radius.circular(4),
+        ),
+        Paint()..color = const Color(0xB3000000),
+      );
+    }
+    painter.paint(canvas, topLeft);
   }
 
   /// Rule of thirds, white and faint, inside the frame only.
@@ -395,8 +485,7 @@ class _OutlinePainter extends CustomPainter {
     );
   }
 
-  /// Shot from above: two horizontals and one diagonal to square the piece
-  /// up against.
+  /// Shot from above: two horizontals to square the piece up against.
   void _foldedGuides(Canvas canvas, Rect r) {
     Offset at(double x, double y) =>
         Offset(r.left + r.width * x / 100, r.top + r.height * y / 100);
@@ -405,7 +494,6 @@ class _OutlinePainter extends CustomPainter {
       ..strokeWidth = 1.4;
     canvas.drawLine(at(0, 33), at(100, 33), guide);
     canvas.drawLine(at(0, 66), at(100, 66), guide);
-    canvas.drawLine(at(6, 94), at(94, 6), guide);
   }
 
   /// One sari folded into a rectangle, border along the edge facing the
@@ -521,6 +609,7 @@ class _OutlinePainter extends CustomPainter {
       oldDelegate.outline.aspectRatio != outline.aspectRatio ||
       oldDelegate.outline.silhouette != outline.silhouette ||
       oldDelegate.outline.window != outline.window ||
+      oldDelegate.outline.strip != outline.strip ||
       oldDelegate.outline.placement != outline.placement ||
       oldDelegate.outline.inset != outline.inset ||
       oldDelegate.outline.kind != outline.kind;
@@ -531,14 +620,16 @@ class ShotFrameHintOverlay extends StatelessWidget {
   const ShotFrameHintOverlay({
     super.key,
     required this.outline,
-    required this.hint,
+    this.hint,
     required this.prompt,
     required this.hintStyle,
     required this.promptStyle,
   });
 
   final ShotOutline outline;
-  final String hint;
+
+  /// Dark caption pill; left out when null, and the prompt takes its place.
+  final String? hint;
   final String prompt;
   final TextStyle hintStyle;
   final TextStyle promptStyle;
@@ -553,20 +644,26 @@ class ShotFrameHintOverlay extends StatelessWidget {
         final horizontal = frame.left + 10;
         final width = frame.width - 20;
 
+        final hint = this.hint;
         return Stack(
           children: [
-            Positioned(
-              left: horizontal,
-              top: top,
-              width: width,
-              child: _pill(
-                color: const Color(0xCC0E1413),
-                child: Text(hint, textAlign: TextAlign.center, style: hintStyle),
+            if (hint != null)
+              Positioned(
+                left: horizontal,
+                top: top,
+                width: width,
+                child: _pill(
+                  color: const Color(0xCC0E1413),
+                  child: Text(
+                    hint,
+                    textAlign: TextAlign.center,
+                    style: hintStyle,
+                  ),
+                ),
               ),
-            ),
             Positioned(
               left: horizontal,
-              top: top + 46,
+              top: hint == null ? top : top + 46,
               width: width,
               child: _pill(
                 color: const Color(0xFFF5C84C),

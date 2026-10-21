@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'package:artisnal_app/features/learn/widgets/folded_stack_diagram.dart';
@@ -153,18 +155,85 @@ class _GuidePainter extends CustomPainter {
         canvas.drawPath(folds, accent);
 
       case GuideArt.border:
-        final piece = Rect.fromLTRB(16, 20, 84, 80);
-        canvas.drawRect(piece, solid);
-        final band = Rect.fromLTRB(16, 62, 84, 80);
-        canvas.drawRect(band, fill);
-        canvas.drawRect(band, accent);
-        for (var x = 24.0; x <= 76; x += 13) {
-          canvas.drawLine(Offset(x, 66), Offset(x, 76), faint);
+        // Same layout as the camera frame for this shot: upright piece,
+        // motif window top left, border strip down the right.
+        const frame = Rect.fromLTRB(18, 11, 82, 89);
+        Rect inside(double l, double t, double r, double b) => Rect.fromLTRB(
+          frame.left + frame.width * l,
+          frame.top + frame.height * t,
+          frame.left + frame.width * r,
+          frame.top + frame.height * b,
+        );
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+          solid,
+        );
+
+        final strip = inside(0.74, 0.05, 0.93, 0.95);
+        canvas.drawRect(strip, fill);
+        canvas.drawRect(strip, accent);
+        for (var y = strip.top + 6; y < strip.bottom - 3; y += 6) {
+          canvas.drawLine(
+            Offset(strip.left + 1.5, y),
+            Offset(strip.right - 1.5, y),
+            faint,
+          );
         }
+
+        final window = inside(0.07, 0.07, 0.62, 0.48);
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(window, const Radius.circular(2.5)),
+          accent,
+        );
+        _label(canvas, 'Motif', window.center);
+        _label(canvas, 'Border', strip.center, boxed: true, vertical: true);
 
       case GuideArt.foldedStack:
         break;
     }
+  }
+
+  void _label(
+    Canvas canvas,
+    String text,
+    Offset centre, {
+    bool boxed = false,
+    bool vertical = false,
+  }) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(
+          color: GuideDiagram.ink,
+          fontSize: 5.5,
+          fontWeight: FontWeight.w800,
+          height: 1,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    canvas.save();
+    canvas.translate(centre.dx, centre.dy);
+    // Run up a narrow strip rather than spilling across it.
+    if (vertical) canvas.rotate(-math.pi / 2);
+    final topLeft = Offset(-painter.width / 2, -painter.height / 2);
+    if (boxed) {
+      // Sits on the strip's ticks, so give it a plain backing.
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(
+            topLeft.dx - 1.2,
+            topLeft.dy - 1,
+            painter.width + 2.4,
+            painter.height + 2,
+          ),
+          const Radius.circular(1.2),
+        ),
+        Paint()..color = Colors.white,
+      );
+    }
+    painter.paint(canvas, topLeft);
+    canvas.restore();
   }
 
   void _thirds(Canvas canvas, Paint p) {

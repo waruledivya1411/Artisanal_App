@@ -447,12 +447,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tapping a display opens its shooting guide.
-    expect(find.text('One folded sari in the box'), findsOneWidget);
-    expect(find.text('Shot from above — not a pile, a single stack'), findsOneWidget);
-    await tester.tap(find.text('Next'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Border on the side'), findsOneWidget);
+    expect(find.text('One folded sari, border on the side'), findsOneWidget);
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
 
@@ -476,11 +471,9 @@ void main() {
     expect(find.text('Good examples'), findsOneWidget);
 
     // Back steps through the guide, then out of it.
-    for (final title in ['Border on the side', 'One folded sari in the box']) {
-      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
-      await tester.pumpAndSettle();
-      expect(find.text(title), findsOneWidget);
-    }
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('One folded sari, border on the side'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
     expect(find.text('How will you show it?'), findsOneWidget);

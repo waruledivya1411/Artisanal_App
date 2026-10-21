@@ -111,10 +111,10 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     }
   }
 
-  String get _hint {
-    if (_outline.kind == ShotOverlayKind.embroideryBorder) {
-      return 'Put the border / motif in this window';
-    }
+  /// The labelled window and strip already say where things go, so the
+  /// border shot has no caption.
+  String? get _hint {
+    if (_outline.kind == ShotOverlayKind.embroideryBorder) return null;
     if (_outline.kind == ShotOverlayKind.foldedStack) {
       return 'One folded sari in this box — border on the side';
     }
@@ -158,7 +158,7 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   String? get _headerProduct =>
       _guidedShoot ? (widget.product ?? 'Saree') : null;
 
-  String get _spokenText => '${widget.display.name}. $_hint.';
+  String get _spokenText => '${widget.display.name}. ${_hint ?? _prompt}.';
 
   Future<void> _capture() async {
     final controller = _controller;
@@ -533,7 +533,7 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           child: Text(
-            _hint,
+            _hint ?? _prompt,
             textAlign: TextAlign.center,
             style: GoogleFonts.plusJakartaSans(
               color: Colors.white,
