@@ -1,9 +1,28 @@
 import 'package:flutter/material.dart';
 
+import 'package:artisnal_app/features/learn/widgets/folded_stack_diagram.dart';
+
 /// A plain shape drawn inside the frame showing roughly how the piece should
 /// sit. Deliberately one outline with no labels: the artisan reads the shape,
 /// not words.
 enum ShotSilhouette { draped, foldedSari }
+
+/// Camera overlay drawn on top of the live preview.
+enum ShotOverlayKind {
+  standard,
+  embroideryBorder,
+  foldedStack,
+  hangingDisplay,
+}
+
+/// How the outer dashed frame is placed on the preview.
+enum ShotFramePlacement {
+  /// Centered box sized from [ShotOutline.widthFactor] and [aspectRatio].
+  centered,
+
+  /// Tall frame inset from the screen edges (embroidery & border).
+  inset,
+}
 
 /// The dotted box the product should sit inside, shaped for the display being
 /// shot: tall for a hanging piece, square for a close-up, a wide band for a
@@ -14,6 +33,9 @@ class ShotOutline {
     required this.aspectRatio,
     this.silhouette,
     this.window,
+    this.placement = ShotFramePlacement.centered,
+    this.inset = const EdgeInsets.fromLTRB(22, 112, 22, 196),
+    this.kind = ShotOverlayKind.standard,
   });
 
   /// Share of the preview width the box takes.
@@ -28,14 +50,23 @@ class ShotOutline {
   /// of the piece that matters. Null when the whole frame is the target.
   final Rect? window;
 
+  final ShotFramePlacement placement;
+
+  /// Margins for [ShotFramePlacement.inset].
+  final EdgeInsets inset;
+
+  final ShotOverlayKind kind;
+
   static const _byDisplay = <String, ShotOutline>{
     'full_display': ShotOutline(widthFactor: 0.62, aspectRatio: 0.70),
     'close-up_texture': ShotOutline(widthFactor: 0.72, aspectRatio: 1.00),
     'draped_look': ShotOutline(widthFactor: 0.68, aspectRatio: 0.70),
     'embroidery_and_border': ShotOutline(
-      widthFactor: 0.82,
-      aspectRatio: 0.82,
-      window: Rect.fromLTRB(0.45, 0.07, 0.90, 0.48),
+      widthFactor: 0.88,
+      aspectRatio: 0.58,
+      placement: ShotFramePlacement.inset,
+      kind: ShotOverlayKind.embroideryBorder,
+      window: Rect.fromLTRB(0.40, 0.05, 0.90, 0.40),
     ),
     'folded_stack': ShotOutline(widthFactor: 0.80, aspectRatio: 0.78),
     'hanging_display': ShotOutline(widthFactor: 0.55, aspectRatio: 0.55),
@@ -44,6 +75,8 @@ class ShotOutline {
   static ShotOutline forDisplay(String displayKey) =>
       _byDisplay[displayKey] ??
       const ShotOutline(widthFactor: 0.70, aspectRatio: 0.75);
+
+  static const _sareeGuideProducts = {'Saree', 'Mekhala sador'};
 
   /// A draped piece gets the cloth-over-a-chair shape; everything else gets
   /// the plain box for its display.
@@ -55,6 +88,24 @@ class ShotOutline {
         silhouette: ShotSilhouette.draped,
       );
     }
+    if (displayKey == 'folded_stack' &&
+        _sareeGuideProducts.contains(product)) {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: 0.58,
+        placement: ShotFramePlacement.inset,
+        kind: ShotOverlayKind.foldedStack,
+      );
+    }
+    if (displayKey == 'hanging_display' &&
+        _sareeGuideProducts.contains(product)) {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: 0.58,
+        placement: ShotFramePlacement.inset,
+        kind: ShotOverlayKind.hangingDisplay,
+      );
+    }
     if (displayKey == 'folded_stack') {
       return const ShotOutline(
         widthFactor: 0.80,
@@ -63,6 +114,38 @@ class ShotOutline {
       );
     }
     return forDisplay(displayKey);
+  }
+
+  /// Outer dashed frame in preview coordinates.
+  static Rect outerFrame(Size size, ShotOutline outline) {
+    if (outline.placement == ShotFramePlacement.inset) {
+      final left = outline.inset.left;
+      final top = outline.inset.top;
+      final right = size.width - outline.inset.right;
+      final bottom = size.height - outline.inset.bottom;
+      return Rect.fromLTRB(left, top, right, bottom);
+    }
+    final boxWidth = size.width * outline.widthFactor;
+    final boxHeight = (boxWidth / outline.aspectRatio).clamp(
+      80.0,
+      size.height * 0.80,
+    );
+    return Rect.fromCenter(
+      center: Offset(size.width / 2, size.height / 2),
+      width: boxWidth,
+      height: boxHeight,
+    );
+  }
+
+  static Rect? innerWindow(Rect frame, ShotOutline outline) {
+    final fractions = outline.window;
+    if (fractions == null) return null;
+    return Rect.fromLTRB(
+      frame.left + frame.width * fractions.left,
+      frame.top + frame.height * fractions.top,
+      frame.left + frame.width * fractions.right,
+      frame.top + frame.height * fractions.bottom,
+    );
   }
 }
 
@@ -93,16 +176,7 @@ class _OutlinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final boxWidth = size.width * outline.widthFactor;
-    final boxHeight = (boxWidth / outline.aspectRatio).clamp(
-      80.0,
-      size.height * 0.80,
-    );
-    final rect = Rect.fromCenter(
-      center: Offset(size.width / 2, size.height / 2),
-      width: boxWidth,
-      height: boxHeight,
-    );
+    final rect = ShotOutline.outerFrame(size, outline);
     final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(10));
 
     // Dim everything outside the box so the box reads as the target.
@@ -126,22 +200,115 @@ class _OutlinePainter extends CustomPainter {
         break;
     }
 
-    final window = outline.window;
-    if (window != null) _window(canvas, rect, window);
+    switch (outline.kind) {
+      case ShotOverlayKind.embroideryBorder:
+        final inner = ShotOutline.innerWindow(rect, outline);
+        if (inner != null) _window(canvas, inner);
+      case ShotOverlayKind.foldedStack:
+        _foldedStackGuide(canvas, rect);
+      case ShotOverlayKind.hangingDisplay:
+        _hangingDisplayGuide(canvas, rect);
+      case ShotOverlayKind.standard:
+        break;
+    }
   }
 
-  /// The solid box inside the frame that the border or motif must land in.
-  void _window(Canvas canvas, Rect frame, Rect fractions) {
-    final box = Rect.fromLTRB(
-      frame.left + frame.width * fractions.left,
-      frame.top + frame.height * fractions.top,
-      frame.left + frame.width * fractions.right,
-      frame.top + frame.height * fractions.bottom,
+  /// Rod at the top, centre cross, sari hanging with even fringes at the bottom.
+  void _hangingDisplayGuide(Canvas canvas, Rect frame) {
+    final cx = frame.center.dx;
+    final midY = frame.center.dy;
+
+    final cross = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 1.4;
+    canvas.drawLine(
+      Offset(frame.left, midY),
+      Offset(frame.right, midY),
+      cross,
     );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(box, const Radius.circular(8)),
+    canvas.drawLine(
+      Offset(cx, frame.top),
+      Offset(cx, frame.bottom),
+      cross,
+    );
+
+    final rodY = frame.top + 10;
+    final rodOverhang = frame.width * 0.07;
+    final rod = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 3.2
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(
+      Offset(frame.left - rodOverhang, rodY),
+      Offset(frame.right + rodOverhang, rodY),
+      rod,
+    );
+    canvas.drawCircle(
+      Offset(cx, rodY),
+      5.5,
+      Paint()
+        ..color = const Color(0xE6FFFFFF)
+        ..style = PaintingStyle.fill,
+    );
+    canvas.drawCircle(
+      Offset(cx, rodY),
+      5.5,
       Paint()
         ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.6,
+    );
+
+    final hangTop = rodY + 5;
+    final hangBottom = frame.bottom - frame.height * 0.07;
+    final halfTop = frame.width * 0.09;
+    final halfLower = frame.width * 0.34;
+    final fringeDepth = frame.height * 0.035;
+    final fringeCount = 9;
+    final fringeSpan = halfLower * 2;
+    final fringeStep = fringeSpan / fringeCount;
+
+    final cloth = Path()
+      ..moveTo(cx - halfTop, hangTop)
+      ..lineTo(cx + halfTop, hangTop)
+      ..lineTo(cx + halfLower, hangBottom - fringeDepth);
+
+    var x = cx + halfLower;
+    for (var i = 0; i < fringeCount; i++) {
+      final nextX = x - fringeStep;
+      final tipY = hangBottom + (i.isEven ? fringeDepth * 0.55 : 0);
+      cloth.lineTo(x, hangBottom);
+      cloth.lineTo((x + nextX) / 2, tipY);
+      cloth.lineTo(nextX, hangBottom);
+      x = nextX;
+    }
+
+    cloth
+      ..lineTo(cx - halfLower, hangBottom - fringeDepth)
+      ..close();
+
+    canvas.drawPath(cloth, Paint()..color = const Color(0x24FFFFFF));
+    canvas.drawPath(
+      cloth,
+      Paint()
+        ..color = const Color(0xE6FFFFFF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.4
+        ..strokeJoin = StrokeJoin.round,
+    );
+  }
+
+  /// Top-down folded sari: one rectangle with a border strip.
+  void _foldedStackGuide(Canvas canvas, Rect frame) {
+    FoldedStackOverlay.paintContent(canvas, frame);
+  }
+
+  /// Rounded blue window: border and motif land here.
+  void _window(Canvas canvas, Rect box) {
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(box, const Radius.circular(10)),
+      Paint()
+        ..color = _blue
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3,
     );
@@ -353,5 +520,79 @@ class _OutlinePainter extends CustomPainter {
       oldDelegate.outline.widthFactor != outline.widthFactor ||
       oldDelegate.outline.aspectRatio != outline.aspectRatio ||
       oldDelegate.outline.silhouette != outline.silhouette ||
-      oldDelegate.outline.window != outline.window;
+      oldDelegate.outline.window != outline.window ||
+      oldDelegate.outline.placement != outline.placement ||
+      oldDelegate.outline.inset != outline.inset ||
+      oldDelegate.outline.kind != outline.kind;
+}
+
+/// Hint pills anchored to the lower area inside the dashed frame.
+class ShotFrameHintOverlay extends StatelessWidget {
+  const ShotFrameHintOverlay({
+    super.key,
+    required this.outline,
+    required this.hint,
+    required this.prompt,
+    required this.hintStyle,
+    required this.promptStyle,
+  });
+
+  final ShotOutline outline;
+  final String hint;
+  final String prompt;
+  final TextStyle hintStyle;
+  final TextStyle promptStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final size = Size(constraints.maxWidth, constraints.maxHeight);
+        final frame = ShotOutline.outerFrame(size, outline);
+        final top = frame.top + frame.height * 0.58;
+        final horizontal = frame.left + 10;
+        final width = frame.width - 20;
+
+        return Stack(
+          children: [
+            Positioned(
+              left: horizontal,
+              top: top,
+              width: width,
+              child: _pill(
+                color: const Color(0xCC0E1413),
+                child: Text(hint, textAlign: TextAlign.center, style: hintStyle),
+              ),
+            ),
+            Positioned(
+              left: horizontal,
+              top: top + 46,
+              width: width,
+              child: _pill(
+                color: const Color(0xFFF5C84C),
+                child: Text(
+                  prompt,
+                  textAlign: TextAlign.center,
+                  style: promptStyle,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _pill({required Color color, required Widget child}) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: child,
+      ),
+    );
+  }
 }

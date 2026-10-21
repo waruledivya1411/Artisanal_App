@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:artisnal_app/features/learn/widgets/folded_stack_diagram.dart';
+
 /// The line drawing that shows how to set a shot up.
 enum GuideArt {
   /// A rod with the piece hanging straight off it.
@@ -26,11 +28,8 @@ enum GuideArt {
   /// The border band along one edge.
   border,
 
-  /// Cloth folded in half.
-  foldHalf,
-
-  /// A corner turned back to show thickness.
-  foldCorner,
+  /// Folded stack — same overlay as the live camera (plain).
+  foldedStack,
 }
 
 class GuideDiagram extends StatelessWidget {
@@ -43,11 +42,16 @@ class GuideDiagram extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _GuidePainter(art),
-      size: Size.infinite,
-      isComplex: true,
-    );
+    switch (art) {
+      case GuideArt.foldedStack:
+        return const FoldedStackGuideDiagram();
+      default:
+        return CustomPaint(
+          painter: _GuidePainter(art),
+          size: Size.infinite,
+          isComplex: true,
+        );
+    }
   }
 }
 
@@ -158,21 +162,8 @@ class _GuidePainter extends CustomPainter {
           canvas.drawLine(Offset(x, 66), Offset(x, 76), faint);
         }
 
-      case GuideArt.foldHalf:
-        canvas.drawRect(Rect.fromLTRB(14, 30, 86, 74), solid);
-        _dashed(canvas, faint, const Offset(50, 26), const Offset(50, 78));
-        _arrow(canvas, accent, const Offset(78, 20), const Offset(56, 20));
-
-      case GuideArt.foldCorner:
-        final piece = Rect.fromLTRB(18, 26, 82, 78);
-        canvas.drawRect(piece, solid);
-        final corner = Path()
-          ..moveTo(82, 26)
-          ..lineTo(82, 52)
-          ..lineTo(56, 26)
-          ..close();
-        canvas.drawPath(corner, fill);
-        canvas.drawPath(corner, accent);
+      case GuideArt.foldedStack:
+        break;
     }
   }
 
@@ -185,19 +176,6 @@ class _GuidePainter extends CustomPainter {
 
   void _tick(Canvas canvas, Paint p, double x1, double x2, double y) {
     canvas.drawLine(Offset(x1, y + 6), Offset(x2, y + 6), p);
-  }
-
-  void _dashed(Canvas canvas, Paint p, Offset a, Offset b) {
-    const dash = 5.0;
-    final total = (b - a).distance;
-    final step = (b - a) / total;
-    for (var d = 0.0; d < total; d += dash * 2) {
-      canvas.drawLine(
-        a + step * d,
-        a + step * (d + dash).clamp(0, total),
-        p,
-      );
-    }
   }
 
   void _arrow(Canvas canvas, Paint p, Offset from, Offset to) {

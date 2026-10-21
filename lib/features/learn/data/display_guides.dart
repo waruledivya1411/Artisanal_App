@@ -106,18 +106,18 @@ const _border = <GuideStep>[
 
 const _folded = <GuideStep>[
   GuideStep(
-    title: 'Fold from the middle',
-    subtitle: 'Flat on the floor · fold in half',
-    art: GuideArt.foldHalf,
+    title: 'One folded sari in the box',
+    subtitle: 'Shot from above — not a pile, a single stack',
+    art: GuideArt.foldedStack,
   ),
   GuideStep(
-    title: 'Fold a corner back',
-    subtitle: 'The folded edge shows the thickness',
-    art: GuideArt.foldCorner,
+    title: 'Border on the side',
+    subtitle: 'Long edge facing the camera · edges parallel to the frame',
+    art: GuideArt.foldedStack,
   ),
   GuideStep(
     title: 'Good examples',
-    subtitle: 'Folded stacks — layers show body and weight',
+    subtitle: 'One stack in frame — border strip visible on the side',
     showExample: true,
     caption: 'Layers tell the buyer how heavy the cloth is.',
   ),

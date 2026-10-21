@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
+import 'package:artisnal_app/features/learn/data/display_guides.dart';
 import 'package:artisnal_app/features/learn/data/displays.dart';
 import 'package:artisnal_app/features/learn/widgets/shot_outline.dart';
 
@@ -37,6 +38,13 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
 
   late final ShotOutline _outline =
       ShotOutline.forShot(widget.product, widget.display.key);
+
+  bool get _guidedShoot =>
+      _outline.kind == ShotOverlayKind.embroideryBorder ||
+      _outline.kind == ShotOverlayKind.foldedStack ||
+      _outline.kind == ShotOverlayKind.hangingDisplay;
+
+  int get _guideStepCount => guideFor(widget.display.key).length;
 
   CameraController? _controller;
   String? _problem;
@@ -104,8 +112,14 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   }
 
   String get _hint {
-    if (_outline.window != null) {
+    if (_outline.kind == ShotOverlayKind.embroideryBorder) {
       return 'Put the border / motif in this window';
+    }
+    if (_outline.kind == ShotOverlayKind.foldedStack) {
+      return 'One folded sari in this box — border on the side';
+    }
+    if (_outline.kind == ShotOverlayKind.hangingDisplay) {
+      return 'Hang the piece in the centre, under the rod';
     }
     if (_outline.silhouette == ShotSilhouette.draped) {
       return 'Cover the pale shape with your cloth';
@@ -121,9 +135,28 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
 
   /// The one thing to do next, called out in yellow.
   String get _prompt {
+    if (_guidedShoot) {
+      return 'Move the saree into the frame';
+    }
     final product = widget.product?.toLowerCase() ?? 'piece';
     return 'Move the $product into the frame';
   }
+
+  String get _headerTitle {
+    switch (_outline.kind) {
+      case ShotOverlayKind.embroideryBorder:
+        return widget.display.name.toUpperCase().replaceAll(' AND ', ' & ');
+      case ShotOverlayKind.foldedStack:
+        return 'FOLDED STACK';
+      case ShotOverlayKind.hangingDisplay:
+        return 'HANGING DISPLAY';
+      case ShotOverlayKind.standard:
+        return widget.display.name.toUpperCase();
+    }
+  }
+
+  String? get _headerProduct =>
+      _guidedShoot ? (widget.product ?? 'Saree') : null;
 
   String get _spokenText => '${widget.display.name}. $_hint.';
 
@@ -166,14 +199,33 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
             else ...[
               _preview(),
               ShotOutlineOverlay(outline: _outline),
+              if (_guidedShoot)
+                ShotFrameHintOverlay(
+                  outline: _outline,
+                  hint: _hint,
+                  prompt: _prompt,
+                  hintStyle: GoogleFonts.plusJakartaSans(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    height: 1.3,
+                  ),
+                  promptStyle: GoogleFonts.plusJakartaSans(
+                    color: const Color(0xFF2A2109),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    height: 1.3,
+                  ),
+                ),
             ],
             SafeArea(
               child: Column(
                 children: [
-                  _topBar(),
-                  if (photo == null) _checkPills(),
+                  _guidedShoot ? _guidedTopBar() : _topBar(),
+                  if (photo == null)
+                    _guidedShoot ? _guidedCheckPills() : _checkPills(),
                   const Spacer(),
-                  if (photo == null) ...[
+                  if (photo == null && !_guidedShoot) ...[
                     _hintBar(),
                     const SizedBox(height: 8),
                     _promptPill(),
@@ -248,7 +300,7 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
           ),
           Expanded(
             child: Text(
-              widget.display.name.toUpperCase(),
+              _headerTitle,
               style: GoogleFonts.plusJakartaSans(
                 color: Colors.white,
                 fontSize: 12,
@@ -263,6 +315,136 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
                 _speech.toggle(locale: widget.locale, text: _spokenText),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _guidedTopBar() {
+    final product = _headerProduct;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 4, 16, 0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IconButton(
+            onPressed: () => Navigator.of(context).maybePop(),
+            icon: const Icon(Icons.arrow_back_rounded),
+            color: Colors.white,
+            iconSize: 24,
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _headerTitle,
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.6,
+                    height: 1.2,
+                  ),
+                ),
+                if (product != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    product,
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.white.withValues(alpha: 0.92),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              '$_guideStepCount / $_guideStepCount',
+              style: GoogleFonts.plusJakartaSans(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _guidedCheckPills() {
+    const rows = <(String, String, Color)>[
+      ('Light', 'OK', Color(0xFF3D9B5A)),
+      ('Distance', 'Move back', Color(0xFFE0A82E)),
+      ('Centre', 'OK', Color(0xFF3D9B5A)),
+    ];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      child: Row(
+        children: [
+          for (var i = 0; i < rows.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
+            Expanded(
+              child: _guidedStatusPill(
+                label: rows[i].$1,
+                status: rows[i].$2,
+                statusColor: rows[i].$3,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _guidedStatusPill({
+    required String label,
+    required String status,
+    required Color statusColor,
+  }) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0x990E1413),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0x33FFFFFF)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Column(
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 4),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: statusColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                child: Text(
+                  status,
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
