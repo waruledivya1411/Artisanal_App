@@ -530,7 +530,10 @@ void main() {
     expect(full.first.art, GuideArt.spread);
     expect(full.any((step) => step.art == GuideArt.hang), isFalse);
 
-    expect(guideFor('hanging_display').first.art, GuideArt.hang);
+    expect(
+      guideFor('hanging_display').first.art,
+      GuideArt.hangingDisplayCentre,
+    );
   });
 
   test('every display has a guide that ends on a worked example', () {
