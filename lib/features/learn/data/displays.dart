@@ -56,8 +56,14 @@ const _drapedProducts = {'Saree', 'Mekhala sador'};
 /// Everything else falls back to the sari set.
 const productsWithOwnPhotos = {'Gamusa'};
 
-List<DisplayOption> displaysFor(String? product) =>
-    _drapedProducts.contains(product) ? everyDisplay : basicDisplays;
+/// A jod kappur is shown hanging rather than folded.
+const _hangingDisplays = <DisplayOption>[_fullDisplay, _hanging];
+
+List<DisplayOption> displaysFor(String? product) {
+  if (_drapedProducts.contains(product)) return everyDisplay;
+  if (product == 'Jod kappur') return _hangingDisplays;
+  return basicDisplays;
+}
 
 class SelectedDisplay extends ChangeNotifier {
   SelectedDisplay._();

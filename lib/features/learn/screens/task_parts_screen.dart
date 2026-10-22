@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/widgets/app_bottom_nav.dart';
-import 'package:artisnal_app/core/widgets/sharp_image.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
@@ -314,40 +313,7 @@ class _SpeakerCircle extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x22000000),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.white,
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onTap,
-          child: const SizedBox(
-            width: 48,
-            height: 48,
-            child: Center(
-              child: SharpImage(
-                'assets/images/icons/speaker.png',
-                width: 22,
-                height: 22,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => const SizedBox.shrink();
 }
 
 class _PartCard extends StatelessWidget {

@@ -1,60 +1,13 @@
-import 'package:flutter_tts/flutter_tts.dart';
-
+/// Read-aloud has been removed from the app. This keeps the interface the
+/// screens call so they need no changes, but it never makes a sound.
 class SpeechPlayer {
   SpeechPlayer(this.onPlayingChanged);
 
   final void Function(bool playing) onPlayingChanged;
 
-  FlutterTts? _tts;
-  bool playing = false;
-  int _token = 0;
+  bool get playing => false;
 
-  Future<void> toggle({required String locale, required String text}) async {
-    final tts = _tts ??= FlutterTts();
-    if (playing) {
-      _token++;
-      playing = false;
-      onPlayingChanged(false);
-      try {
-        await tts.stop();
-      } catch (_) {}
-      return;
-    }
+  Future<void> toggle({required String locale, required String text}) async {}
 
-    final token = ++_token;
-    playing = true;
-    onPlayingChanged(true);
-    try {
-      await tts.stop();
-      if (token != _token) return;
-      await tts.setLanguage(locale);
-      await tts.setSpeechRate(0.45);
-      tts.setCompletionHandler(() {
-        if (token != _token) return;
-        playing = false;
-        onPlayingChanged(false);
-      });
-      tts.setErrorHandler((_) {
-        if (token != _token) return;
-        playing = false;
-        onPlayingChanged(false);
-      });
-      await tts.speak(text);
-    } catch (_) {
-      if (token != _token) return;
-      playing = false;
-      onPlayingChanged(false);
-    }
-  }
-
-  Future<void> stop() async {
-    _token++;
-    if (playing) {
-      playing = false;
-      onPlayingChanged(false);
-    }
-    try {
-      await _tts?.stop();
-    } catch (_) {}
-  }
+  Future<void> stop() async {}
 }

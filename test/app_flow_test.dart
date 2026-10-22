@@ -49,7 +49,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Learn step by step'), findsOneWidget);
-    expect(find.text('Listen'), findsOneWidget);
+    expect(find.text('Listen'), findsNothing);
     expect(find.text('Next'), findsOneWidget);
     expect(find.byType(Image), findsWidgets);
 
@@ -57,7 +57,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Take beautiful photos'), findsOneWidget);
-    expect(find.text('Listen'), findsOneWidget);
+    expect(find.text('Listen'), findsNothing);
     expect(
       find.text('The camera helps you keep the photo\nstraight and bright.'),
       findsOneWidget,
@@ -69,7 +69,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Share and sell'), findsOneWidget);
-    expect(find.text('Listen'), findsOneWidget);
+    expect(find.text('Listen'), findsNothing);
     expect(
       find.text('Send your photos to Instagram and\nWhatsApp in a few taps.'),
       findsOneWidget,
@@ -509,7 +509,6 @@ void main() {
       'Stole',
       'Shawl',
       'Gamusa',
-      'Jod kappur',
       'Yardages',
       'Cushion covers',
     ]) {
@@ -519,6 +518,10 @@ void main() {
         reason: product,
       );
     }
+    expect(
+      displaysFor('Jod kappur').map((d) => d.name),
+      ['Full display', 'Hanging'],
+    );
   });
 
   test('full display is a flat lay and hanging is a hang', () {

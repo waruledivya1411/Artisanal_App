@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
-import 'package:artisnal_app/core/widgets/listen_playing_button.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
 import 'package:artisnal_app/features/shell/main_tab_screen.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
@@ -70,12 +69,17 @@ class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ListenPlayingButton(
-                      playing: _speech.playing,
-                      onTap: () => _speech.toggle(
-                        locale: widget.locale,
-                        text: WelcomeShareScreen.spoken,
+                    IconButton(
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      icon: const Icon(Icons.arrow_back_rounded),
+                      color: const Color(0xFF152322),
+                      iconSize: 24,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 40,
+                        minHeight: 40,
                       ),
+                      tooltip: 'Back',
                     ),
                     const SizedBox(height: 16),
                     Align(

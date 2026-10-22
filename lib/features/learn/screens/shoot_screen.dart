@@ -381,7 +381,6 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     const rows = <(String, String, Color)>[
       ('Light', 'OK', Color(0xFF3D9B5A)),
       ('Distance', 'Move back', Color(0xFFE0A82E)),
-      ('Centre', 'OK', Color(0xFF3D9B5A)),
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
@@ -449,12 +448,11 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     );
   }
 
-  /// Reminders of the three things that spoil a shot.
+  /// Reminders of the things that spoil a shot.
   Widget _checkPills() {
     const checks = <(IconData, String)>[
       (Icons.wb_sunny_outlined, 'Light'),
       (Icons.straighten_rounded, 'Distance'),
-      (Icons.center_focus_strong_outlined, 'Centre'),
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),

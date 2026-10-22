@@ -123,18 +123,21 @@ class _GuidePainter extends CustomPainter {
 
       case GuideArt.spread:
         // plain sheet, the whole piece laid flat inside it
+        // An upright rectangle, the same shape as the camera frame for this
+        // shot (0.70), so the step and the shot match.
         canvas.drawRRect(
           RRect.fromRectAndRadius(
-            const Rect.fromLTRB(8, 12, 92, 88),
+            const Rect.fromLTRB(18, 8, 82, 92),
             const Radius.circular(3),
           ),
           faint,
         );
-        final flat = Rect.fromLTRB(18, 20, 82, 80);
+        final flat = Rect.fromLTRB(27, 17, 73, 83);
         canvas.drawRect(flat, fill);
         canvas.drawRect(flat, accent);
-        canvas.drawLine(const Offset(68, 20), const Offset(68, 80), faint);
-        canvas.drawLine(const Offset(18, 66), const Offset(82, 66), faint);
+        // border down the side, pallu across the end
+        canvas.drawLine(const Offset(64, 17), const Offset(64, 83), faint);
+        canvas.drawLine(const Offset(27, 72), const Offset(73, 72), faint);
 
       case GuideArt.grid:
         _thirds(canvas, faint);

@@ -31,7 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _continue() {
     FocusScope.of(context).unfocus();
-    Navigator.of(context).pushReplacement(
+    // Pushed, not replaced, so Back on the language screen returns here.
+    Navigator.of(context).push(
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 350),
         pageBuilder: (_, _, _) => const LanguagePickerScreen(),

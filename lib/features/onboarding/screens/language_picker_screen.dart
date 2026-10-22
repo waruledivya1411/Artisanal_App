@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/features/onboarding/screens/welcome_learn_screen.dart';
-import 'package:artisnal_app/core/widgets/sharp_image.dart';
 
 class LanguagePickerScreen extends StatefulWidget {
   const LanguagePickerScreen({super.key});
@@ -113,23 +111,9 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
   ];
 
   String _selectedId = 'as';
-  FlutterTts? _tts;
 
-  @override
-  void dispose() {
-    _tts?.stop();
-    super.dispose();
-  }
-
-  Future<void> _speak(_LanguageOption language) async {
+  void _speak(_LanguageOption language) {
     setState(() => _selectedId = language.id);
-    try {
-      final tts = _tts ??= FlutterTts();
-      await tts.stop();
-      await tts.setLanguage(language.locale);
-      await tts.setSpeechRate(0.45);
-      await tts.speak(language.native);
-    } catch (_) {}
   }
 
   @override
@@ -150,7 +134,24 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const _TranslateBadge(),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      icon: const Icon(Icons.arrow_back_rounded),
+                      color: LanguagePickerScreen.ink,
+                      iconSize: 24,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 40,
+                        minHeight: 40,
+                      ),
+                      tooltip: 'Back',
+                    ),
+                    const SizedBox(width: 8),
+                    const _TranslateBadge(),
+                  ],
+                ),
                 const SizedBox(height: 20),
                 Text(
                   'Choose your language',
@@ -164,7 +165,7 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  'Tap your language. Tap the speaker to hear\nit.',
+                  'Tap your language.',
                   style: GoogleFonts.plusJakartaSans(
                     color: LanguagePickerScreen.muted,
                     fontSize: 15,
@@ -217,8 +218,7 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                         final language = _languages.firstWhere(
                           (item) => item.id == _selectedId,
                         );
-                        _tts?.stop();
-                        Navigator.of(context).push(
+                                                Navigator.of(context).push(
                           MaterialPageRoute<void>(
                             builder: (_) =>
                                 WelcomeLearnScreen(locale: language.locale),
@@ -366,68 +366,6 @@ class _SpeakButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x2E1B7574),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: selected ? LanguagePickerScreen.teal : Colors.white,
-        shape: const CircleBorder(),
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const CircleBorder(),
-          child: SizedBox(
-            width: 56,
-            height: 56,
-            child: Center(
-              child: selected
-                  ? const _WaveBars(color: Colors.white)
-                  : const SharpImage(
-                      'assets/images/icons/speaker.png',
-                      width: 28,
-                      height: 28,
-                      fit: BoxFit.contain,
-                    ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => const SizedBox.shrink();
 }
 
-class _WaveBars extends StatelessWidget {
-  const _WaveBars({required this.color});
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    const heights = <double>[12, 20, 15, 22];
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        for (var i = 0; i < heights.length; i++) ...[
-          Container(
-            width: 3,
-            height: heights[i],
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          if (i != heights.length - 1) const SizedBox(width: 2.5),
-        ],
-      ],
-    );
-  }
-}
