@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:artisnal_app/features/learn/widgets/folded_stack_diagram.dart';
+import 'package:artisnal_app/features/learn/widgets/hanging_display_diagram.dart';
 
 /// The line drawing that shows how to set a shot up.
 enum GuideArt {
@@ -30,8 +31,17 @@ enum GuideArt {
   /// The border band along one edge.
   border,
 
-  /// Folded stack — same overlay as the live camera (plain).
-  foldedStack,
+  /// Folded stack step 1 — one sari in the dashed box.
+  foldedStackInBox,
+
+  /// Folded stack step 2 — border strip on the side.
+  foldedStackBorder,
+
+  /// Hanging display step 1 — centre on the vertical axis.
+  hangingDisplayCentre,
+
+  /// Hanging display step 2 — fringe and symmetric edges.
+  hangingDisplayFringe,
 }
 
 class GuideDiagram extends StatelessWidget {
@@ -45,8 +55,22 @@ class GuideDiagram extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     switch (art) {
-      case GuideArt.foldedStack:
-        return const FoldedStackGuideDiagram();
+      case GuideArt.foldedStackInBox:
+        return const FoldedStackGuideDiagram(
+          accent: FoldedStackGuideAccent.singleInBox,
+        );
+      case GuideArt.foldedStackBorder:
+        return const FoldedStackGuideDiagram(
+          accent: FoldedStackGuideAccent.borderOnSide,
+        );
+      case GuideArt.hangingDisplayCentre:
+        return const HangingDisplayGuideDiagram(
+          accent: HangingDisplayGuideAccent.centreOnAxis,
+        );
+      case GuideArt.hangingDisplayFringe:
+        return const HangingDisplayGuideDiagram(
+          accent: HangingDisplayGuideAccent.fringeSymmetric,
+        );
       default:
         return CustomPaint(
           painter: _GuidePainter(art),
@@ -188,7 +212,10 @@ class _GuidePainter extends CustomPainter {
         _label(canvas, 'Motif', window.center);
         _label(canvas, 'Border', strip.center, boxed: true, vertical: true);
 
-      case GuideArt.foldedStack:
+      case GuideArt.foldedStackInBox:
+      case GuideArt.foldedStackBorder:
+      case GuideArt.hangingDisplayCentre:
+      case GuideArt.hangingDisplayFringe:
         break;
     }
   }

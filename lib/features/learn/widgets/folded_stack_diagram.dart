@@ -2,8 +2,18 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+/// Setup-guide emphasis for the two folded-stack steps before the camera.
+enum FoldedStackGuideAccent {
+  /// One rectangle in the dashed box — not a pile.
+  singleInBox,
+
+  /// Border strip on the long edge.
+  borderOnSide,
+}
+
 /// Shared top-down folded sari diagram for the live camera and setup guides.
 class FoldedStackOverlay {
+  static const Color teal = Color(0xFF1B7574);
   static const Color blue = Color(0xFF7EAADB);
   static const Color brightBlue = Color(0xFFA9CCF0);
 
@@ -14,18 +24,26 @@ class FoldedStackOverlay {
     _corners(canvas, frame);
   }
 
+  static Rect _sareeRect(Rect frame) => Rect.fromCenter(
+        center: frame.center,
+        width: frame.width * 0.78,
+        height: frame.height * 0.52,
+      );
+
   /// Folded sari shape with border strip — matches the live camera overlay.
   static void paintContent(
     Canvas canvas,
     Rect frame, {
     bool showLabels = true,
+    FoldedStackGuideAccent? guideAccent,
   }) {
-    final saree = Rect.fromCenter(
-      center: frame.center,
-      width: frame.width * 0.78,
-      height: frame.height * 0.52,
-    );
+    final saree = _sareeRect(frame);
     final sareeRrect = RRect.fromRectAndRadius(saree, const Radius.circular(14));
+
+    if (guideAccent == FoldedStackGuideAccent.singleInBox) {
+      _paintSingleInBoxGuide(canvas, saree, sareeRrect);
+      return;
+    }
 
     canvas.drawRRect(sareeRrect, Paint()..color = const Color(0x22FFFFFF));
     canvas.drawRRect(
@@ -37,13 +55,34 @@ class FoldedStackOverlay {
     );
 
     final borderLeft = saree.left + saree.width * 0.78;
-    canvas.drawLine(
-      Offset(borderLeft, saree.top),
-      Offset(borderLeft, saree.bottom),
-      Paint()
-        ..color = Colors.white
-        ..strokeWidth = 2.6,
+    final borderStrip = Rect.fromLTRB(
+      borderLeft,
+      saree.top,
+      saree.right,
+      saree.bottom,
     );
+
+    if (guideAccent == FoldedStackGuideAccent.borderOnSide) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(borderStrip, const Radius.circular(0)),
+        Paint()..color = const Color(0x661B7574),
+      );
+      canvas.drawLine(
+        Offset(borderLeft, saree.top),
+        Offset(borderLeft, saree.bottom),
+        Paint()
+          ..color = teal
+          ..strokeWidth = 3.4,
+      );
+    } else {
+      canvas.drawLine(
+        Offset(borderLeft, saree.top),
+        Offset(borderLeft, saree.bottom),
+        Paint()
+          ..color = Colors.white
+          ..strokeWidth = 2.6,
+      );
+    }
 
     if (showLabels) {
       final bodyCenter = Offset(
@@ -54,20 +93,64 @@ class FoldedStackOverlay {
         borderLeft + (saree.right - borderLeft) / 2,
         saree.center.dy,
       );
-      _label(canvas, 'Folded sari', bodyCenter);
-      _label(canvas, 'Border', borderCenter);
+      final mutedBody = guideAccent == FoldedStackGuideAccent.borderOnSide;
+      if (!mutedBody) {
+        _label(canvas, 'Folded sari', bodyCenter);
+      } else {
+        _label(canvas, 'Folded sari', bodyCenter, muted: true);
+      }
+      _label(
+        canvas,
+        'Border',
+        borderCenter,
+        highlight: guideAccent == FoldedStackGuideAccent.borderOnSide,
+      );
     }
   }
 
-  static void _label(Canvas canvas, String text, Offset center) {
+  static void _paintSingleInBoxGuide(
+    Canvas canvas,
+    Rect saree,
+    RRect sareeRrect,
+  ) {
+    canvas.drawRRect(sareeRrect, Paint()..color = const Color(0x331B7574));
+    canvas.drawRRect(
+      sareeRrect,
+      Paint()
+        ..color = teal
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3.2,
+    );
+    _label(canvas, 'Folded sari', saree.center, highlight: true);
+    _label(
+      canvas,
+      'One stack',
+      Offset(saree.center.dx, saree.bottom + 18),
+      highlight: true,
+      fontSize: 10,
+    );
+  }
+
+  static void _label(
+    Canvas canvas,
+    String text,
+    Offset center, {
+    bool highlight = false,
+    bool muted = false,
+    double fontSize = 11,
+  }) {
     final painter = TextPainter(
       text: TextSpan(
         text: text,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 11,
+        style: TextStyle(
+          color: muted
+              ? const Color(0x99FFFFFF)
+              : highlight
+                  ? teal
+                  : Colors.white,
+          fontSize: fontSize,
           fontWeight: FontWeight.w700,
-          shadows: [
+          shadows: const [
             Shadow(color: Color(0xCC000000), blurRadius: 4),
           ],
         ),
@@ -146,19 +229,23 @@ class FoldedStackOverlay {
 
 /// Setup-guide card: dark preview with the same overlay as the live camera.
 class FoldedStackGuideDiagram extends StatelessWidget {
-  const FoldedStackGuideDiagram({super.key});
+  const FoldedStackGuideDiagram({super.key, required this.accent});
+
+  final FoldedStackGuideAccent accent;
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: const _FoldedStackGuidePainter(),
+      painter: _FoldedStackGuidePainter(accent),
       size: Size.infinite,
     );
   }
 }
 
 class _FoldedStackGuidePainter extends CustomPainter {
-  const _FoldedStackGuidePainter();
+  const _FoldedStackGuidePainter(this.accent);
+
+  final FoldedStackGuideAccent accent;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -176,9 +263,14 @@ class _FoldedStackGuidePainter extends CustomPainter {
     );
 
     FoldedStackOverlay.paintFrame(canvas, frame);
-    FoldedStackOverlay.paintContent(canvas, frame);
+    FoldedStackOverlay.paintContent(
+      canvas,
+      frame,
+      guideAccent: accent,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant _FoldedStackGuidePainter oldDelegate) => false;
+  bool shouldRepaint(covariant _FoldedStackGuidePainter oldDelegate) =>
+      oldDelegate.accent != accent;
 }

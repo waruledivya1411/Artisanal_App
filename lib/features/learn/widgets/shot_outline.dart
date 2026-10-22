@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:artisnal_app/features/learn/widgets/folded_stack_diagram.dart';
+import 'package:artisnal_app/features/learn/widgets/hanging_display_diagram.dart';
 
 /// A plain shape drawn inside the frame showing roughly how the piece should
 /// sit. Deliberately one outline with no labels: the artisan reads the shape,
@@ -234,87 +235,7 @@ class _OutlinePainter extends CustomPainter {
 
   /// Rod at the top, centre cross, sari hanging with even fringes at the bottom.
   void _hangingDisplayGuide(Canvas canvas, Rect frame) {
-    final cx = frame.center.dx;
-    final midY = frame.center.dy;
-
-    final cross = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 1.4;
-    canvas.drawLine(
-      Offset(frame.left, midY),
-      Offset(frame.right, midY),
-      cross,
-    );
-    canvas.drawLine(
-      Offset(cx, frame.top),
-      Offset(cx, frame.bottom),
-      cross,
-    );
-
-    final rodY = frame.top + 10;
-    final rodOverhang = frame.width * 0.07;
-    final rod = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 3.2
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(
-      Offset(frame.left - rodOverhang, rodY),
-      Offset(frame.right + rodOverhang, rodY),
-      rod,
-    );
-    canvas.drawCircle(
-      Offset(cx, rodY),
-      5.5,
-      Paint()
-        ..color = const Color(0xE6FFFFFF)
-        ..style = PaintingStyle.fill,
-    );
-    canvas.drawCircle(
-      Offset(cx, rodY),
-      5.5,
-      Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.6,
-    );
-
-    final hangTop = rodY + 5;
-    final hangBottom = frame.bottom - frame.height * 0.07;
-    final halfTop = frame.width * 0.09;
-    final halfLower = frame.width * 0.34;
-    final fringeDepth = frame.height * 0.035;
-    final fringeCount = 9;
-    final fringeSpan = halfLower * 2;
-    final fringeStep = fringeSpan / fringeCount;
-
-    final cloth = Path()
-      ..moveTo(cx - halfTop, hangTop)
-      ..lineTo(cx + halfTop, hangTop)
-      ..lineTo(cx + halfLower, hangBottom - fringeDepth);
-
-    var x = cx + halfLower;
-    for (var i = 0; i < fringeCount; i++) {
-      final nextX = x - fringeStep;
-      final tipY = hangBottom + (i.isEven ? fringeDepth * 0.55 : 0);
-      cloth.lineTo(x, hangBottom);
-      cloth.lineTo((x + nextX) / 2, tipY);
-      cloth.lineTo(nextX, hangBottom);
-      x = nextX;
-    }
-
-    cloth
-      ..lineTo(cx - halfLower, hangBottom - fringeDepth)
-      ..close();
-
-    canvas.drawPath(cloth, Paint()..color = const Color(0x24FFFFFF));
-    canvas.drawPath(
-      cloth,
-      Paint()
-        ..color = const Color(0xE6FFFFFF)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.4
-        ..strokeJoin = StrokeJoin.round,
-    );
+    HangingDisplayOverlay.paintContent(canvas, frame);
   }
 
   /// Top-down folded sari: one rectangle with a border strip.

@@ -106,11 +106,14 @@ const _border = <GuideStep>[
 
 const _folded = <GuideStep>[
   GuideStep(
-    title: 'One folded sari, border on the side',
-    subtitle:
-        'Shot from above — a single stack, long edge facing the camera, '
-        'edges parallel to the frame',
-    art: GuideArt.foldedStack,
+    title: 'One folded sari in the box',
+    subtitle: 'Shot from above — not a pile, a single stack',
+    art: GuideArt.foldedStackInBox,
+  ),
+  GuideStep(
+    title: 'Border on the side',
+    subtitle: 'Long edge facing the camera · edges parallel to the frame',
+    art: GuideArt.foldedStackBorder,
   ),
   GuideStep(
     title: 'Good examples',
@@ -124,12 +127,12 @@ const _hanging = <GuideStep>[
   GuideStep(
     title: 'Hang it dead centre',
     subtitle: 'Rod or hanger · piece on the center vertical axis',
-    art: GuideArt.hang,
+    art: GuideArt.hangingDisplayCentre,
   ),
   GuideStep(
     title: 'Let the fringe hang free',
     subtitle: 'Straighten the tassels · keep both edges symmetric',
-    art: GuideArt.drape,
+    art: GuideArt.hangingDisplayFringe,
   ),
   GuideStep(
     title: 'Good examples',
