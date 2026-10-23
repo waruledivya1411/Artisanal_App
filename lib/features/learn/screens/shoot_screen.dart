@@ -119,16 +119,14 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     }
   }
 
-  /// The labelled window and strip already say where things go, so the
-  /// border shot has no caption.
+  /// Shots whose drawing already names the pieces and marks the border have
+  /// no dark caption, so that text does not cover the border.
   String? get _hint {
     if (_outline.kind == ShotOverlayKind.embroideryBorder) return null;
     if (_outline.kind == ShotOverlayKind.foldedStack) {
       return 'One folded sari in this box — border on the side';
     }
-    if (_outline.kind == ShotOverlayKind.mekhalaFolded) {
-      return 'Mekhela on top · sador underneath, border and tassels along the bottom';
-    }
+    if (_outline.kind == ShotOverlayKind.mekhalaFolded) return null;
     if (_outline.kind == ShotOverlayKind.stoleFolded) {
       return 'One folded stole — border and tassels along the front';
     }

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -24,11 +26,12 @@ class FoldedStackOverlay {
     _corners(canvas, frame);
   }
 
-  static Rect _sareeRect(Rect frame) => Rect.fromCenter(
-        center: frame.center,
-        width: frame.width * 0.78,
-        height: frame.height * 0.52,
-      );
+  /// A square, as big as fits comfortably in the frame. Fractions of the
+  /// frame's width and height stretched it into a wide box on short screens.
+  static Rect _sareeRect(Rect frame) {
+    final side = math.min(frame.width * 0.78, frame.height * 0.78);
+    return Rect.fromCenter(center: frame.center, width: side, height: side);
+  }
 
   /// Folded sari shape with border strip — matches the live camera overlay.
   static void paintContent(

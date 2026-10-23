@@ -451,7 +451,7 @@ void main() {
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Good examples'), findsOneWidget);
+    expect(find.text('Good example'), findsOneWidget);
     expect(find.text('Take the shot'), findsOneWidget);
     await tester.tap(find.text('Take the shot'));
     await tester.pumpAndSettle();
@@ -468,7 +468,7 @@ void main() {
     // Backing out of the camera leaves the guide open on its last step.
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
-    expect(find.text('Good examples'), findsOneWidget);
+    expect(find.text('Good example'), findsOneWidget);
 
     // Back steps through the guide, then out of it.
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
