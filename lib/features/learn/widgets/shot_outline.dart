@@ -91,9 +91,9 @@ class ShotOutline {
       widthFactor: 0.88,
       aspectRatio: 0.58,
       placement: ShotFramePlacement.inset,
-      // Same height as the default inset, placed so the gap under the
-      // Light/Distance pills equals the gap above the prompt (64 each).
-      inset: EdgeInsets.fromLTRB(22, 182, 22, 210),
+      // As large as the screen allows, with an equal 16px gap under the
+      // Light/Distance pills and above the prompt, so it sits centred.
+      inset: EdgeInsets.fromLTRB(14, 134, 14, 162),
       kind: ShotOverlayKind.embroideryBorder,
       window: Rect.fromLTRB(0.07, 0.07, 0.62, 0.48),
       windowLabel: 'Motif',
@@ -221,9 +221,9 @@ class ShotOutline {
         widthFactor: 0.88,
         aspectRatio: 0.58,
         placement: ShotFramePlacement.inset,
-        // Centred between the pills and the two-line caption (32 each); the
-        // default inset tucked the frame 6px under the pills.
-        inset: EdgeInsets.fromLTRB(22, 150, 22, 242),
+        // As large as fits between the pills and the two-line caption, with
+        // an equal 16px gap each side; the default ran under both.
+        inset: EdgeInsets.fromLTRB(14, 134, 14, 226),
         kind: ShotOverlayKind.foldedStack,
       );
     }
