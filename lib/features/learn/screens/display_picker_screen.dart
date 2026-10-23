@@ -382,7 +382,10 @@ class _Example extends StatelessWidget {
     if (name == null) return const _NoExample();
     return Image.asset(
       display.imageFor(name, product: product),
-      fit: BoxFit.cover,
+      fit: product == 'Cushion covers' || product == 'Jod kappur'
+          ? BoxFit.contain
+          : BoxFit.cover,
+      alignment: Alignment.center,
       errorBuilder: (context, error, stack) => const _NoExample(),
     );
   }

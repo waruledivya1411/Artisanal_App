@@ -47,9 +47,13 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
       _outline.kind == ShotOverlayKind.mekhalaHanging ||
       _outline.kind == ShotOverlayKind.mekhalaFolded ||
       _outline.kind == ShotOverlayKind.stoleFolded ||
-      _outline.kind == ShotOverlayKind.shawlFolded;
+      _outline.kind == ShotOverlayKind.shawlFolded ||
+      _outline.kind == ShotOverlayKind.gamusaFolded ||
+      _outline.kind == ShotOverlayKind.jodFolded ||
+      _outline.kind == ShotOverlayKind.jodHanging;
 
-  int get _guideStepCount => guideFor(widget.display.key).length;
+  int get _guideStepCount =>
+      guideFor(widget.display.key, product: widget.product).length;
 
   CameraController? _controller;
   String? _problem;
@@ -131,11 +135,20 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     if (_outline.kind == ShotOverlayKind.shawlFolded) {
       return 'One folded shawl — border on the side, tassels along the front';
     }
+    if (_outline.kind == ShotOverlayKind.gamusaFolded) {
+      return 'One folded gamusa — end border across, tassels along the front';
+    }
+    if (_outline.kind == ShotOverlayKind.jodFolded) {
+      return 'Wide fold on the left · smaller piece with tassels on the right';
+    }
     if (_outline.kind == ShotOverlayKind.hangingDisplay) {
       return 'Hang the piece in the centre, under the rod';
     }
     if (_outline.kind == ShotOverlayKind.mekhalaHanging) {
       return 'Hang both pieces under the rod — mekhela shorter, sador with tassels';
+    }
+    if (_outline.kind == ShotOverlayKind.jodHanging) {
+      return 'Hang both pieces under the rod — wide cloth on the left, tassels on the right';
     }
     if (_outline.kind == ShotOverlayKind.mekhalaFull) {
       return 'Lay both pieces side by side in the frame';
@@ -145,6 +158,18 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     }
     if (_outline.kind == ShotOverlayKind.shawlFull) {
       return 'Hang the shawl under the rod — border on the side, tassels along the bottom';
+    }
+    if (_outline.kind == ShotOverlayKind.gamusaFull) {
+      return 'Hang the gamusa under the rod — borders on both sides, tassels along the bottom';
+    }
+    if (_outline.kind == ShotOverlayKind.cushionSofa) {
+      return 'Sit the cover against the back — only this side of the sofa in frame';
+    }
+    if (_outline.kind == ShotOverlayKind.cushionFlat) {
+      return 'Lay the cover flat — all four corners in the frame';
+    }
+    if (_outline.kind == ShotOverlayKind.sariDraped) {
+      return 'Chair, folded seat piece and pallu inside this box';
     }
     if (_outline.silhouette == ShotSilhouette.draped) {
       return 'Cover the pale shape with your cloth';
@@ -162,7 +187,9 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   String get _prompt {
     if (_outline.kind == ShotOverlayKind.mekhalaFull ||
         _outline.kind == ShotOverlayKind.mekhalaHanging ||
-        _outline.kind == ShotOverlayKind.mekhalaFolded) {
+        _outline.kind == ShotOverlayKind.mekhalaFolded ||
+        _outline.kind == ShotOverlayKind.jodHanging ||
+        _outline.kind == ShotOverlayKind.jodFolded) {
       return 'Move both pieces into the frame';
     }
     if (_outline.kind == ShotOverlayKind.stoleFolded) {
@@ -170,6 +197,17 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     }
     if (_outline.kind == ShotOverlayKind.shawlFolded) {
       return 'Move the shawl into the frame';
+    }
+    if (_outline.kind == ShotOverlayKind.gamusaFull ||
+        _outline.kind == ShotOverlayKind.gamusaFolded) {
+      return 'Move the gamusa into the frame';
+    }
+    if (_outline.kind == ShotOverlayKind.cushionSofa ||
+        _outline.kind == ShotOverlayKind.cushionFlat) {
+      return 'Move the cover into the frame';
+    }
+    if (_outline.kind == ShotOverlayKind.sariDraped) {
+      return 'Move the saree into the frame';
     }
     if (_guidedShoot) {
       return 'Move the saree into the frame';
@@ -186,20 +224,30 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
       case ShotOverlayKind.mekhalaFolded:
       case ShotOverlayKind.stoleFolded:
       case ShotOverlayKind.shawlFolded:
+      case ShotOverlayKind.gamusaFolded:
+      case ShotOverlayKind.jodFolded:
         return 'FOLDED STACK';
       case ShotOverlayKind.hangingDisplay:
       case ShotOverlayKind.mekhalaHanging:
+      case ShotOverlayKind.jodHanging:
         return 'HANGING DISPLAY';
       case ShotOverlayKind.mekhalaFull:
       case ShotOverlayKind.stoleFull:
       case ShotOverlayKind.shawlFull:
+      case ShotOverlayKind.gamusaFull:
+      case ShotOverlayKind.cushionSofa:
+      case ShotOverlayKind.cushionFlat:
       case ShotOverlayKind.standard:
         return widget.display.name.toUpperCase();
+      case ShotOverlayKind.sariDraped:
+        return 'DRAPED LOOK';
     }
   }
 
   String? get _headerProduct =>
-      _guidedShoot ? (widget.product ?? 'Saree') : null;
+      _guidedShoot || _outline.kind == ShotOverlayKind.sariDraped
+          ? (widget.product ?? 'Saree')
+          : null;
 
   String get _spokenText => '${widget.display.name}. ${_hint ?? _prompt}.';
 
@@ -258,36 +306,26 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
           fit: StackFit.expand,
           children: [
             _preview(),
-              ShotOutlineOverlay(outline: _outline),
-              if (_guidedShoot)
-                ShotFrameHintOverlay(
-                  outline: _outline,
-                  hint: _hint,
-                  prompt: _prompt,
-                  hintStyle: GoogleFonts.plusJakartaSans(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    height: 1.3,
-                  ),
-                  promptStyle: GoogleFonts.plusJakartaSans(
-                    color: const Color(0xFF2A2109),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    height: 1.3,
-                  ),
-                ),
+            ShotOutlineOverlay(outline: _outline),
             SafeArea(
               child: Column(
                 children: [
-                  _guidedShoot ? _guidedTopBar() : _topBar(),
-                  _guidedShoot ? _guidedCheckPills() : _checkPills(),
+                  _outline.kind == ShotOverlayKind.sariDraped
+                      ? _guidedTopBar()
+                      : _guidedShoot
+                          ? _guidedTopBar()
+                          : _topBar(),
+                  _outline.kind == ShotOverlayKind.sariDraped
+                      ? _checkPills(centre: true)
+                      : _guidedShoot
+                          ? _guidedCheckPills()
+                          : _checkPills(),
                   const Spacer(),
-                  if (!_guidedShoot) ...[
+                  if (_hint != null) ...[
                     _hintBar(),
                     const SizedBox(height: 8),
-                    _promptPill(),
                   ],
+                  _promptPill(),
                   const SizedBox(height: 14),
                   _shutterRow(),
                   const SizedBox(height: 18),
@@ -507,10 +545,11 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   }
 
   /// Reminders of the things that spoil a shot.
-  Widget _checkPills() {
-    const checks = <(IconData, String)>[
+  Widget _checkPills({bool centre = false}) {
+    final checks = <(IconData, String)>[
       (Icons.wb_sunny_outlined, 'Light'),
       (Icons.straighten_rounded, 'Distance'),
+      if (centre) (Icons.filter_center_focus, 'Centre'),
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),

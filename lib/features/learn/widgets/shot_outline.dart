@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:artisnal_app/features/learn/widgets/folded_stack_diagram.dart';
-import 'package:artisnal_app/features/learn/widgets/hanging_display_diagram.dart';
 
 /// A plain shape drawn inside the frame showing roughly how the piece should
 /// sit. Deliberately one outline with no labels: the artisan reads the shape,
@@ -21,6 +20,13 @@ enum ShotOverlayKind {
   stoleFolded,
   shawlFull,
   shawlFolded,
+  cushionSofa,
+  cushionFlat,
+  gamusaFull,
+  gamusaFolded,
+  sariDraped,
+  jodHanging,
+  jodFolded,
 }
 
 /// How the outer dashed frame is placed on the preview.
@@ -45,7 +51,7 @@ class ShotOutline {
     this.strip,
     this.stripLabel,
     this.placement = ShotFramePlacement.centered,
-    this.inset = const EdgeInsets.fromLTRB(22, 112, 22, 196),
+    this.inset = const EdgeInsets.fromLTRB(22, 112, 22, 280),
     this.kind = ShotOverlayKind.standard,
   });
 
@@ -115,6 +121,8 @@ class ShotOutline {
       return const ShotOutline(
         widthFactor: 0.72,
         aspectRatio: 0.62,
+        placement: ShotFramePlacement.inset,
+        inset: EdgeInsets.fromLTRB(32, 148, 32, 260),
         kind: ShotOverlayKind.shawlFull,
       );
     }
@@ -122,7 +130,45 @@ class ShotOutline {
       return const ShotOutline(
         widthFactor: 0.62,
         aspectRatio: 0.58,
+        placement: ShotFramePlacement.inset,
+        inset: EdgeInsets.fromLTRB(56, 148, 56, 250),
         kind: ShotOverlayKind.stoleFull,
+      );
+    }
+    if (displayKey == 'flat_lay_display') {
+      return const ShotOutline(
+        widthFactor: 0.86,
+        aspectRatio: 0.92,
+        placement: ShotFramePlacement.inset,
+        inset: EdgeInsets.fromLTRB(28, 148, 28, 250),
+        kind: ShotOverlayKind.cushionFlat,
+      );
+    }
+    if (displayKey == 'sofa_seated_display') {
+      return const ShotOutline(
+        widthFactor: 0.86,
+        aspectRatio: 0.92,
+        placement: ShotFramePlacement.inset,
+        inset: EdgeInsets.fromLTRB(28, 148, 28, 250),
+        kind: ShotOverlayKind.cushionSofa,
+      );
+    }
+    if (displayKey == 'full_display' && product == 'Gamusa') {
+      return const ShotOutline(
+        widthFactor: 0.62,
+        aspectRatio: 0.58,
+        placement: ShotFramePlacement.inset,
+        inset: EdgeInsets.fromLTRB(56, 148, 56, 250),
+        kind: ShotOverlayKind.gamusaFull,
+      );
+    }
+    if (displayKey == 'draped_look' && product == 'Saree') {
+      return const ShotOutline(
+        widthFactor: 0.78,
+        aspectRatio: 0.52,
+        placement: ShotFramePlacement.inset,
+        inset: EdgeInsets.fromLTRB(28, 136, 28, 260),
+        kind: ShotOverlayKind.sariDraped,
       );
     }
     if (displayKey == 'draped_look') {
@@ -130,6 +176,22 @@ class ShotOutline {
         widthFactor: 0.74,
         aspectRatio: 0.66,
         silhouette: ShotSilhouette.draped,
+      );
+    }
+    if (displayKey == 'folded_stack' && product == 'Gamusa') {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: 0.58,
+        placement: ShotFramePlacement.inset,
+        kind: ShotOverlayKind.gamusaFolded,
+      );
+    }
+    if (displayKey == 'folded_stack' && product == 'Jod kappur') {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: 0.58,
+        placement: ShotFramePlacement.inset,
+        kind: ShotOverlayKind.jodFolded,
       );
     }
     if (displayKey == 'folded_stack' && product == 'Shawl') {
@@ -163,6 +225,14 @@ class ShotOutline {
         aspectRatio: 0.58,
         placement: ShotFramePlacement.inset,
         kind: ShotOverlayKind.foldedStack,
+      );
+    }
+    if (displayKey == 'hanging_display' && product == 'Jod kappur') {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: 0.58,
+        placement: ShotFramePlacement.inset,
+        kind: ShotOverlayKind.jodHanging,
       );
     }
     if (displayKey == 'hanging_display' && product == 'Mekhala sador') {
@@ -302,14 +372,662 @@ class _OutlinePainter extends CustomPainter {
         _shawlFull(canvas, rect);
       case ShotOverlayKind.shawlFolded:
         _shawlFolded(canvas, rect);
+      case ShotOverlayKind.cushionSofa:
+        _cushionSofa(canvas, rect);
+      case ShotOverlayKind.cushionFlat:
+        _cushionFlat(canvas, rect);
+      case ShotOverlayKind.gamusaFull:
+        _gamusaFull(canvas, rect);
+      case ShotOverlayKind.gamusaFolded:
+        _gamusaFolded(canvas, rect);
+      case ShotOverlayKind.sariDraped:
+        _thirds(canvas, rect);
+        _sariDraped(canvas, rect);
+      case ShotOverlayKind.jodHanging:
+        _jodHanging(canvas, rect);
+      case ShotOverlayKind.jodFolded:
+        _jodFolded(canvas, rect);
       case ShotOverlayKind.standard:
         break;
     }
   }
 
-  /// Rod at the top, centre cross, sari hanging with even fringes at the bottom.
+  /// Wide cloth and a narrower tasseled piece on one rod.
+  void _jodHanging(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    Offset at(double x, double y) => Offset(
+          frame.left + frame.width * x,
+          frame.top + frame.height * y,
+        );
+
+    canvas.drawLine(
+      at(0.06, 0.06),
+      at(0.94, 0.06),
+      Paint()
+        ..color = const Color(0xE8FFFFFF)
+        ..strokeWidth = 3.4
+        ..strokeCap = StrokeCap.round,
+    );
+
+    final wide = Rect.fromLTRB(
+      at(0.06, 0.08).dx,
+      at(0.06, 0.08).dy,
+      at(0.64, 0.86).dx,
+      at(0.64, 0.86).dy,
+    );
+    canvas.drawRect(wide, fill);
+    canvas.drawRect(wide, stroke);
+    canvas.drawLine(
+      Offset(wide.left + wide.width * 0.22, wide.top),
+      Offset(wide.left + wide.width * 0.22, wide.top + wide.height * 0.62),
+      faint,
+    );
+    canvas.drawLine(
+      Offset(wide.left + wide.width * 0.38, wide.top),
+      Offset(wide.left + wide.width * 0.38, wide.top + wide.height * 0.62),
+      stroke,
+    );
+    _templePeaks(
+      canvas,
+      wide.left,
+      wide.right,
+      wide.top + wide.height * 0.62,
+      stroke,
+    );
+    final band = wide.top + wide.height * 0.76;
+    canvas.drawLine(Offset(wide.left, band), Offset(wide.right, band), stroke);
+    canvas.drawLine(
+      Offset(wide.left, wide.top + wide.height * 0.88),
+      Offset(wide.right, wide.top + wide.height * 0.88),
+      faint,
+    );
+
+    final narrow = Rect.fromLTRB(
+      at(0.72, 0.08).dx,
+      at(0.72, 0.08).dy,
+      at(0.92, 0.62).dx,
+      at(0.92, 0.62).dy,
+    );
+    canvas.drawRect(narrow, fill);
+    canvas.drawRect(narrow, stroke);
+    canvas.drawLine(
+      Offset(narrow.left + narrow.width * 0.4, narrow.top),
+      Offset(narrow.left + narrow.width * 0.4, narrow.top + narrow.height * 0.62),
+      faint,
+    );
+    canvas.drawLine(
+      Offset(narrow.left, narrow.top + narrow.height * 0.68),
+      Offset(narrow.right, narrow.top + narrow.height * 0.68),
+      stroke,
+    );
+    canvas.drawLine(
+      Offset(narrow.left, narrow.top + narrow.height * 0.82),
+      Offset(narrow.right, narrow.top + narrow.height * 0.82),
+      faint,
+    );
+    for (var i = 0; i < 4; i++) {
+      final x = narrow.left + narrow.width * (0.16 + i * 0.22);
+      canvas.drawLine(
+        Offset(x, narrow.bottom),
+        Offset(x, narrow.bottom + frame.height * 0.08),
+        stroke,
+      );
+    }
+  }
+
+  /// Wide fold on the left, smaller tasseled piece on the right.
+  void _jodFolded(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final wide = Rect.fromLTRB(
+      frame.left + frame.width * 0.06,
+      frame.top + frame.height * 0.16,
+      frame.left + frame.width * 0.62,
+      frame.top + frame.height * 0.74,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(wide, const Radius.circular(8)),
+      fill,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(wide, const Radius.circular(8)),
+      stroke,
+    );
+    canvas.drawLine(
+      Offset(wide.left + wide.width * 0.28, wide.top),
+      Offset(wide.left + wide.width * 0.28, wide.top + wide.height * 0.55),
+      faint,
+    );
+    canvas.drawLine(
+      Offset(wide.left + wide.width * 0.46, wide.top),
+      Offset(wide.left + wide.width * 0.46, wide.top + wide.height * 0.55),
+      stroke,
+    );
+    _templePeaks(
+      canvas,
+      wide.left,
+      wide.right,
+      wide.top + wide.height * 0.52,
+      stroke,
+    );
+    canvas.drawLine(
+      Offset(wide.left, wide.top + wide.height * 0.7),
+      Offset(wide.right, wide.top + wide.height * 0.7),
+      stroke,
+    );
+    canvas.drawLine(
+      Offset(wide.left, wide.top + wide.height * 0.86),
+      Offset(wide.right, wide.top + wide.height * 0.86),
+      faint,
+    );
+
+    final small = Rect.fromLTRB(
+      frame.left + frame.width * 0.66,
+      frame.top + frame.height * 0.32,
+      frame.right - frame.width * 0.06,
+      frame.top + frame.height * 0.68,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(small, const Radius.circular(8)),
+      fill,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(small, const Radius.circular(8)),
+      stroke,
+    );
+    canvas.drawLine(
+      Offset(small.left + small.width * 0.32, small.top),
+      Offset(small.left + small.width * 0.32, small.bottom),
+      faint,
+    );
+    canvas.drawLine(
+      Offset(small.left, small.top + small.height * 0.38),
+      Offset(small.right, small.top + small.height * 0.38),
+      stroke,
+    );
+    canvas.drawLine(
+      Offset(small.left, small.top + small.height * 0.62),
+      Offset(small.right, small.top + small.height * 0.62),
+      faint,
+    );
+    for (var i = 0; i < 5; i++) {
+      final x = small.left + small.width * (0.12 + i * 0.18);
+      canvas.drawLine(
+        Offset(x, small.bottom),
+        Offset(x, small.bottom + frame.height * 0.08),
+        stroke,
+      );
+    }
+  }
+
+  void _templePeaks(
+    Canvas canvas,
+    double left,
+    double right,
+    double top,
+    Paint paint,
+  ) {
+    const count = 5;
+    final step = (right - left) / count;
+    final drop = step * 0.55;
+    final path = Path()..moveTo(left, top + drop);
+    for (var i = 0; i < count; i++) {
+      final x = left + step * i;
+      path
+        ..lineTo(x + step / 2, top)
+        ..lineTo(x + step, top + drop);
+    }
+    canvas.drawPath(path, paint);
+  }
+
+  /// One sari on a chair: chair back, folded seat piece, pallu, and hem.
+  void _sariDraped(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    Offset at(double x, double y) => Offset(
+          frame.left + frame.width * x,
+          frame.top + frame.height * y,
+        );
+
+    final left = at(0.22, 0.16);
+    final peak = at(0.34, 0.05);
+    final right = at(0.46, 0.16);
+    canvas.drawPath(
+      Path()
+        ..moveTo(left.dx, left.dy)
+        ..lineTo(peak.dx, peak.dy)
+        ..lineTo(right.dx, right.dy),
+      stroke,
+    );
+    _centredLabel(canvas, 'Chair back', at(0.64, 0.11));
+
+    final folded = RRect.fromRectAndRadius(
+      Rect.fromLTWH(
+        frame.left + frame.width * 0.06,
+        frame.top + frame.height * 0.26,
+        frame.width * 0.40,
+        frame.height * 0.13,
+      ),
+      const Radius.circular(10),
+    );
+    canvas.drawRRect(folded, Paint()..color = const Color(0x22FFFFFF));
+    canvas.drawRRect(folded, stroke);
+    _centredLabel(canvas, 'Folded piece', folded.outerRect.center);
+
+    final dash = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.2
+      ..strokeCap = StrokeCap.round;
+    _dashedPath(
+      canvas,
+      Path()
+        ..moveTo(at(0.50, 0.08).dx, at(0.50, 0.08).dy)
+        ..lineTo(at(0.78, 0.96).dx, at(0.78, 0.96).dy),
+      dash.color,
+      dash.strokeWidth,
+    );
+    _dashedPath(
+      canvas,
+      Path()
+        ..moveTo(at(0.62, 0.08).dx, at(0.62, 0.08).dy)
+        ..lineTo(at(0.94, 0.96).dx, at(0.94, 0.96).dy),
+      dash.color,
+      dash.strokeWidth,
+    );
+    _centredLabel(canvas, 'Pallu', at(0.84, 0.42));
+
+    final hemY = frame.top + frame.height * 0.78;
+    canvas.drawLine(
+      Offset(frame.left + frame.width * 0.04, hemY),
+      Offset(frame.left + frame.width * 0.44, hemY),
+      stroke,
+    );
+    _centredLabel(canvas, 'Hem', Offset(frame.left + frame.width * 0.24, hemY + 16));
+  }
+
+  /// One side of a sofa: left arm, back behind the pillow, seat underneath.
+  /// The right side runs off the frame.
+  void _cushionSofa(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final solid = Paint()..color = const Color(0x55101414);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    Offset p(double x, double y) => Offset(
+          frame.left + frame.width * x,
+          frame.top + frame.height * y,
+        );
+
+    final back = Path()
+      ..moveTo(p(0.22, 0.50).dx, p(0.22, 0.50).dy)
+      ..lineTo(p(0.22, 0.16).dx, p(0.22, 0.16).dy)
+      ..quadraticBezierTo(
+        p(0.22, 0.06).dx,
+        p(0.22, 0.06).dy,
+        p(0.32, 0.06).dx,
+        p(0.32, 0.06).dy,
+      )
+      ..lineTo(p(1, 0.06).dx, p(1, 0.06).dy)
+      ..lineTo(p(1, 0.50).dx, p(1, 0.50).dy)
+      ..close();
+    canvas.drawPath(back, solid);
+    canvas.drawPath(back, fill);
+    canvas.drawPath(back, stroke);
+
+    final seat = Path()
+      ..moveTo(p(0.26, 0.62).dx, p(0.26, 0.62).dy)
+      ..lineTo(p(1, 0.62).dx, p(1, 0.62).dy)
+      ..lineTo(p(1, 0.94).dx, p(1, 0.94).dy)
+      ..lineTo(p(0.16, 0.94).dx, p(0.16, 0.94).dy)
+      ..quadraticBezierTo(
+        p(0.16, 0.72).dx,
+        p(0.16, 0.72).dy,
+        p(0.26, 0.62).dx,
+        p(0.26, 0.62).dy,
+      )
+      ..close();
+    canvas.drawPath(seat, solid);
+    canvas.drawPath(seat, fill);
+    canvas.drawPath(seat, stroke);
+
+    final arm = RRect.fromRectAndRadius(
+      Rect.fromLTRB(p(0.04, 0.36).dx, p(0.04, 0.36).dy, p(0.28, 0.90).dx, p(0.28, 0.90).dy),
+      const Radius.circular(14),
+    );
+    canvas.drawRRect(arm, solid);
+    canvas.drawRRect(arm, fill);
+    canvas.drawRRect(arm, stroke);
+
+    final pillow = RRect.fromRectAndRadius(
+      Rect.fromLTRB(p(0.32, 0.22).dx, p(0.32, 0.22).dy, p(0.86, 0.74).dx, p(0.32, 0.74).dy),
+      const Radius.circular(18),
+    );
+    canvas.drawRRect(pillow, solid);
+    canvas.drawRRect(pillow, fill);
+    canvas.drawRRect(pillow, stroke);
+    final face = pillow.outerRect.deflate(pillow.outerRect.width * 0.12);
+    canvas.drawLine(
+      Offset(face.left, face.top + face.height * 0.32),
+      Offset(face.right, face.top + face.height * 0.32),
+      faint,
+    );
+    canvas.drawLine(
+      Offset(face.left, face.top + face.height * 0.46),
+      Offset(face.right, face.top + face.height * 0.46),
+      stroke,
+    );
+  }
+
+  /// Gamusa on a rod: side borders, wide end band, tassels along the hem.
+  void _gamusaFull(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final cloth = Rect.fromLTRB(
+      frame.left + frame.width * 0.26,
+      frame.top + frame.height * 0.1,
+      frame.right - frame.width * 0.26,
+      frame.top + frame.height * 0.82,
+    );
+    canvas.drawRect(cloth, fill);
+    canvas.drawRect(cloth, stroke);
+    canvas.drawLine(
+      Offset(frame.left + frame.width * 0.1, cloth.top),
+      Offset(frame.right - frame.width * 0.1, cloth.top),
+      Paint()
+        ..color = const Color(0xE8FFFFFF)
+        ..strokeWidth = 3.6
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.drawLine(
+      Offset(cloth.left + cloth.width * 0.1, cloth.top),
+      Offset(cloth.left + cloth.width * 0.1, cloth.bottom),
+      faint,
+    );
+    canvas.drawLine(
+      Offset(cloth.left + cloth.width * 0.2, cloth.top),
+      Offset(cloth.left + cloth.width * 0.2, cloth.bottom),
+      stroke,
+    );
+    canvas.drawLine(
+      Offset(cloth.right - cloth.width * 0.2, cloth.top),
+      Offset(cloth.right - cloth.width * 0.2, cloth.bottom),
+      stroke,
+    );
+    canvas.drawLine(
+      Offset(cloth.right - cloth.width * 0.1, cloth.top),
+      Offset(cloth.right - cloth.width * 0.1, cloth.bottom),
+      faint,
+    );
+    final bandTop = cloth.top + cloth.height * 0.58;
+    final bandBottom = cloth.top + cloth.height * 0.86;
+    canvas.drawRect(
+      Rect.fromLTRB(cloth.left, bandTop, cloth.right, bandBottom),
+      Paint()..color = const Color(0x18FFFFFF),
+    );
+    canvas.drawLine(Offset(cloth.left, bandTop), Offset(cloth.right, bandTop), stroke);
+    canvas.drawLine(
+      Offset(cloth.left, cloth.top + cloth.height * 0.66),
+      Offset(cloth.right, cloth.top + cloth.height * 0.66),
+      faint,
+    );
+    canvas.drawLine(
+      Offset(cloth.left, cloth.top + cloth.height * 0.78),
+      Offset(cloth.right, cloth.top + cloth.height * 0.78),
+      faint,
+    );
+    canvas.drawLine(Offset(cloth.left, bandBottom), Offset(cloth.right, bandBottom), stroke);
+    _diamonds(
+      canvas,
+      Rect.fromLTRB(
+        cloth.left + cloth.width * 0.22,
+        bandTop,
+        cloth.right - cloth.width * 0.22,
+        bandBottom,
+      ),
+      Paint()..color = const Color(0xCCFFFFFF),
+    );
+    for (var i = 0; i < 7; i++) {
+      final x = cloth.left + cloth.width * (0.08 + i * 0.14);
+      canvas.drawLine(
+        Offset(x, cloth.bottom),
+        Offset(x, cloth.bottom + frame.height * 0.06),
+        stroke,
+      );
+    }
+  }
+
+  /// Folded gamusa: end border across, side border on the right, tassels in front.
+  void _gamusaFolded(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final cloth = Rect.fromLTRB(
+      frame.left + frame.width * 0.08,
+      frame.top + frame.height * 0.2,
+      frame.right - frame.width * 0.08,
+      frame.top + frame.height * 0.68,
+    );
+    final radius = RRect.fromRectAndRadius(cloth, const Radius.circular(8));
+    canvas.drawRRect(radius, fill);
+    canvas.drawRRect(radius, stroke);
+
+    final split = cloth.left + cloth.width * 0.74;
+    final bandTop = cloth.top + cloth.height * 0.38;
+    final bandBottom = cloth.top + cloth.height * 0.7;
+    canvas.drawRect(
+      Rect.fromLTRB(cloth.left, bandTop, split, bandBottom),
+      Paint()..color = const Color(0x18FFFFFF),
+    );
+    canvas.drawLine(Offset(cloth.left, bandTop), Offset(split, bandTop), stroke);
+    canvas.drawLine(
+      Offset(cloth.left, cloth.top + cloth.height * 0.48),
+      Offset(split, cloth.top + cloth.height * 0.48),
+      faint,
+    );
+    canvas.drawLine(
+      Offset(cloth.left, cloth.top + cloth.height * 0.6),
+      Offset(split, cloth.top + cloth.height * 0.6),
+      faint,
+    );
+    canvas.drawLine(Offset(cloth.left, bandBottom), Offset(split, bandBottom), stroke);
+    _diamonds(
+      canvas,
+      Rect.fromLTRB(cloth.left + cloth.width * 0.08, bandTop, split, bandBottom),
+      Paint()..color = const Color(0xCCFFFFFF),
+    );
+    canvas.drawRect(
+      Rect.fromLTRB(split, cloth.top, cloth.right, cloth.bottom),
+      Paint()..color = const Color(0x18FFFFFF),
+    );
+    canvas.drawLine(Offset(split, cloth.top), Offset(split, cloth.bottom), stroke);
+    canvas.drawLine(
+      Offset(cloth.left + cloth.width * 0.86, cloth.top),
+      Offset(cloth.left + cloth.width * 0.86, cloth.bottom),
+      faint,
+    );
+    for (var i = 0; i < 8; i++) {
+      final x = cloth.left + cloth.width * (0.08 + i * 0.11);
+      canvas.drawLine(
+        Offset(x, cloth.bottom),
+        Offset(x, cloth.bottom + frame.height * 0.06),
+        stroke,
+      );
+    }
+  }
+
+  /// Plump square cushion from above, piping on every side, motif in the middle.
+  void _cushionFlat(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final cover = RRect.fromRectAndRadius(
+      Rect.fromLTRB(
+        frame.left + frame.width * 0.16,
+        frame.top + frame.height * 0.18,
+        frame.right - frame.width * 0.16,
+        frame.top + frame.height * 0.82,
+      ),
+      const Radius.circular(22),
+    );
+    canvas.drawRRect(cover, fill);
+    canvas.drawRRect(cover, stroke);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        cover.outerRect.deflate(cover.outerRect.width * 0.1),
+        const Radius.circular(16),
+      ),
+      faint,
+    );
+
+    final face = cover.outerRect.deflate(cover.outerRect.width * 0.28);
+    final c = face.center;
+    canvas.drawPath(
+      Path()
+        ..moveTo(c.dx, c.dy - face.height * 0.28)
+        ..lineTo(c.dx + face.width * 0.22, c.dy)
+        ..lineTo(c.dx, c.dy + face.height * 0.28)
+        ..lineTo(c.dx - face.width * 0.22, c.dy)
+        ..close(),
+      Paint()..color = const Color(0xCCFFFFFF),
+    );
+  }
+
+  /// Straight cloth on a rod: left border, motifs, end band. Matches the hanging guide.
   void _hangingDisplayGuide(Canvas canvas, Rect frame) {
-    HangingDisplayOverlay.paintContent(canvas, frame);
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final cloth = Rect.fromLTRB(
+      frame.left + frame.width * 0.28,
+      frame.top + frame.height * 0.1,
+      frame.right - frame.width * 0.28,
+      frame.top + frame.height * 0.9,
+    );
+    final rodY = cloth.top - frame.height * 0.018;
+    final overhang = frame.width * 0.045;
+    canvas.drawLine(
+      Offset(cloth.left - overhang, rodY),
+      Offset(cloth.right + overhang, rodY),
+      Paint()
+        ..color = const Color(0xE8FFFFFF)
+        ..strokeWidth = 3.2
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.drawCircle(
+      Offset(cloth.center.dx, rodY),
+      4,
+      Paint()..color = const Color(0xE8FFFFFF),
+    );
+
+    canvas.drawRect(cloth, fill);
+    canvas.drawRect(cloth, stroke);
+
+    final borderRight = cloth.left + cloth.width * 0.22;
+    canvas.drawRect(
+      Rect.fromLTRB(cloth.left, cloth.top, borderRight, cloth.bottom),
+      Paint()..color = const Color(0x18FFFFFF),
+    );
+    canvas.drawLine(
+      Offset(borderRight, cloth.top),
+      Offset(borderRight, cloth.bottom),
+      stroke,
+    );
+    final strip = borderRight - cloth.left;
+    canvas.drawLine(
+      Offset(cloth.left + strip * 0.35, cloth.top),
+      Offset(cloth.left + strip * 0.35, cloth.bottom),
+      faint,
+    );
+    canvas.drawLine(
+      Offset(cloth.left + strip * 0.7, cloth.top),
+      Offset(cloth.left + strip * 0.7, cloth.bottom),
+      faint,
+    );
+
+    final bandTop = cloth.top + cloth.height * 0.74;
+    _diamonds(
+      canvas,
+      Rect.fromLTRB(borderRight, cloth.top + cloth.height * 0.06, cloth.right, bandTop),
+      Paint()..color = const Color(0xCCFFFFFF),
+    );
+    canvas.drawLine(Offset(cloth.left, bandTop), Offset(cloth.right, bandTop), faint);
+    canvas.drawLine(
+      Offset(cloth.left, cloth.top + cloth.height * 0.86),
+      Offset(cloth.right, cloth.top + cloth.height * 0.86),
+      faint,
+    );
+    canvas.drawLine(
+      Offset(cloth.center.dx, cloth.top),
+      Offset(cloth.center.dx, cloth.bottom),
+      faint,
+    );
   }
 
   /// Shawl hanging under a rod: wider cloth, border on the right, tassels below.
@@ -1093,83 +1811,4 @@ class _OutlinePainter extends CustomPainter {
       oldDelegate.outline.placement != outline.placement ||
       oldDelegate.outline.inset != outline.inset ||
       oldDelegate.outline.kind != outline.kind;
-}
-
-/// Hint pills anchored to the lower area inside the dashed frame.
-class ShotFrameHintOverlay extends StatelessWidget {
-  const ShotFrameHintOverlay({
-    super.key,
-    required this.outline,
-    this.hint,
-    required this.prompt,
-    required this.hintStyle,
-    required this.promptStyle,
-  });
-
-  final ShotOutline outline;
-
-  /// Dark caption pill; left out when null, and the prompt takes its place.
-  final String? hint;
-  final String prompt;
-  final TextStyle hintStyle;
-  final TextStyle promptStyle;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final size = Size(constraints.maxWidth, constraints.maxHeight);
-        final frame = ShotOutline.outerFrame(size, outline);
-        final top = frame.top + frame.height * 0.58;
-        final horizontal = frame.left + 10;
-        final width = frame.width - 20;
-
-        final hint = this.hint;
-        return Stack(
-          children: [
-            if (hint != null)
-              Positioned(
-                left: horizontal,
-                top: top,
-                width: width,
-                child: _pill(
-                  color: const Color(0xCC0E1413),
-                  child: Text(
-                    hint,
-                    textAlign: TextAlign.center,
-                    style: hintStyle,
-                  ),
-                ),
-              ),
-            Positioned(
-              left: horizontal,
-              top: hint == null ? top : top + 46,
-              width: width,
-              child: _pill(
-                color: const Color(0xFFF5C84C),
-                child: Text(
-                  prompt,
-                  textAlign: TextAlign.center,
-                  style: promptStyle,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _pill({required Color color, required Widget child}) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: child,
-      ),
-    );
-  }
 }

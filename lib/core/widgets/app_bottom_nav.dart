@@ -83,46 +83,50 @@ class AppBottomNav extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            child: GestureDetector(
-              onTap: onPhotoTap,
-              behavior: HitTestBehavior.opaque,
-              child: Column(
-                children: [
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x591B7574),
-                          blurRadius: 16,
-                          offset: Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: Container(
-                      width: 56,
-                      height: 56,
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: GestureDetector(
+                onTap: onPhotoTap,
+                behavior: HitTestBehavior.opaque,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DecoratedBox(
                       decoration: BoxDecoration(
-                        color: teal,
                         borderRadius: BorderRadius.circular(18),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x591B7574),
+                            blurRadius: 16,
+                            offset: Offset(0, 8),
+                          ),
+                        ],
                       ),
-                      child: const Icon(
-                        Icons.photo_camera_outlined,
-                        color: Colors.white,
-                        size: 24,
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: teal,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: const Icon(
+                          Icons.photo_camera_outlined,
+                          color: Colors.white,
+                          size: 24,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Photo',
-                    style: GoogleFonts.plusJakartaSans(
-                      color: muted,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                    const SizedBox(height: 8),
+                    Text(
+                      'Photo',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: muted,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

@@ -6,7 +6,10 @@ import 'package:artisnal_app/core/speech/speech_player.dart';
 import 'package:artisnal_app/core/widgets/app_bottom_nav.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
+import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
+import 'package:artisnal_app/features/me/screens/me_screen.dart';
+import 'package:artisnal_app/features/shell/main_tab_screen.dart';
 
 enum TaskPartState { done, current, pending }
 
@@ -78,6 +81,38 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
 
   void _onProgress() {
     if (mounted) setState(() {});
+  }
+
+  void _returnHome(AppNavTab tab) {
+    final navigator = Navigator.of(context);
+    if (MainTabScreen.selectTab == null) return;
+    LearnTaskNavigation.popToLearnHome(navigator);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      MainTabScreen.selectTab?.call(tab);
+    });
+  }
+
+  void _openLearn() => _returnHome(AppNavTab.learn);
+
+  void _openPhoto() {
+    final navigator = Navigator.of(context);
+    final locale = widget.locale;
+    LearnTaskNavigation.popToLearnHome(navigator);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      MainTabScreen.selectTab?.call(AppNavTab.learn);
+      if (!navigator.mounted) return;
+      LearnTaskNavigation.openPhotography(navigator.context, locale);
+    });
+  }
+
+  void _openMe() {
+    if (MainTabScreen.selectTab != null) {
+      _returnHome(AppNavTab.me);
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const MeScreen()),
+    );
   }
 
   TaskPartState _stateOf(int index) {
@@ -298,7 +333,11 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
                   ],
                 ),
               ),
-              const AppBottomNav(),
+              AppBottomNav(
+                onLearnTap: _openLearn,
+                onPhotoTap: _openPhoto,
+                onMeTap: _openMe,
+              ),
             ],
           ),
         ),

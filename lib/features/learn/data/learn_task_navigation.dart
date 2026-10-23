@@ -47,6 +47,10 @@ class LearnTaskNavigation {
     };
   }
 
+  static void openPhotography(BuildContext context, String locale) {
+    open(context, photographyTaskId, locale);
+  }
+
   static void popToLearnHome(NavigatorState navigator) {
     navigator.popUntil(
       (route) =>

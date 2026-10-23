@@ -51,6 +51,24 @@ enum GuideArt {
 
   /// One folded shawl, side border and tassels along the front.
   shawlFolded,
+
+  /// Close view: cushion on one side of a sofa, not the whole sofa.
+  cushionSofa,
+
+  /// Cushion cover laid flat and shot from above.
+  cushionFlat,
+
+  /// Gamusa hanging on a rod, borders both sides and tassels at the hem.
+  gamusaFull,
+
+  /// One folded gamusa, end border across and tassels along the front.
+  gamusaFolded,
+
+  /// Jod kappur on a rod: wide cloth on the left, narrow piece with tassels.
+  jodHanging,
+
+  /// Jod kappur folded: wide cloth beside the smaller tasseled piece.
+  jodFolded,
 }
 
 class GuideDiagram extends StatelessWidget {
@@ -204,6 +222,18 @@ class _GuidePainter extends CustomPainter {
         _shawlFull(canvas, fill, accent, faint);
       case GuideArt.shawlFolded:
         _shawlFolded(canvas, fill, accent, faint);
+      case GuideArt.cushionSofa:
+        _cushionSofa(canvas, fill, accent, faint);
+      case GuideArt.cushionFlat:
+        _cushionFlat(canvas, fill, accent, faint);
+      case GuideArt.gamusaFull:
+        _gamusaFull(canvas, fill, accent, faint);
+      case GuideArt.gamusaFolded:
+        _gamusaFolded(canvas, fill, accent, faint);
+      case GuideArt.jodHanging:
+        _jodHanging(canvas, fill, accent, faint);
+      case GuideArt.jodFolded:
+        _jodFolded(canvas, fill, accent, faint);
     }
   }
 
@@ -328,6 +358,264 @@ class _GuidePainter extends CustomPainter {
     for (final x in [22.0, 32.0, 42.0, 52.0, 62.0, 72.0, 80.0]) {
       canvas.drawLine(Offset(x, 70), Offset(x, 78), accent);
     }
+  }
+
+  /// One side of a sofa: left arm, back behind, seat under, pillow in front.
+  /// The right side runs off the frame, so it is not a whole sofa.
+  void _cushionSofa(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(8, 8, 92, 92);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+
+    final back = Path()
+      ..moveTo(24, 48)
+      ..lineTo(24, 22)
+      ..quadraticBezierTo(24, 14, 32, 14)
+      ..lineTo(92, 14)
+      ..lineTo(92, 48)
+      ..close();
+    canvas.drawPath(back, fill);
+    canvas.drawPath(back, accent);
+
+    final seat = Path()
+      ..moveTo(28, 60)
+      ..lineTo(92, 60)
+      ..lineTo(92, 84)
+      ..lineTo(20, 84)
+      ..quadraticBezierTo(20, 68, 28, 60)
+      ..close();
+    canvas.drawPath(seat, fill);
+    canvas.drawPath(seat, accent);
+
+    final arm = RRect.fromRectAndRadius(
+      const Rect.fromLTRB(12, 38, 32, 82),
+      const Radius.circular(6),
+    );
+    canvas.drawRRect(arm, Paint()..color = Colors.white);
+    canvas.drawRRect(arm, fill);
+    canvas.drawRRect(arm, accent);
+
+    final pillow = RRect.fromRectAndRadius(
+      const Rect.fromLTRB(34, 26, 80, 68),
+      const Radius.circular(10),
+    );
+    canvas.drawRRect(pillow, Paint()..color = Colors.white);
+    canvas.drawRRect(pillow, fill);
+    canvas.drawRRect(pillow, accent);
+    canvas.drawLine(const Offset(42, 40), const Offset(72, 40), faint);
+    canvas.drawLine(const Offset(42, 46), const Offset(72, 46), accent);
+  }
+
+  /// Plump square cushion from above: piping on all four sides, a motif in the middle.
+  void _cushionFlat(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(10, 10, 90, 90);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+
+    final cushion = RRect.fromRectAndRadius(
+      const Rect.fromLTRB(18, 20, 82, 80),
+      const Radius.circular(12),
+    );
+    canvas.drawRRect(cushion, fill);
+    canvas.drawRRect(cushion, accent);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        const Rect.fromLTRB(26, 28, 74, 72),
+        const Radius.circular(8),
+      ),
+      faint,
+    );
+
+    final motif = Paint()
+      ..color = GuideDiagram.teal.withValues(alpha: 0.85)
+      ..style = PaintingStyle.fill;
+    const center = Offset(50, 50);
+    canvas.drawPath(
+      Path()
+        ..moveTo(center.dx, center.dy - 8)
+        ..lineTo(center.dx + 6, center.dy)
+        ..lineTo(center.dx, center.dy + 8)
+        ..lineTo(center.dx - 6, center.dy)
+        ..close(),
+      motif,
+    );
+  }
+
+  /// Gamusa on a rod: borders down both sides, a wide end band, tassels below.
+  void _gamusaFull(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(14, 8, 86, 92);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+    const cloth = Rect.fromLTRB(32, 18, 68, 76);
+    canvas.drawLine(const Offset(22, 18), const Offset(78, 18), accent);
+    canvas.drawRect(cloth, fill);
+    canvas.drawRect(cloth, accent);
+    canvas.drawLine(const Offset(36, 18), const Offset(36, 76), faint);
+    canvas.drawLine(const Offset(40, 18), const Offset(40, 76), accent);
+    canvas.drawLine(const Offset(60, 18), const Offset(60, 76), accent);
+    canvas.drawLine(const Offset(64, 18), const Offset(64, 76), faint);
+    canvas.drawRect(
+      const Rect.fromLTRB(32, 54, 68, 70),
+      Paint()..color = const Color(0x221B7574),
+    );
+    canvas.drawLine(const Offset(32, 54), const Offset(68, 54), accent);
+    canvas.drawLine(const Offset(32, 58), const Offset(68, 58), faint);
+    canvas.drawLine(const Offset(32, 66), const Offset(68, 66), faint);
+    canvas.drawLine(const Offset(32, 70), const Offset(68, 70), accent);
+    final motif = Paint()
+      ..color = GuideDiagram.teal.withValues(alpha: 0.85)
+      ..style = PaintingStyle.fill;
+    for (final x in [46.0, 54.0]) {
+      const y = 62.0;
+      canvas.drawPath(
+        Path()
+          ..moveTo(x, y - 2.6)
+          ..lineTo(x + 2.2, y)
+          ..lineTo(x, y + 2.6)
+          ..lineTo(x - 2.2, y)
+          ..close(),
+        motif,
+      );
+    }
+    for (final x in [36.0, 42.0, 48.0, 54.0, 60.0, 66.0]) {
+      canvas.drawLine(Offset(x, 76), Offset(x, 86), accent);
+    }
+  }
+
+  /// Folded gamusa from above: end border across, side border on the right, tassels.
+  void _gamusaFolded(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(10, 12, 90, 88);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+
+    const cloth = Rect.fromLTRB(14, 28, 86, 68);
+    canvas.drawRect(cloth, fill);
+    canvas.drawRect(cloth, accent);
+    canvas.drawRect(
+      const Rect.fromLTRB(14, 42, 68, 58),
+      Paint()..color = const Color(0x221B7574),
+    );
+    canvas.drawLine(const Offset(14, 42), const Offset(68, 42), accent);
+    canvas.drawLine(const Offset(14, 46), const Offset(68, 46), faint);
+    canvas.drawLine(const Offset(14, 54), const Offset(68, 54), faint);
+    canvas.drawLine(const Offset(14, 58), const Offset(68, 58), accent);
+    final motif = Paint()
+      ..color = GuideDiagram.teal.withValues(alpha: 0.85)
+      ..style = PaintingStyle.fill;
+    for (final x in [26.0, 38.0, 50.0, 62.0]) {
+      const y = 50.0;
+      canvas.drawPath(
+        Path()
+          ..moveTo(x, y - 2.4)
+          ..lineTo(x + 2.1, y)
+          ..lineTo(x, y + 2.4)
+          ..lineTo(x - 2.1, y)
+          ..close(),
+        motif,
+      );
+    }
+    canvas.drawRect(
+      const Rect.fromLTRB(68, 28, 86, 68),
+      Paint()..color = const Color(0x221B7574),
+    );
+    canvas.drawLine(const Offset(68, 28), const Offset(68, 68), accent);
+    canvas.drawLine(const Offset(74, 28), const Offset(74, 68), faint);
+    canvas.drawLine(const Offset(80, 28), const Offset(80, 68), faint);
+    for (final x in [22.0, 32.0, 42.0, 52.0, 62.0, 72.0, 80.0]) {
+      canvas.drawLine(Offset(x, 68), Offset(x, 78), accent);
+    }
+  }
+
+  /// Wide cloth and a narrower tasseled piece, both on one rod.
+  void _jodHanging(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(8, 8, 92, 92);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+    canvas.drawLine(const Offset(14, 16), const Offset(86, 16), accent);
+
+    const wide = Rect.fromLTRB(14, 18, 60, 78);
+    canvas.drawRect(wide, fill);
+    canvas.drawRect(wide, accent);
+    canvas.drawLine(const Offset(24, 18), const Offset(24, 58), faint);
+    canvas.drawLine(const Offset(32, 18), const Offset(32, 58), accent);
+    _templePeaks(canvas, 14, 60, 58, accent);
+    canvas.drawRect(
+      const Rect.fromLTRB(14, 66, 60, 78),
+      Paint()..color = const Color(0x221B7574),
+    );
+    canvas.drawLine(const Offset(14, 66), const Offset(60, 66), accent);
+    canvas.drawLine(const Offset(14, 72), const Offset(60, 72), faint);
+
+    const narrow = Rect.fromLTRB(68, 18, 84, 60);
+    canvas.drawRect(narrow, fill);
+    canvas.drawRect(narrow, accent);
+    canvas.drawLine(const Offset(74, 18), const Offset(74, 46), faint);
+    canvas.drawLine(const Offset(68, 46), const Offset(84, 46), accent);
+    canvas.drawLine(const Offset(68, 52), const Offset(84, 52), faint);
+    for (final x in [70.0, 74.0, 78.0, 82.0]) {
+      canvas.drawLine(Offset(x, 60), Offset(x, 70), accent);
+    }
+  }
+
+  /// Wide folded cloth on the left, smaller tasseled piece beside it.
+  void _jodFolded(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(8, 12, 92, 88);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+
+    const wide = Rect.fromLTRB(10, 22, 58, 70);
+    canvas.drawRect(wide, fill);
+    canvas.drawRect(wide, accent);
+    canvas.drawLine(const Offset(22, 22), const Offset(22, 48), faint);
+    canvas.drawLine(const Offset(30, 22), const Offset(30, 48), accent);
+    _templePeaks(canvas, 10, 58, 46, accent);
+    canvas.drawRect(
+      const Rect.fromLTRB(10, 54, 58, 70),
+      Paint()..color = const Color(0x221B7574),
+    );
+    canvas.drawLine(const Offset(10, 54), const Offset(58, 54), accent);
+    canvas.drawLine(const Offset(10, 62), const Offset(58, 62), faint);
+
+    const small = Rect.fromLTRB(62, 36, 88, 64);
+    canvas.drawRect(small, fill);
+    canvas.drawRect(small, accent);
+    canvas.drawLine(const Offset(70, 36), const Offset(70, 64), faint);
+    canvas.drawLine(const Offset(62, 46), const Offset(88, 46), accent);
+    canvas.drawLine(const Offset(62, 54), const Offset(88, 54), faint);
+    for (final x in [66.0, 72.0, 78.0, 84.0]) {
+      canvas.drawLine(Offset(x, 64), Offset(x, 74), accent);
+    }
+  }
+
+  void _templePeaks(
+    Canvas canvas,
+    double left,
+    double right,
+    double top,
+    Paint paint,
+  ) {
+    final path = Path()..moveTo(left, top + 7);
+    const count = 5;
+    final step = (right - left) / count;
+    for (var i = 0; i < count; i++) {
+      final x = left + step * i;
+      path
+        ..lineTo(x + step / 2, top)
+        ..lineTo(x + step, top + 7);
+    }
+    canvas.drawPath(path, paint);
   }
 
   /// Stole on a rod: side borders, a band near the end, tassels along the hem.

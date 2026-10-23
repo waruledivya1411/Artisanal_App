@@ -221,6 +221,90 @@ const _hanging = <GuideStep>[
   ),
 ];
 
+const _cushionSofa = <GuideStep>[
+  GuideStep(
+    title: 'Sit the cover on the sofa',
+    subtitle: 'Close on one side of the sofa · whole cover in frame',
+    art: GuideArt.cushionSofa,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'Cover against the back, only part of the sofa in frame',
+    showExample: true,
+    caption: 'Show the whole cover. Do not crop the corners.',
+  ),
+];
+
+const _cushionFlat = <GuideStep>[
+  GuideStep(
+    title: 'Lay the cover flat',
+    subtitle: 'Shot from above · all four corners in frame',
+    art: GuideArt.cushionFlat,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'Laid flat so the whole cover is in frame',
+    showExample: true,
+    caption: 'Keep it flat and show every corner.',
+  ),
+];
+
+const _gamusaFull = <GuideStep>[
+  GuideStep(
+    title: 'Hang the gamusa straight',
+    subtitle: 'On a rod · borders on both sides · tassels along the bottom',
+    art: GuideArt.gamusaFull,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'Whole gamusa in frame, hanging straight',
+    showExample: true,
+    caption: 'Show the end border and the tassels. Keep it straight.',
+  ),
+];
+
+const _gamusaFolded = <GuideStep>[
+  GuideStep(
+    title: 'One folded gamusa',
+    subtitle: 'Shot from above · end border across · tassels along the front',
+    art: GuideArt.gamusaFolded,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'One fold in frame — tassels along the bottom',
+    showExample: true,
+    caption: 'Fold it so the end border and tassels show.',
+  ),
+];
+
+const _jodHanging = <GuideStep>[
+  GuideStep(
+    title: 'Hang both pieces',
+    subtitle: 'One rod · wide cloth on the left · narrow piece with tassels',
+    art: GuideArt.jodHanging,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'Both pieces in frame, hanging straight',
+    showExample: true,
+    caption: 'Show the wide border and the tassels. Keep both pieces straight.',
+  ),
+];
+
+const _jodFolded = <GuideStep>[
+  GuideStep(
+    title: 'Lay both pieces side by side',
+    subtitle: 'Wide fold on the left · smaller piece with tassels on the right',
+    art: GuideArt.jodFolded,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'Both folds in frame — tassels along the small piece',
+    showExample: true,
+    caption: 'Keep them side by side so the border and the tassels show.',
+  ),
+];
+
 const _guides = <String, List<GuideStep>>{
   'full_display': _fullDisplay,
   'close-up_texture': _closeUp,
@@ -228,6 +312,8 @@ const _guides = <String, List<GuideStep>>{
   'embroidery_and_border': _border,
   'folded_stack': _folded,
   'hanging_display': _hanging,
+  'sofa_seated_display': _cushionSofa,
+  'flat_lay_display': _cushionFlat,
 };
 
 /// Steps for a display, by its [DisplayOption.key].
@@ -252,6 +338,18 @@ List<GuideStep> guideFor(String displayKey, {String? product}) {
   }
   if (displayKey == 'folded_stack' && product == 'Shawl') {
     return _shawlFolded;
+  }
+  if (displayKey == 'full_display' && product == 'Gamusa') {
+    return _gamusaFull;
+  }
+  if (displayKey == 'folded_stack' && product == 'Gamusa') {
+    return _gamusaFolded;
+  }
+  if (displayKey == 'hanging_display' && product == 'Jod kappur') {
+    return _jodHanging;
+  }
+  if (displayKey == 'folded_stack' && product == 'Jod kappur') {
+    return _jodFolded;
   }
   return _guides[displayKey] ?? _fullDisplay;
 }

@@ -45,6 +45,14 @@ const _border = DisplayOption(
 );
 const _folded = DisplayOption(name: 'Folded', key: 'folded_stack');
 const _hanging = DisplayOption(name: 'Hanging', key: 'hanging_display');
+const _sofaSeated = DisplayOption(
+  name: 'Sofa-Seated Display',
+  key: 'sofa_seated_display',
+);
+const _flatLay = DisplayOption(
+  name: 'Flat-Lay Display',
+  key: 'flat_lay_display',
+);
 
 /// A draped garment can be shown every way.
 const everyDisplay = <DisplayOption>[
@@ -63,14 +71,24 @@ const _drapedProducts = {'Saree', 'Mekhala sador'};
 
 /// Products that have their own example photos for every display they offer.
 /// Everything else falls back to the sari set.
-const productsWithOwnPhotos = {'Gamusa', 'Shawl', 'Stole'};
+const productsWithOwnPhotos = {
+  'Gamusa',
+  'Shawl',
+  'Stole',
+  'Cushion covers',
+  'Jod kappur',
+};
 
-/// A jod kappur is shown hanging rather than folded.
-const _hangingDisplays = <DisplayOption>[_fullDisplay, _hanging];
+/// A jod kappur is shown folded or hanging. There is no full-display shot.
+const _jodDisplays = <DisplayOption>[_folded, _hanging];
+
+/// A cushion cover is shown on a sofa or laid flat.
+const _cushionDisplays = <DisplayOption>[_sofaSeated, _flatLay];
 
 List<DisplayOption> displaysFor(String? product) {
   if (_drapedProducts.contains(product)) return everyDisplay;
-  if (product == 'Jod kappur') return _hangingDisplays;
+  if (product == 'Jod kappur') return _jodDisplays;
+  if (product == 'Cushion covers') return _cushionDisplays;
   return basicDisplays;
 }
 

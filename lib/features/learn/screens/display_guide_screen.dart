@@ -273,16 +273,23 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
                     ),
                   ),
                 )
-              : Image.asset(
-                  widget.display.imageFor(material, product: widget.product),
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stack) => const ColoredBox(
-                    color: DisplayGuideScreen.track,
-                    child: Center(
-                      child: Icon(
-                        Icons.image_outlined,
-                        color: Color(0xFF9AABA8),
-                        size: 28,
+              : ColoredBox(
+                  color: const Color(0xFFF4F1EA),
+                  child: Image.asset(
+                    widget.display.imageFor(material, product: widget.product),
+                    fit: widget.product == 'Cushion covers' ||
+                            widget.product == 'Jod kappur'
+                        ? BoxFit.contain
+                        : BoxFit.cover,
+                    alignment: Alignment.center,
+                    errorBuilder: (context, error, stack) => const ColoredBox(
+                      color: DisplayGuideScreen.track,
+                      child: Center(
+                        child: Icon(
+                          Icons.image_outlined,
+                          color: Color(0xFF9AABA8),
+                          size: 28,
+                        ),
                       ),
                     ),
                   ),

@@ -10,12 +10,29 @@ class MainTabScreen extends StatefulWidget {
 
   final String locale;
 
+  /// Switches the Learn / Me tab after a pushed screen pops back home.
+  static void Function(AppNavTab tab)? selectTab;
+
   @override
   State<MainTabScreen> createState() => _MainTabScreenState();
 }
 
 class _MainTabScreenState extends State<MainTabScreen> {
   AppNavTab _tab = AppNavTab.learn;
+
+  @override
+  void initState() {
+    super.initState();
+    MainTabScreen.selectTab = (tab) {
+      if (mounted) setState(() => _tab = tab);
+    };
+  }
+
+  @override
+  void dispose() {
+    if (MainTabScreen.selectTab != null) MainTabScreen.selectTab = null;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

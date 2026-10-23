@@ -510,7 +510,6 @@ void main() {
       'Shawl',
       'Gamusa',
       'Yardages',
-      'Cushion covers',
     ]) {
       expect(
         displaysFor(product).map((d) => d.name),
@@ -519,8 +518,12 @@ void main() {
       );
     }
     expect(
+      displaysFor('Cushion covers').map((d) => d.name),
+      ['Sofa-Seated Display', 'Flat-Lay Display'],
+    );
+    expect(
       displaysFor('Jod kappur').map((d) => d.name),
-      ['Full display', 'Hanging'],
+      ['Folded', 'Hanging'],
     );
   });
 
