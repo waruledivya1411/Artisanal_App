@@ -81,11 +81,11 @@ class GuideDiagram extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _GuidePainter(art),
-      size: Size.infinite,
-      isComplex: true,
-    );
+        return CustomPaint(
+          painter: _GuidePainter(art),
+          size: Size.infinite,
+          isComplex: true,
+        );
   }
 }
 
@@ -575,27 +575,30 @@ class _GuidePainter extends CustomPainter {
       faint,
     );
 
-    const wide = Rect.fromLTRB(10, 22, 58, 70);
+    const wide = Rect.fromLTRB(8, 20, 64, 66);
     canvas.drawRect(wide, fill);
     canvas.drawRect(wide, accent);
-    canvas.drawLine(const Offset(22, 22), const Offset(22, 48), faint);
-    canvas.drawLine(const Offset(30, 22), const Offset(30, 48), accent);
-    _templePeaks(canvas, 10, 58, 46, accent);
     canvas.drawRect(
-      const Rect.fromLTRB(10, 54, 58, 70),
+      const Rect.fromLTRB(8, 50, 64, 66),
       Paint()..color = const Color(0x221B7574),
     );
-    canvas.drawLine(const Offset(10, 54), const Offset(58, 54), accent);
-    canvas.drawLine(const Offset(10, 62), const Offset(58, 62), faint);
+    canvas.drawLine(const Offset(8, 50), const Offset(64, 50), accent);
+    canvas.drawLine(const Offset(8, 58), const Offset(64, 58), faint);
+    _templePeaks(canvas, 8, 64, 44, accent, drop: 5);
+    for (final x in [24.0, 28.0, 36.0, 40.0]) {
+      canvas.drawLine(Offset(x, 20), Offset(x, 66), x == 28 || x == 40 ? accent : faint);
+    }
 
-    const small = Rect.fromLTRB(62, 36, 88, 64);
+    const small = Rect.fromLTRB(58, 36, 90, 60);
+    canvas.drawRect(small, Paint()..color = Colors.white);
     canvas.drawRect(small, fill);
     canvas.drawRect(small, accent);
-    canvas.drawLine(const Offset(70, 36), const Offset(70, 64), faint);
-    canvas.drawLine(const Offset(62, 46), const Offset(88, 46), accent);
-    canvas.drawLine(const Offset(62, 54), const Offset(88, 54), faint);
-    for (final x in [66.0, 72.0, 78.0, 84.0]) {
-      canvas.drawLine(Offset(x, 64), Offset(x, 74), accent);
+    canvas.drawLine(const Offset(66, 36), const Offset(66, 60), faint);
+    canvas.drawLine(const Offset(70, 36), const Offset(70, 60), accent);
+    canvas.drawLine(const Offset(58, 44), const Offset(90, 44), accent);
+    canvas.drawLine(const Offset(58, 52), const Offset(90, 52), faint);
+    for (final x in [62.0, 68.0, 74.0, 80.0, 86.0]) {
+      canvas.drawLine(Offset(x, 60), Offset(x, 74), accent);
     }
   }
 
@@ -604,16 +607,17 @@ class _GuidePainter extends CustomPainter {
     double left,
     double right,
     double top,
-    Paint paint,
-  ) {
-    final path = Path()..moveTo(left, top + 7);
-    const count = 5;
+    Paint paint, {
+    double drop = 7,
+  }) {
+    final path = Path()..moveTo(left, top + drop);
+    const count = 6;
     final step = (right - left) / count;
     for (var i = 0; i < count; i++) {
       final x = left + step * i;
       path
         ..lineTo(x + step / 2, top)
-        ..lineTo(x + step, top + 7);
+        ..lineTo(x + step, top + drop);
     }
     canvas.drawPath(path, paint);
   }

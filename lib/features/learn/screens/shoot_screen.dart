@@ -315,11 +315,7 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
                       : _guidedShoot
                           ? _guidedTopBar()
                           : _topBar(),
-                  _outline.kind == ShotOverlayKind.sariDraped
-                      ? _checkPills(centre: true)
-                      : _guidedShoot
-                          ? _guidedCheckPills()
-                          : _checkPills(),
+                  _guidedShoot ? _guidedCheckPills() : _checkPills(),
                   const Spacer(),
                   if (_hint != null) ...[
                     _hintBar(),
@@ -545,11 +541,10 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   }
 
   /// Reminders of the things that spoil a shot.
-  Widget _checkPills({bool centre = false}) {
-    final checks = <(IconData, String)>[
+  Widget _checkPills() {
+    const checks = <(IconData, String)>[
       (Icons.wb_sunny_outlined, 'Light'),
       (Icons.straighten_rounded, 'Distance'),
-      if (centre) (Icons.filter_center_focus, 'Centre'),
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),

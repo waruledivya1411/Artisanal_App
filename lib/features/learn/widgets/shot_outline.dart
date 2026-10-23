@@ -51,7 +51,7 @@ class ShotOutline {
     this.strip,
     this.stripLabel,
     this.placement = ShotFramePlacement.centered,
-    this.inset = const EdgeInsets.fromLTRB(22, 112, 22, 280),
+    this.inset = const EdgeInsets.fromLTRB(14, 108, 14, 196),
     this.kind = ShotOverlayKind.standard,
   });
 
@@ -122,7 +122,6 @@ class ShotOutline {
         widthFactor: 0.72,
         aspectRatio: 0.62,
         placement: ShotFramePlacement.inset,
-        inset: EdgeInsets.fromLTRB(32, 148, 32, 260),
         kind: ShotOverlayKind.shawlFull,
       );
     }
@@ -131,7 +130,6 @@ class ShotOutline {
         widthFactor: 0.62,
         aspectRatio: 0.58,
         placement: ShotFramePlacement.inset,
-        inset: EdgeInsets.fromLTRB(56, 148, 56, 250),
         kind: ShotOverlayKind.stoleFull,
       );
     }
@@ -140,7 +138,6 @@ class ShotOutline {
         widthFactor: 0.86,
         aspectRatio: 0.92,
         placement: ShotFramePlacement.inset,
-        inset: EdgeInsets.fromLTRB(28, 148, 28, 250),
         kind: ShotOverlayKind.cushionFlat,
       );
     }
@@ -149,7 +146,6 @@ class ShotOutline {
         widthFactor: 0.86,
         aspectRatio: 0.92,
         placement: ShotFramePlacement.inset,
-        inset: EdgeInsets.fromLTRB(28, 148, 28, 250),
         kind: ShotOverlayKind.cushionSofa,
       );
     }
@@ -158,7 +154,6 @@ class ShotOutline {
         widthFactor: 0.62,
         aspectRatio: 0.58,
         placement: ShotFramePlacement.inset,
-        inset: EdgeInsets.fromLTRB(56, 148, 56, 250),
         kind: ShotOverlayKind.gamusaFull,
       );
     }
@@ -167,7 +162,6 @@ class ShotOutline {
         widthFactor: 0.78,
         aspectRatio: 0.52,
         placement: ShotFramePlacement.inset,
-        inset: EdgeInsets.fromLTRB(28, 136, 28, 260),
         kind: ShotOverlayKind.sariDraped,
       );
     }
@@ -263,21 +257,32 @@ class ShotOutline {
   }
 
   /// Outer dashed frame in preview coordinates.
+  ///
+  /// The box fills the space under the header and above the captions, so a
+  /// real piece on the floor can sit inside it. The catalog photos are not
+  /// used to decide how big that box is.
   static Rect outerFrame(Size size, ShotOutline outline) {
-    if (outline.placement == ShotFramePlacement.inset) {
-      final left = outline.inset.left;
-      final top = outline.inset.top;
-      final right = size.width - outline.inset.right;
-      final bottom = size.height - outline.inset.bottom;
-      return Rect.fromLTRB(left, top, right, bottom);
-    }
-    final boxWidth = size.width * outline.widthFactor;
-    final boxHeight = (boxWidth / outline.aspectRatio).clamp(
-      80.0,
-      size.height * 0.80,
+    final inset = outline.inset;
+    final left = inset.left;
+    final top = inset.top;
+    final right = size.width - inset.right;
+    final bottom = size.height - inset.bottom;
+    final safe = Rect.fromLTRB(
+      left,
+      top,
+      right < left + 120 ? left + 120 : right,
+      bottom < top + 160 ? top + 160 : bottom,
     );
+    if (outline.placement == ShotFramePlacement.inset) return safe;
+
+    var boxHeight = safe.height;
+    var boxWidth = boxHeight * outline.aspectRatio;
+    if (boxWidth > safe.width) {
+      boxWidth = safe.width;
+      boxHeight = boxWidth / outline.aspectRatio;
+    }
     return Rect.fromCenter(
-      center: Offset(size.width / 2, size.height / 2),
+      center: safe.center,
       width: boxWidth,
       height: boxHeight,
     );
@@ -499,81 +504,82 @@ class _OutlinePainter extends CustomPainter {
       ..strokeWidth = 1.5;
 
     final wide = Rect.fromLTRB(
-      frame.left + frame.width * 0.06,
-      frame.top + frame.height * 0.16,
-      frame.left + frame.width * 0.62,
-      frame.top + frame.height * 0.74,
+      frame.left + frame.width * 0.04,
+      frame.top + frame.height * 0.14,
+      frame.left + frame.width * 0.68,
+      frame.top + frame.height * 0.7,
     );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(wide, const Radius.circular(8)),
+      RRect.fromRectAndRadius(wide, const Radius.circular(6)),
       fill,
     );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(wide, const Radius.circular(8)),
+      RRect.fromRectAndRadius(wide, const Radius.circular(6)),
       stroke,
     );
+    final bandTop = wide.top + wide.height * 0.62;
+    canvas.drawRect(
+      Rect.fromLTRB(wide.left, bandTop, wide.right, wide.bottom),
+      Paint()..color = const Color(0x18FFFFFF),
+    );
+    canvas.drawLine(Offset(wide.left, bandTop), Offset(wide.right, bandTop), stroke);
     canvas.drawLine(
-      Offset(wide.left + wide.width * 0.28, wide.top),
-      Offset(wide.left + wide.width * 0.28, wide.top + wide.height * 0.55),
+      Offset(wide.left, wide.top + wide.height * 0.8),
+      Offset(wide.right, wide.top + wide.height * 0.8),
       faint,
-    );
-    canvas.drawLine(
-      Offset(wide.left + wide.width * 0.46, wide.top),
-      Offset(wide.left + wide.width * 0.46, wide.top + wide.height * 0.55),
-      stroke,
     );
     _templePeaks(
       canvas,
       wide.left,
       wide.right,
-      wide.top + wide.height * 0.52,
+      bandTop - wide.height * 0.14,
       stroke,
+      drop: wide.height * 0.12,
     );
-    canvas.drawLine(
-      Offset(wide.left, wide.top + wide.height * 0.7),
-      Offset(wide.right, wide.top + wide.height * 0.7),
-      stroke,
-    );
-    canvas.drawLine(
-      Offset(wide.left, wide.top + wide.height * 0.86),
-      Offset(wide.right, wide.top + wide.height * 0.86),
-      faint,
-    );
+    for (final fraction in [0.32, 0.4, 0.52, 0.6]) {
+      canvas.drawLine(
+        Offset(wide.left + wide.width * fraction, wide.top),
+        Offset(wide.left + wide.width * fraction, wide.bottom),
+        fraction == 0.4 || fraction == 0.6 ? stroke : faint,
+      );
+    }
 
     final small = Rect.fromLTRB(
-      frame.left + frame.width * 0.66,
-      frame.top + frame.height * 0.32,
-      frame.right - frame.width * 0.06,
-      frame.top + frame.height * 0.68,
+      frame.left + frame.width * 0.6,
+      frame.top + frame.height * 0.36,
+      frame.right - frame.width * 0.05,
+      frame.top + frame.height * 0.66,
     );
+    canvas.drawRRect(RRect.fromRectAndRadius(small, const Radius.circular(6)), fill);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(small, const Radius.circular(8)),
-      fill,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(small, const Radius.circular(8)),
+      RRect.fromRectAndRadius(small, const Radius.circular(6)),
       stroke,
     );
     canvas.drawLine(
-      Offset(small.left + small.width * 0.32, small.top),
-      Offset(small.left + small.width * 0.32, small.bottom),
+      Offset(small.left + small.width * 0.22, small.top),
+      Offset(small.left + small.width * 0.22, small.bottom),
       faint,
     );
     canvas.drawLine(
-      Offset(small.left, small.top + small.height * 0.38),
-      Offset(small.right, small.top + small.height * 0.38),
+      Offset(small.left + small.width * 0.36, small.top),
+      Offset(small.left + small.width * 0.36, small.bottom),
       stroke,
     );
     canvas.drawLine(
-      Offset(small.left, small.top + small.height * 0.62),
-      Offset(small.right, small.top + small.height * 0.62),
+      Offset(small.left, small.top + small.height * 0.36),
+      Offset(small.right, small.top + small.height * 0.36),
+      stroke,
+    );
+    canvas.drawLine(
+      Offset(small.left, small.top + small.height * 0.64),
+      Offset(small.right, small.top + small.height * 0.64),
       faint,
     );
-    for (var i = 0; i < 5; i++) {
-      final x = small.left + small.width * (0.12 + i * 0.18);
+    for (var i = 0; i < 6; i++) {
+      final x = small.left + small.width * (0.1 + i * 0.15);
       canvas.drawLine(
         Offset(x, small.bottom),
-        Offset(x, small.bottom + frame.height * 0.08),
+        Offset(x, small.bottom + frame.height * 0.1),
         stroke,
       );
     }
@@ -584,17 +590,18 @@ class _OutlinePainter extends CustomPainter {
     double left,
     double right,
     double top,
-    Paint paint,
-  ) {
-    const count = 5;
+    Paint paint, {
+    double? drop,
+  }) {
+    const count = 6;
     final step = (right - left) / count;
-    final drop = step * 0.55;
-    final path = Path()..moveTo(left, top + drop);
+    final peak = drop ?? step * 0.7;
+    final path = Path()..moveTo(left, top + peak);
     for (var i = 0; i < count; i++) {
       final x = left + step * i;
       path
         ..lineTo(x + step / 2, top)
-        ..lineTo(x + step, top + drop);
+        ..lineTo(x + step, top + peak);
     }
     canvas.drawPath(path, paint);
   }
