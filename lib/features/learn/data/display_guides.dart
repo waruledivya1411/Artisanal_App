@@ -42,6 +42,20 @@ const _fullDisplay = <GuideStep>[
   ),
 ];
 
+const _mekhalaFull = <GuideStep>[
+  GuideStep(
+    title: 'Lay both pieces flat',
+    subtitle: 'Mekhela and sador side by side · plain sheet under them',
+    art: GuideArt.mekhalaSpread,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'Both pieces in frame, laid flat',
+    showExample: true,
+    caption: 'Show every edge. Keep both pieces flat, not hanging.',
+  ),
+];
+
 const _closeUp = <GuideStep>[
   GuideStep(
     title: 'One hand-span away',
@@ -49,13 +63,6 @@ const _closeUp = <GuideStep>[
         'Hold the phone 15–30 cm above the fabric — close enough to count '
         'threads',
     art: GuideArt.distance,
-  ),
-  GuideStep(
-    title: 'Rake the light across',
-    subtitle:
-        'Light from one side, low at about 30° — the tiny shadows make the '
-        'weave stand up',
-    art: GuideArt.rake,
   ),
   GuideStep(
     title: 'Frame the detail',
@@ -71,11 +78,6 @@ const _closeUp = <GuideStep>[
 ];
 
 const _draped = <GuideStep>[
-  GuideStep(
-    title: 'Throw one end over',
-    subtitle: 'Let it fall in natural folds',
-    art: GuideArt.drape,
-  ),
   GuideStep(
     title: 'Good examples',
     subtitle: 'Pleats falling free — or over the back of a chair',
@@ -104,16 +106,83 @@ const _border = <GuideStep>[
   ),
 ];
 
+const _shawlFull = <GuideStep>[
+  GuideStep(
+    title: 'Hang the shawl straight',
+    subtitle: 'On a rod · border down the side · tassels along the bottom',
+    art: GuideArt.shawlFull,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'Whole shawl in frame, hanging straight',
+    showExample: true,
+    caption: 'Show the border and the tassels. Keep it straight, not draped.',
+  ),
+];
+
+const _shawlFolded = <GuideStep>[
+  GuideStep(
+    title: 'One folded shawl',
+    subtitle: 'Shot from above · border on the side · tassels along the front',
+    art: GuideArt.shawlFolded,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'One fold in frame — tassels along the bottom',
+    showExample: true,
+    caption: 'Fold it so the border and tassels show.',
+  ),
+];
+
+const _stoleFull = <GuideStep>[
+  GuideStep(
+    title: 'Hang the stole straight',
+    subtitle: 'On a rod · borders down the sides · tassels along the bottom',
+    art: GuideArt.stoleFull,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'Whole stole in frame, hanging straight',
+    showExample: true,
+    caption: 'Show the borders and the tassels. Keep it straight, not draped.',
+  ),
+];
+
+const _stoleFolded = <GuideStep>[
+  GuideStep(
+    title: 'One folded stole',
+    subtitle: 'Shot from above · border and tassels along the front edge',
+    art: GuideArt.stoleFolded,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'One fold in frame — tassels along the bottom',
+    showExample: true,
+    caption: 'Fold it so the border and tassels show.',
+  ),
+];
+
+const _mekhalaFolded = <GuideStep>[
+  GuideStep(
+    title: 'Stack the two pieces',
+    subtitle:
+        'Mekhela on top · sador underneath, border and tassels along the bottom',
+    art: GuideArt.mekhalaFolded,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'Both pieces folded — sador border and tassels showing',
+    showExample: true,
+    caption:
+        'The mekhela sits on top. The sador border runs along the bottom.',
+  ),
+];
+
 const _folded = <GuideStep>[
   GuideStep(
     title: 'One folded sari in the box',
     subtitle: 'Shot from above — not a pile, a single stack',
     art: GuideArt.foldedStackInBox,
-  ),
-  GuideStep(
-    title: 'Border on the side',
-    subtitle: 'Long edge facing the camera · edges parallel to the frame',
-    art: GuideArt.foldedStackBorder,
   ),
   GuideStep(
     title: 'Good examples',
@@ -123,16 +192,26 @@ const _folded = <GuideStep>[
   ),
 ];
 
+const _mekhalaHanging = <GuideStep>[
+  GuideStep(
+    title: 'Hang both pieces',
+    subtitle:
+        'Mekhela on the left, shorter · sador on the right, with tassels',
+    art: GuideArt.mekhalaHanging,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'Both pieces on hangers — sador longer, tassels at the bottom',
+    showExample: true,
+    caption: 'Hang them straight. The sador is the long piece with tassels.',
+  ),
+];
+
 const _hanging = <GuideStep>[
   GuideStep(
     title: 'Hang it dead centre',
     subtitle: 'Rod or hanger · piece on the center vertical axis',
     art: GuideArt.hangingDisplayCentre,
-  ),
-  GuideStep(
-    title: 'Let the fringe hang free',
-    subtitle: 'Straighten the tassels · keep both edges symmetric',
-    art: GuideArt.hangingDisplayFringe,
   ),
   GuideStep(
     title: 'Good examples',
@@ -152,5 +231,27 @@ const _guides = <String, List<GuideStep>>{
 };
 
 /// Steps for a display, by its [DisplayOption.key].
-List<GuideStep> guideFor(String displayKey) =>
-    _guides[displayKey] ?? _fullDisplay;
+List<GuideStep> guideFor(String displayKey, {String? product}) {
+  if (displayKey == 'full_display' && product == 'Mekhala sador') {
+    return _mekhalaFull;
+  }
+  if (displayKey == 'hanging_display' && product == 'Mekhala sador') {
+    return _mekhalaHanging;
+  }
+  if (displayKey == 'folded_stack' && product == 'Mekhala sador') {
+    return _mekhalaFolded;
+  }
+  if (displayKey == 'full_display' && product == 'Stole') {
+    return _stoleFull;
+  }
+  if (displayKey == 'folded_stack' && product == 'Stole') {
+    return _stoleFolded;
+  }
+  if (displayKey == 'full_display' && product == 'Shawl') {
+    return _shawlFull;
+  }
+  if (displayKey == 'folded_stack' && product == 'Shawl') {
+    return _shawlFolded;
+  }
+  return _guides[displayKey] ?? _fullDisplay;
+}

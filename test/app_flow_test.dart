@@ -447,7 +447,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tapping a display opens its shooting guide.
-    expect(find.text('One folded sari, border on the side'), findsOneWidget);
+    expect(find.text('One folded sari in the box'), findsOneWidget);
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
 
@@ -473,7 +473,7 @@ void main() {
     // Back steps through the guide, then out of it.
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
-    expect(find.text('One folded sari, border on the side'), findsOneWidget);
+    expect(find.text('One folded sari in the box'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
     expect(find.text('How will you show it?'), findsOneWidget);

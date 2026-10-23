@@ -14,6 +14,13 @@ enum ShotOverlayKind {
   embroideryBorder,
   foldedStack,
   hangingDisplay,
+  mekhalaFull,
+  mekhalaHanging,
+  mekhalaFolded,
+  stoleFull,
+  stoleFolded,
+  shawlFull,
+  shawlFolded,
 }
 
 /// How the outer dashed frame is placed on the preview.
@@ -97,11 +104,56 @@ class ShotOutline {
   /// A draped piece gets the cloth-over-a-chair shape; everything else gets
   /// the plain box for its display.
   static ShotOutline forShot(String? product, String displayKey) {
+    if (displayKey == 'full_display' && product == 'Mekhala sador') {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: 0.92,
+        kind: ShotOverlayKind.mekhalaFull,
+      );
+    }
+    if (displayKey == 'full_display' && product == 'Shawl') {
+      return const ShotOutline(
+        widthFactor: 0.72,
+        aspectRatio: 0.62,
+        kind: ShotOverlayKind.shawlFull,
+      );
+    }
+    if (displayKey == 'full_display' && product == 'Stole') {
+      return const ShotOutline(
+        widthFactor: 0.62,
+        aspectRatio: 0.58,
+        kind: ShotOverlayKind.stoleFull,
+      );
+    }
     if (displayKey == 'draped_look') {
       return const ShotOutline(
         widthFactor: 0.74,
         aspectRatio: 0.66,
         silhouette: ShotSilhouette.draped,
+      );
+    }
+    if (displayKey == 'folded_stack' && product == 'Shawl') {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: 0.58,
+        placement: ShotFramePlacement.inset,
+        kind: ShotOverlayKind.shawlFolded,
+      );
+    }
+    if (displayKey == 'folded_stack' && product == 'Stole') {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: 0.58,
+        placement: ShotFramePlacement.inset,
+        kind: ShotOverlayKind.stoleFolded,
+      );
+    }
+    if (displayKey == 'folded_stack' && product == 'Mekhala sador') {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: 0.58,
+        placement: ShotFramePlacement.inset,
+        kind: ShotOverlayKind.mekhalaFolded,
       );
     }
     if (displayKey == 'folded_stack' &&
@@ -111,6 +163,14 @@ class ShotOutline {
         aspectRatio: 0.58,
         placement: ShotFramePlacement.inset,
         kind: ShotOverlayKind.foldedStack,
+      );
+    }
+    if (displayKey == 'hanging_display' && product == 'Mekhala sador') {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: 0.58,
+        placement: ShotFramePlacement.inset,
+        kind: ShotOverlayKind.mekhalaHanging,
       );
     }
     if (displayKey == 'hanging_display' &&
@@ -228,6 +288,20 @@ class _OutlinePainter extends CustomPainter {
         _foldedStackGuide(canvas, rect);
       case ShotOverlayKind.hangingDisplay:
         _hangingDisplayGuide(canvas, rect);
+      case ShotOverlayKind.mekhalaFull:
+        _mekhalaPair(canvas, rect);
+      case ShotOverlayKind.mekhalaHanging:
+        _mekhalaHanging(canvas, rect);
+      case ShotOverlayKind.mekhalaFolded:
+        _mekhalaFolded(canvas, rect);
+      case ShotOverlayKind.stoleFull:
+        _stoleFull(canvas, rect);
+      case ShotOverlayKind.stoleFolded:
+        _stoleFolded(canvas, rect);
+      case ShotOverlayKind.shawlFull:
+        _shawlFull(canvas, rect);
+      case ShotOverlayKind.shawlFolded:
+        _shawlFolded(canvas, rect);
       case ShotOverlayKind.standard:
         break;
     }
@@ -236,6 +310,491 @@ class _OutlinePainter extends CustomPainter {
   /// Rod at the top, centre cross, sari hanging with even fringes at the bottom.
   void _hangingDisplayGuide(Canvas canvas, Rect frame) {
     HangingDisplayOverlay.paintContent(canvas, frame);
+  }
+
+  /// Shawl hanging under a rod: wider cloth, border on the right, tassels below.
+  void _shawlFull(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final rodY = frame.top + frame.height * 0.05;
+    canvas.drawLine(
+      Offset(frame.left + frame.width * 0.06, rodY),
+      Offset(frame.right - frame.width * 0.06, rodY),
+      Paint()
+        ..color = const Color(0xE8FFFFFF)
+        ..strokeWidth = 3.2
+        ..strokeCap = StrokeCap.round,
+    );
+
+    final cloth = Rect.fromLTRB(
+      frame.left + frame.width * 0.12,
+      rodY + frame.height * 0.03,
+      frame.right - frame.width * 0.12,
+      frame.top + frame.height * 0.84,
+    );
+    canvas.drawRect(cloth, fill);
+    canvas.drawRect(cloth, stroke);
+    canvas.drawLine(
+      Offset(cloth.left + cloth.width * 0.1, cloth.top),
+      Offset(cloth.left + cloth.width * 0.1, cloth.bottom),
+      faint,
+    );
+    final borderX = cloth.left + cloth.width * 0.74;
+    canvas.drawRect(
+      Rect.fromLTRB(borderX, cloth.top, cloth.right, cloth.bottom),
+      Paint()..color = const Color(0x18FFFFFF),
+    );
+    canvas.drawLine(Offset(borderX, cloth.top), Offset(borderX, cloth.bottom), stroke);
+    canvas.drawLine(
+      Offset(cloth.left + cloth.width * 0.86, cloth.top),
+      Offset(cloth.left + cloth.width * 0.86, cloth.bottom),
+      faint,
+    );
+    _diamonds(
+      canvas,
+      Rect.fromLTRB(cloth.left, cloth.top, borderX, cloth.top + cloth.height * 0.6),
+      Paint()..color = const Color(0xCCFFFFFF),
+    );
+    final bandY = cloth.top + cloth.height * 0.68;
+    canvas.drawLine(Offset(cloth.left, bandY), Offset(cloth.right, bandY), stroke);
+    canvas.drawLine(
+      Offset(cloth.left, cloth.top + cloth.height * 0.82),
+      Offset(cloth.right, cloth.top + cloth.height * 0.82),
+      faint,
+    );
+    for (var i = 0; i < 7; i++) {
+      final x = cloth.left + cloth.width * (0.08 + i * 0.14);
+      canvas.drawLine(
+        Offset(x, cloth.bottom),
+        Offset(x, cloth.bottom + frame.height * 0.045),
+        stroke,
+      );
+    }
+  }
+
+  /// One folded shawl: border down the right, band and tassels along the front.
+  void _shawlFolded(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final shawl = Rect.fromLTRB(
+      frame.left + frame.width * 0.06,
+      frame.top + frame.height * 0.16,
+      frame.right - frame.width * 0.06,
+      frame.top + frame.height * 0.7,
+    );
+    final radius = RRect.fromRectAndRadius(shawl, const Radius.circular(10));
+    canvas.drawRRect(radius, fill);
+    canvas.drawRRect(radius, stroke);
+    canvas.drawLine(
+      Offset(shawl.left + shawl.width * 0.08, shawl.top),
+      Offset(shawl.left + shawl.width * 0.08, shawl.bottom),
+      faint,
+    );
+    final borderX = shawl.left + shawl.width * 0.76;
+    canvas.drawRect(
+      Rect.fromLTRB(borderX, shawl.top, shawl.right, shawl.bottom),
+      Paint()..color = const Color(0x18FFFFFF),
+    );
+    canvas.drawLine(Offset(borderX, shawl.top), Offset(borderX, shawl.bottom), stroke);
+    canvas.drawLine(
+      Offset(shawl.left + shawl.width * 0.88, shawl.top),
+      Offset(shawl.left + shawl.width * 0.88, shawl.bottom),
+      faint,
+    );
+    final bandY = shawl.top + shawl.height * 0.62;
+    _diamonds(
+      canvas,
+      Rect.fromLTRB(shawl.left, shawl.top, borderX, bandY),
+      Paint()..color = const Color(0xCCFFFFFF),
+    );
+    canvas.drawLine(Offset(shawl.left, bandY), Offset(shawl.right, bandY), stroke);
+    canvas.drawLine(
+      Offset(shawl.left, shawl.top + shawl.height * 0.8),
+      Offset(shawl.right, shawl.top + shawl.height * 0.8),
+      faint,
+    );
+    for (var i = 0; i < 8; i++) {
+      final x = shawl.left + shawl.width * (0.08 + i * 0.11);
+      canvas.drawLine(
+        Offset(x, shawl.bottom),
+        Offset(x, shawl.bottom + frame.height * 0.06),
+        stroke,
+      );
+    }
+  }
+
+  /// Stole hanging under a rod, with side borders and tassels along the hem.
+  void _stoleFull(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final rodY = frame.top + frame.height * 0.05;
+    canvas.drawLine(
+      Offset(frame.left + frame.width * 0.12, rodY),
+      Offset(frame.right - frame.width * 0.12, rodY),
+      Paint()
+        ..color = const Color(0xE8FFFFFF)
+        ..strokeWidth = 3.2
+        ..strokeCap = StrokeCap.round,
+    );
+
+    final cloth = Rect.fromLTRB(
+      frame.left + frame.width * 0.24,
+      rodY + frame.height * 0.03,
+      frame.right - frame.width * 0.24,
+      frame.top + frame.height * 0.84,
+    );
+    canvas.drawRect(cloth, fill);
+    canvas.drawRect(cloth, stroke);
+    final leftBorder = cloth.left + cloth.width * 0.16;
+    final rightBorder = cloth.right - cloth.width * 0.16;
+    canvas.drawLine(Offset(leftBorder, cloth.top), Offset(leftBorder, cloth.bottom), faint);
+    canvas.drawLine(Offset(rightBorder, cloth.top), Offset(rightBorder, cloth.bottom), faint);
+    _diamonds(
+      canvas,
+      Rect.fromLTRB(leftBorder, cloth.top, rightBorder, cloth.top + cloth.height * 0.62),
+      Paint()..color = const Color(0xCCFFFFFF),
+    );
+    final bandY = cloth.top + cloth.height * 0.7;
+    canvas.drawLine(Offset(cloth.left, bandY), Offset(cloth.right, bandY), stroke);
+    canvas.drawLine(
+      Offset(cloth.left, cloth.top + cloth.height * 0.82),
+      Offset(cloth.right, cloth.top + cloth.height * 0.82),
+      faint,
+    );
+    for (var i = 0; i < 6; i++) {
+      final x = cloth.left + cloth.width * (0.12 + i * 0.15);
+      canvas.drawLine(
+        Offset(x, cloth.bottom),
+        Offset(x, cloth.bottom + frame.height * 0.045),
+        stroke,
+      );
+    }
+  }
+
+  /// One folded stole: side borders, a band, tassels along the front edge.
+  void _stoleFolded(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final stole = Rect.fromLTRB(
+      frame.left + frame.width * 0.08,
+      frame.top + frame.height * 0.18,
+      frame.right - frame.width * 0.08,
+      frame.top + frame.height * 0.7,
+    );
+    final radius = RRect.fromRectAndRadius(stole, const Radius.circular(10));
+    canvas.drawRRect(radius, fill);
+    canvas.drawRRect(radius, stroke);
+    final leftBorder = stole.left + stole.width * 0.1;
+    final rightBorder = stole.right - stole.width * 0.1;
+    canvas.drawLine(Offset(leftBorder, stole.top), Offset(leftBorder, stole.bottom), faint);
+    canvas.drawLine(Offset(rightBorder, stole.top), Offset(rightBorder, stole.bottom), faint);
+    final bandY = stole.top + stole.height * 0.62;
+    _diamonds(
+      canvas,
+      Rect.fromLTRB(leftBorder, stole.top, rightBorder, bandY),
+      Paint()..color = const Color(0xCCFFFFFF),
+    );
+    canvas.drawLine(Offset(stole.left, bandY), Offset(stole.right, bandY), stroke);
+    canvas.drawLine(
+      Offset(stole.left, stole.top + stole.height * 0.8),
+      Offset(stole.right, stole.top + stole.height * 0.8),
+      faint,
+    );
+    for (var i = 0; i < 7; i++) {
+      final x = stole.left + stole.width * (0.1 + i * 0.13);
+      canvas.drawLine(
+        Offset(x, stole.bottom),
+        Offset(x, stole.bottom + frame.height * 0.06),
+        stroke,
+      );
+    }
+  }
+
+  /// Top-down stack: mekhela on top with a side border, sador below with a
+  /// bottom border and tassels.
+  void _mekhalaFolded(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    final motif = Paint()..color = const Color(0xCCFFFFFF);
+
+    final sador = Rect.fromLTRB(
+      frame.left + frame.width * 0.06,
+      frame.top + frame.height * 0.28,
+      frame.left + frame.width * 0.92,
+      frame.top + frame.height * 0.84,
+    );
+    final mekhela = Rect.fromLTRB(
+      frame.left + frame.width * 0.10,
+      frame.top + frame.height * 0.08,
+      frame.left + frame.width * 0.88,
+      frame.top + frame.height * 0.62,
+    );
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(sador, const Radius.circular(10)),
+      fill,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(sador, const Radius.circular(10)),
+      stroke,
+    );
+    final bandY = sador.top + sador.height * 0.78;
+    _diamonds(
+      canvas,
+      Rect.fromLTRB(
+        sador.left + sador.width * 0.08,
+        mekhela.bottom + 8,
+        sador.right - sador.width * 0.12,
+        bandY - 6,
+      ),
+      motif,
+    );
+    canvas.drawLine(Offset(sador.left, bandY), Offset(sador.right, bandY), stroke);
+    canvas.drawLine(
+      Offset(sador.left, sador.top + sador.height * 0.8),
+      Offset(sador.right, sador.top + sador.height * 0.8),
+      faint,
+    );
+    for (var i = 0; i < 4; i++) {
+      final x = sador.right - sador.width * (0.06 + i * 0.08);
+      canvas.drawLine(
+        Offset(x, sador.bottom),
+        Offset(x, sador.bottom + frame.height * 0.05),
+        stroke,
+      );
+    }
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(mekhela, const Radius.circular(10)),
+      Paint()..color = const Color(0x331B1B1B),
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(mekhela, const Radius.circular(10)),
+      fill,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(mekhela, const Radius.circular(10)),
+      stroke,
+    );
+    final borderX = mekhela.left + mekhela.width * 0.72;
+    _diamonds(
+      canvas,
+      Rect.fromLTRB(mekhela.left, mekhela.top, borderX, mekhela.bottom),
+      motif,
+    );
+    canvas.drawLine(Offset(borderX, mekhela.top), Offset(borderX, mekhela.bottom), stroke);
+    canvas.drawLine(
+      Offset(mekhela.left + mekhela.width * 0.84, mekhela.top),
+      Offset(mekhela.left + mekhela.width * 0.84, mekhela.bottom),
+      faint,
+    );
+
+    _centredLabel(canvas, 'Mekhela', mekhela.center - Offset(mekhela.width * 0.12, 0));
+    _centredLabel(
+      canvas,
+      'Sador',
+      Offset(sador.center.dx, (mekhela.bottom + bandY) / 2),
+    );
+  }
+
+  void _diamonds(Canvas canvas, Rect body, Paint motif) {
+    for (final spot in const [
+      [0.28, 0.32],
+      [0.58, 0.28],
+      [0.42, 0.62],
+      [0.72, 0.7],
+    ]) {
+      final c = Offset(
+        body.left + body.width * spot[0],
+        body.top + body.height * spot[1],
+      );
+      canvas.drawPath(
+        Path()
+          ..moveTo(c.dx, c.dy - 4)
+          ..lineTo(c.dx + 3.2, c.dy)
+          ..lineTo(c.dx, c.dy + 4)
+          ..lineTo(c.dx - 3.2, c.dy)
+          ..close(),
+        motif,
+      );
+    }
+  }
+
+  /// Two hangers on a rod: shorter mekhela on the left, longer sador on the right.
+  void _mekhalaHanging(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final rodY = frame.top + frame.height * 0.055;
+    canvas.drawLine(
+      Offset(frame.left + frame.width * 0.04, rodY),
+      Offset(frame.right - frame.width * 0.04, rodY),
+      Paint()
+        ..color = const Color(0xE8FFFFFF)
+        ..strokeWidth = 3.2
+        ..strokeCap = StrokeCap.round,
+    );
+
+    void hanger(double cxFrac, double leftFrac, double rightFrac) {
+      final cx = frame.left + frame.width * cxFrac;
+      final left = frame.left + frame.width * leftFrac;
+      final right = frame.left + frame.width * rightFrac;
+      final barY = rodY + frame.height * 0.065;
+      canvas.drawLine(Offset(cx, rodY), Offset(cx, rodY + frame.height * 0.022), stroke);
+      canvas.drawLine(Offset(left, barY), Offset(cx, rodY + frame.height * 0.018), stroke);
+      canvas.drawLine(Offset(right, barY), Offset(cx, rodY + frame.height * 0.018), stroke);
+      canvas.drawLine(Offset(left, barY), Offset(right, barY), stroke);
+    }
+
+    hanger(0.28, 0.12, 0.42);
+    hanger(0.68, 0.48, 0.88);
+
+    final top = rodY + frame.height * 0.075;
+    final mekhela = Rect.fromLTRB(
+      frame.left + frame.width * 0.15,
+      top,
+      frame.left + frame.width * 0.39,
+      frame.top + frame.height * 0.62,
+    );
+    final sador = Rect.fromLTRB(
+      frame.left + frame.width * 0.50,
+      top,
+      frame.left + frame.width * 0.86,
+      frame.top + frame.height * 0.84,
+    );
+    canvas.drawRect(mekhela, fill);
+    canvas.drawRect(sador, fill);
+    canvas.drawRect(mekhela, stroke);
+    canvas.drawRect(sador, stroke);
+
+    for (final fraction in [0.55, 0.68, 0.80, 0.92]) {
+      final y = mekhela.top + mekhela.height * fraction;
+      canvas.drawLine(Offset(mekhela.left, y), Offset(mekhela.right, y), faint);
+    }
+
+    final leftBorder = sador.left + sador.width * 0.16;
+    final rightBorder = sador.right - sador.width * 0.16;
+    canvas.drawLine(Offset(leftBorder, sador.top), Offset(leftBorder, sador.bottom), faint);
+    canvas.drawLine(Offset(rightBorder, sador.top), Offset(rightBorder, sador.bottom), faint);
+    final motif = Paint()..color = const Color(0xCCFFFFFF);
+    for (final spot in const [
+      [0.35, 0.22],
+      [0.62, 0.34],
+      [0.42, 0.48],
+      [0.70, 0.58],
+    ]) {
+      final c = Offset(
+        sador.left + sador.width * spot[0],
+        sador.top + sador.height * spot[1],
+      );
+      canvas.drawPath(
+        Path()
+          ..moveTo(c.dx, c.dy - 5)
+          ..lineTo(c.dx + 4, c.dy)
+          ..lineTo(c.dx, c.dy + 5)
+          ..lineTo(c.dx - 4, c.dy)
+          ..close(),
+        motif,
+      );
+    }
+    final bandY = sador.top + sador.height * 0.78;
+    canvas.drawLine(Offset(sador.left, bandY), Offset(sador.right, bandY), stroke);
+    for (var i = 0; i < 5; i++) {
+      final x = sador.left + sador.width * (0.18 + i * 0.16);
+      canvas.drawLine(
+        Offset(x, sador.bottom),
+        Offset(x, sador.bottom + frame.height * 0.045),
+        stroke,
+      );
+    }
+  }
+
+  /// Mekhala and sador laid side by side, borders at the bottom.
+  void _mekhalaPair(Canvas canvas, Rect frame) {
+    final gap = frame.width * 0.035;
+    final top = frame.top + frame.height * 0.07;
+    final bottom = frame.bottom - frame.height * 0.1;
+    final left = frame.left + frame.width * 0.07;
+    final right = frame.right - frame.width * 0.07;
+    final mid = (left + right) / 2;
+    final mekhela = Rect.fromLTRB(left, top, mid - gap, bottom);
+    final sador = Rect.fromLTRB(mid + gap, top, right, bottom);
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4;
+    canvas.drawRect(mekhela, Paint()..color = const Color(0x22FFFFFF));
+    canvas.drawRect(sador, Paint()..color = const Color(0x22FFFFFF));
+    canvas.drawRect(mekhela, stroke);
+    canvas.drawRect(sador, stroke);
+    _bottomBand(canvas, mekhela, 0.16, stroke);
+    _bottomBand(canvas, sador, 0.22, stroke);
+    for (var i = 0; i < 6; i++) {
+      final x = sador.left + sador.width * (0.18 + i * 0.12);
+      canvas.drawLine(
+        Offset(x, sador.bottom),
+        Offset(x, sador.bottom + frame.height * 0.045),
+        stroke,
+      );
+    }
+  }
+
+  void _bottomBand(Canvas canvas, Rect panel, double fraction, Paint stroke) {
+    final y = panel.bottom - panel.height * fraction;
+    canvas.drawLine(Offset(panel.left, y), Offset(panel.right, y), stroke);
   }
 
   /// Top-down folded sari: one rectangle with a border strip.

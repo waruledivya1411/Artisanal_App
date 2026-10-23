@@ -7,6 +7,7 @@ import 'package:artisnal_app/core/speech/speech_player.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/display_guides.dart';
 import 'package:artisnal_app/features/learn/data/displays.dart';
+import 'package:artisnal_app/features/learn/screens/photo_edit_screen.dart';
 import 'package:artisnal_app/features/learn/widgets/shot_outline.dart';
 
 /// Live camera with the dotted box the product should fill.
@@ -42,14 +43,17 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   bool get _guidedShoot =>
       _outline.kind == ShotOverlayKind.embroideryBorder ||
       _outline.kind == ShotOverlayKind.foldedStack ||
-      _outline.kind == ShotOverlayKind.hangingDisplay;
+      _outline.kind == ShotOverlayKind.hangingDisplay ||
+      _outline.kind == ShotOverlayKind.mekhalaHanging ||
+      _outline.kind == ShotOverlayKind.mekhalaFolded ||
+      _outline.kind == ShotOverlayKind.stoleFolded ||
+      _outline.kind == ShotOverlayKind.shawlFolded;
 
   int get _guideStepCount => guideFor(widget.display.key).length;
 
   CameraController? _controller;
   String? _problem;
   bool _busy = false;
-  Uint8List? _photo;
 
   @override
   void initState() {
@@ -118,8 +122,29 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     if (_outline.kind == ShotOverlayKind.foldedStack) {
       return 'One folded sari in this box — border on the side';
     }
+    if (_outline.kind == ShotOverlayKind.mekhalaFolded) {
+      return 'Mekhela on top · sador underneath, border and tassels along the bottom';
+    }
+    if (_outline.kind == ShotOverlayKind.stoleFolded) {
+      return 'One folded stole — border and tassels along the front';
+    }
+    if (_outline.kind == ShotOverlayKind.shawlFolded) {
+      return 'One folded shawl — border on the side, tassels along the front';
+    }
     if (_outline.kind == ShotOverlayKind.hangingDisplay) {
       return 'Hang the piece in the centre, under the rod';
+    }
+    if (_outline.kind == ShotOverlayKind.mekhalaHanging) {
+      return 'Hang both pieces under the rod — mekhela shorter, sador with tassels';
+    }
+    if (_outline.kind == ShotOverlayKind.mekhalaFull) {
+      return 'Lay both pieces side by side in the frame';
+    }
+    if (_outline.kind == ShotOverlayKind.stoleFull) {
+      return 'Hang the stole under the rod — tassels along the bottom';
+    }
+    if (_outline.kind == ShotOverlayKind.shawlFull) {
+      return 'Hang the shawl under the rod — border on the side, tassels along the bottom';
     }
     if (_outline.silhouette == ShotSilhouette.draped) {
       return 'Cover the pale shape with your cloth';
@@ -135,6 +160,17 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
 
   /// The one thing to do next, called out in yellow.
   String get _prompt {
+    if (_outline.kind == ShotOverlayKind.mekhalaFull ||
+        _outline.kind == ShotOverlayKind.mekhalaHanging ||
+        _outline.kind == ShotOverlayKind.mekhalaFolded) {
+      return 'Move both pieces into the frame';
+    }
+    if (_outline.kind == ShotOverlayKind.stoleFolded) {
+      return 'Move the stole into the frame';
+    }
+    if (_outline.kind == ShotOverlayKind.shawlFolded) {
+      return 'Move the shawl into the frame';
+    }
     if (_guidedShoot) {
       return 'Move the saree into the frame';
     }
@@ -147,9 +183,16 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
       case ShotOverlayKind.embroideryBorder:
         return widget.display.name.toUpperCase().replaceAll(' AND ', ' & ');
       case ShotOverlayKind.foldedStack:
+      case ShotOverlayKind.mekhalaFolded:
+      case ShotOverlayKind.stoleFolded:
+      case ShotOverlayKind.shawlFolded:
         return 'FOLDED STACK';
       case ShotOverlayKind.hangingDisplay:
+      case ShotOverlayKind.mekhalaHanging:
         return 'HANGING DISPLAY';
+      case ShotOverlayKind.mekhalaFull:
+      case ShotOverlayKind.stoleFull:
+      case ShotOverlayKind.shawlFull:
       case ShotOverlayKind.standard:
         return widget.display.name.toUpperCase();
     }
@@ -167,20 +210,40 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     try {
       final file = await controller.takePicture();
       final bytes = await file.readAsBytes();
-      if (mounted) setState(() => _photo = bytes);
+      if (!mounted) return;
+      setState(() => _busy = false);
+      final outcome = await Navigator.of(context).push<PhotoEditOutcome>(
+        MaterialPageRoute<PhotoEditOutcome>(
+          builder: (_) => PhotoEditScreen(imageBytes: bytes),
+        ),
+      );
+      if (!mounted ||
+          outcome == null ||
+          outcome == PhotoEditOutcome.cancelled) {
+        return;
+      }
+      final savedToGallery = outcome == PhotoEditOutcome.saved;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            savedToGallery
+                ? 'Saved to your gallery'
+                : 'Photo downloaded',
+          ),
+        ),
+      );
+      Navigator.of(context).pop(true);
     } catch (_) {
       if (mounted) {
         setState(() => _problem = 'That shot did not save. Try again.');
       }
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted && _busy) setState(() => _busy = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final photo = _photo;
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -194,10 +257,7 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
         body: Stack(
           fit: StackFit.expand,
           children: [
-            if (photo != null)
-              Image.memory(photo, fit: BoxFit.cover)
-            else ...[
-              _preview(),
+            _preview(),
               ShotOutlineOverlay(outline: _outline),
               if (_guidedShoot)
                 ShotFrameHintOverlay(
@@ -217,21 +277,19 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
                     height: 1.3,
                   ),
                 ),
-            ],
             SafeArea(
               child: Column(
                 children: [
                   _guidedShoot ? _guidedTopBar() : _topBar(),
-                  if (photo == null)
-                    _guidedShoot ? _guidedCheckPills() : _checkPills(),
+                  _guidedShoot ? _guidedCheckPills() : _checkPills(),
                   const Spacer(),
-                  if (photo == null && !_guidedShoot) ...[
+                  if (!_guidedShoot) ...[
                     _hintBar(),
                     const SizedBox(height: 8),
                     _promptPill(),
                   ],
                   const SizedBox(height: 14),
-                  photo == null ? _shutterRow() : _keepRow(),
+                  _shutterRow(),
                   const SizedBox(height: 18),
                 ],
               ),
@@ -578,59 +636,4 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     );
   }
 
-  Widget _keepRow() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          Expanded(
-            child: _flatButton(
-              label: 'Retake',
-              background: const Color(0xCC0E1413),
-              foreground: Colors.white,
-              onTap: () => setState(() => _photo = null),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _flatButton(
-              label: 'Use this photo',
-              background: ShootScreen.teal,
-              foreground: Colors.white,
-              onTap: () => Navigator.of(context).pop(true),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _flatButton({
-    required String label,
-    required Color background,
-    required Color foreground,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: background,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: SizedBox(
-          height: 54,
-          child: Center(
-            child: Text(
-              label,
-              style: GoogleFonts.plusJakartaSans(
-                color: foreground,
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

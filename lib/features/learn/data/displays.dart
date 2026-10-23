@@ -17,10 +17,19 @@ class DisplayOption {
   String imageFor(String material, {String? product}) {
     const dir = 'assets/images/lessons/displays';
     final m = material.toLowerCase();
-    if (product != null && productsWithOwnPhotos.contains(product)) {
-      return '$dir/${product.toLowerCase()}_${m}_$key.jpg';
+    if (_usesOwnPhoto(product, material)) {
+      final slug = product!.toLowerCase().replaceAll(' ', '_');
+      return '$dir/${slug}_${m}_$key.jpg';
     }
     return '$dir/${m}_$key.jpg';
+  }
+
+  /// Mekhala sador has its own Mulberry shots for every display.
+  bool _usesOwnPhoto(String? product, String material) {
+    if (product != null && productsWithOwnPhotos.contains(product)) {
+      return true;
+    }
+    return product == 'Mekhala sador' && material == 'Mulberry';
   }
 }
 
@@ -54,7 +63,7 @@ const _drapedProducts = {'Saree', 'Mekhala sador'};
 
 /// Products that have their own example photos for every display they offer.
 /// Everything else falls back to the sari set.
-const productsWithOwnPhotos = {'Gamusa'};
+const productsWithOwnPhotos = {'Gamusa', 'Shawl', 'Stole'};
 
 /// A jod kappur is shown hanging rather than folded.
 const _hangingDisplays = <DisplayOption>[_fullDisplay, _hanging];

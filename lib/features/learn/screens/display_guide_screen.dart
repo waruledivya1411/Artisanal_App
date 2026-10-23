@@ -44,7 +44,10 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
     if (mounted) setState(() {});
   });
 
-  late final List<GuideStep> _steps = guideFor(widget.display.key);
+  late final List<GuideStep> _steps = guideFor(
+    widget.display.key,
+    product: widget.product,
+  );
 
   int _index = 0;
 

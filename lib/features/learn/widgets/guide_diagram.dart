@@ -2,9 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'package:artisnal_app/features/learn/widgets/folded_stack_diagram.dart';
-import 'package:artisnal_app/features/learn/widgets/hanging_display_diagram.dart';
-
 /// The line drawing that shows how to set a shot up.
 enum GuideArt {
   /// A rod with the piece hanging straight off it.
@@ -13,35 +10,47 @@ enum GuideArt {
   /// The whole piece laid flat, every edge in view.
   spread,
 
+  /// Mekhala and sador laid side by side.
+  mekhalaSpread,
+
   /// Thirds grid with the piece squared to it.
   grid,
 
   /// Phone held a hand-span above the cloth.
   distance,
 
-  /// Low light raking across the weave at about 30 degrees.
-  rake,
-
   /// A detail filling the centre of the frame.
   close,
-
-  /// Cloth thrown over a form, falling in folds.
-  drape,
 
   /// The border band along one edge.
   border,
 
-  /// Folded stack step 1 — one sari in the dashed box.
+  /// Folded stack — one sari, border down the right edge.
   foldedStackInBox,
-
-  /// Folded stack step 2 — border strip on the side.
-  foldedStackBorder,
 
   /// Hanging display step 1 — centre on the vertical axis.
   hangingDisplayCentre,
 
   /// Hanging display step 2 — fringe and symmetric edges.
   hangingDisplayFringe,
+
+  /// Mekhala and sador on two hangers: short piece left, long piece right.
+  mekhalaHanging,
+
+  /// Mekhala folded on top of the sador, border and tassels along the bottom.
+  mekhalaFolded,
+
+  /// Stole hanging straight off a rod, tassels along the bottom.
+  stoleFull,
+
+  /// One folded stole, border and tassels along the front edge.
+  stoleFolded,
+
+  /// Shawl hanging off a rod, border on the side and tassels along the hem.
+  shawlFull,
+
+  /// One folded shawl, side border and tassels along the front.
+  shawlFolded,
 }
 
 class GuideDiagram extends StatelessWidget {
@@ -54,30 +63,11 @@ class GuideDiagram extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    switch (art) {
-      case GuideArt.foldedStackInBox:
-        return const FoldedStackGuideDiagram(
-          accent: FoldedStackGuideAccent.singleInBox,
-        );
-      case GuideArt.foldedStackBorder:
-        return const FoldedStackGuideDiagram(
-          accent: FoldedStackGuideAccent.borderOnSide,
-        );
-      case GuideArt.hangingDisplayCentre:
-        return const HangingDisplayGuideDiagram(
-          accent: HangingDisplayGuideAccent.centreOnAxis,
-        );
-      case GuideArt.hangingDisplayFringe:
-        return const HangingDisplayGuideDiagram(
-          accent: HangingDisplayGuideAccent.fringeSymmetric,
-        );
-      default:
-        return CustomPaint(
-          painter: _GuidePainter(art),
-          size: Size.infinite,
-          isComplex: true,
-        );
-    }
+    return CustomPaint(
+      painter: _GuidePainter(art),
+      size: Size.infinite,
+      isComplex: true,
+    );
   }
 }
 
@@ -139,6 +129,12 @@ class _GuidePainter extends CustomPainter {
         canvas.drawLine(const Offset(64, 17), const Offset(64, 83), faint);
         canvas.drawLine(const Offset(27, 72), const Offset(73, 72), faint);
 
+      case GuideArt.mekhalaSpread:
+        _mekhalaPair(canvas, fill, accent, faint);
+
+      case GuideArt.foldedStackInBox:
+        _foldedSari(canvas, fill, accent, faint);
+
       case GuideArt.grid:
         _thirds(canvas, faint);
         final piece = Rect.fromLTRB(33.3, 25, 66.6, 80);
@@ -155,31 +151,8 @@ class _GuidePainter extends CustomPainter {
         canvas.drawLine(const Offset(12, 82), const Offset(88, 82), solid);
         _arrow(canvas, accent, const Offset(50, 38), const Offset(50, 78));
 
-      case GuideArt.rake:
-        // cloth flat, light coming in low from one side
-        canvas.drawLine(const Offset(10, 74), const Offset(90, 74), solid);
-        _arrow(canvas, accent, const Offset(16, 28), const Offset(60, 72));
-        for (var x = 36.0; x <= 78; x += 10) {
-          canvas.drawLine(Offset(x, 74), Offset(x + 5, 80), faint);
-        }
-
       case GuideArt.close:
-        canvas.drawRect(Rect.fromLTRB(10, 16, 90, 84), solid);
-        final detail = Rect.fromLTRB(32, 34, 68, 66);
-        canvas.drawRect(detail, fill);
-        canvas.drawRect(detail, accent);
-
-      case GuideArt.drape:
-        // thrown over a form, falling away in folds
-        canvas.drawLine(const Offset(18, 26), const Offset(82, 26), solid);
-        final folds = Path()
-          ..moveTo(30, 26)
-          ..cubicTo(34, 50, 44, 62, 42, 84)
-          ..moveTo(50, 26)
-          ..cubicTo(54, 52, 62, 64, 58, 86)
-          ..moveTo(68, 26)
-          ..cubicTo(72, 48, 78, 60, 74, 80);
-        canvas.drawPath(folds, accent);
+        _closeTexture(canvas, fill, accent, faint);
 
       case GuideArt.border:
         // Same layout as the camera frame for this shot: upright piece,
@@ -215,11 +188,384 @@ class _GuidePainter extends CustomPainter {
         _label(canvas, 'Motif', window.center);
         _label(canvas, 'Border', strip.center, boxed: true, vertical: true);
 
-      case GuideArt.foldedStackInBox:
-      case GuideArt.foldedStackBorder:
       case GuideArt.hangingDisplayCentre:
+        _hangingSari(canvas, fill, accent, faint, showEnd: false);
       case GuideArt.hangingDisplayFringe:
-        break;
+        _hangingSari(canvas, fill, accent, faint, showEnd: true);
+      case GuideArt.mekhalaHanging:
+        _mekhalaHanging(canvas, fill, accent, faint);
+      case GuideArt.mekhalaFolded:
+        _mekhalaFolded(canvas, fill, accent, faint);
+      case GuideArt.stoleFull:
+        _stoleFull(canvas, fill, accent, faint);
+      case GuideArt.stoleFolded:
+        _stoleFolded(canvas, fill, accent, faint);
+      case GuideArt.shawlFull:
+        _shawlFull(canvas, fill, accent, faint);
+      case GuideArt.shawlFolded:
+        _shawlFolded(canvas, fill, accent, faint);
+    }
+  }
+
+  /// Straight sari on a rod, matching the hanging cotton shot: side border
+  /// on the left, small motifs, end border across the bottom.
+  void _hangingSari(
+    Canvas canvas,
+    Paint fill,
+    Paint accent,
+    Paint faint, {
+    required bool showEnd,
+  }) {
+    const frame = Rect.fromLTRB(18, 8, 82, 92);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+
+    const cloth = Rect.fromLTRB(34, 20, 66, 86);
+    canvas.drawRect(cloth, fill);
+    canvas.drawRect(cloth, accent);
+
+    canvas.drawLine(const Offset(30, 18), const Offset(70, 18), accent);
+    canvas.drawCircle(
+      const Offset(50, 18),
+      1.8,
+      Paint()..color = GuideDiagram.teal,
+    );
+
+    final borderRight = cloth.left + cloth.width * 0.22;
+    final side = Rect.fromLTRB(cloth.left, cloth.top, borderRight, cloth.bottom);
+    canvas.drawRect(
+      side,
+      Paint()..color = const Color(0x331B7574),
+    );
+    canvas.drawLine(Offset(borderRight, cloth.top), Offset(borderRight, cloth.bottom), accent);
+    final band = Paint()
+      ..color = GuideDiagram.teal.withValues(alpha: 0.7)
+      ..strokeWidth = 1.2;
+    final inner = cloth.left + side.width * 0.35;
+    final outer = cloth.left + side.width * 0.7;
+    canvas.drawLine(Offset(inner, cloth.top + 1), Offset(inner, cloth.bottom - 1), band);
+    canvas.drawLine(Offset(outer, cloth.top + 1), Offset(outer, cloth.bottom - 1), band);
+
+    _foldedMotifs(
+      canvas,
+      Rect.fromLTRB(borderRight, cloth.top, cloth.right, cloth.bottom - 16),
+    );
+
+    final palluTop = cloth.top + cloth.height * (showEnd ? 0.68 : 0.74);
+    canvas.drawRect(
+      Rect.fromLTRB(cloth.left, palluTop, cloth.right, cloth.bottom),
+      Paint()..color = showEnd ? const Color(0x401B7574) : const Color(0x221B7574),
+    );
+    final lines = showEnd ? 4 : 2;
+    for (var i = 1; i <= lines; i++) {
+      final y = palluTop + (cloth.bottom - palluTop) * i / (lines + 1);
+      canvas.drawLine(
+        Offset(cloth.left, y),
+        Offset(cloth.right, y),
+        showEnd ? accent : faint,
+      );
+    }
+
+    if (!showEnd) {
+      canvas.drawLine(
+        Offset(cloth.center.dx, cloth.top),
+        Offset(cloth.center.dx, cloth.bottom),
+        faint,
+      );
+    }
+  }
+
+  /// Shawl on a rod: wider than a stole, border down the right, band and tassels.
+  void _shawlFull(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(12, 8, 88, 92);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+    canvas.drawLine(const Offset(18, 16), const Offset(82, 16), accent);
+
+    const cloth = Rect.fromLTRB(24, 18, 76, 78);
+    canvas.drawRect(cloth, fill);
+    canvas.drawRect(cloth, accent);
+    canvas.drawLine(const Offset(30, 18), const Offset(30, 78), faint);
+    canvas.drawRect(
+      const Rect.fromLTRB(64, 18, 76, 78),
+      Paint()..color = const Color(0x221B7574),
+    );
+    canvas.drawLine(const Offset(64, 18), const Offset(64, 78), accent);
+    canvas.drawLine(const Offset(70, 18), const Offset(70, 78), faint);
+    _foldedMotifs(canvas, const Rect.fromLTRB(32, 22, 62, 58));
+    canvas.drawLine(const Offset(24, 60), const Offset(76, 60), accent);
+    canvas.drawLine(const Offset(24, 68), const Offset(76, 68), faint);
+    for (final x in [30.0, 38.0, 46.0, 54.0, 62.0, 70.0]) {
+      canvas.drawLine(Offset(x, 78), Offset(x, 84), accent);
+    }
+  }
+
+  /// One folded shawl: border down the right side, band and tassels at the front.
+  void _shawlFolded(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(12, 10, 88, 90);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+
+    const shawl = Rect.fromLTRB(14, 24, 86, 70);
+    canvas.drawRect(shawl, fill);
+    canvas.drawRect(shawl, accent);
+    canvas.drawLine(const Offset(22, 24), const Offset(22, 70), faint);
+    canvas.drawRect(
+      const Rect.fromLTRB(70, 24, 86, 70),
+      Paint()..color = const Color(0x221B7574),
+    );
+    canvas.drawLine(const Offset(70, 24), const Offset(70, 70), accent);
+    canvas.drawLine(const Offset(78, 24), const Offset(78, 70), faint);
+    _foldedMotifs(canvas, const Rect.fromLTRB(24, 28, 68, 50));
+    canvas.drawLine(const Offset(14, 54), const Offset(86, 54), accent);
+    canvas.drawLine(const Offset(14, 62), const Offset(86, 62), faint);
+    for (final x in [22.0, 32.0, 42.0, 52.0, 62.0, 72.0, 80.0]) {
+      canvas.drawLine(Offset(x, 70), Offset(x, 78), accent);
+    }
+  }
+
+  /// Stole on a rod: side borders, a band near the end, tassels along the hem.
+  void _stoleFull(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(14, 8, 86, 92);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+    canvas.drawLine(const Offset(24, 16), const Offset(76, 16), accent);
+
+    const cloth = Rect.fromLTRB(34, 18, 66, 78);
+    canvas.drawRect(cloth, fill);
+    canvas.drawRect(cloth, accent);
+    canvas.drawLine(const Offset(40, 18), const Offset(40, 78), faint);
+    canvas.drawLine(const Offset(60, 18), const Offset(60, 78), faint);
+    _foldedMotifs(canvas, const Rect.fromLTRB(42, 24, 58, 58));
+    canvas.drawLine(const Offset(34, 62), const Offset(66, 62), accent);
+    canvas.drawLine(const Offset(34, 68), const Offset(66, 68), faint);
+    for (final x in [38.0, 44.0, 50.0, 56.0, 62.0]) {
+      canvas.drawLine(Offset(x, 78), Offset(x, 84), accent);
+    }
+  }
+
+  /// One folded stole from above: borders at the sides, tassels along the front.
+  void _stoleFolded(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(12, 10, 88, 90);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+
+    const stole = Rect.fromLTRB(16, 26, 84, 70);
+    canvas.drawRect(stole, fill);
+    canvas.drawRect(stole, accent);
+    canvas.drawLine(const Offset(24, 26), const Offset(24, 70), faint);
+    canvas.drawLine(const Offset(76, 26), const Offset(76, 70), faint);
+    _foldedMotifs(canvas, const Rect.fromLTRB(28, 30, 72, 52));
+    canvas.drawLine(const Offset(16, 54), const Offset(84, 54), accent);
+    canvas.drawLine(const Offset(16, 60), const Offset(84, 60), faint);
+    for (final x in [24.0, 34.0, 44.0, 54.0, 64.0, 74.0]) {
+      canvas.drawLine(Offset(x, 70), Offset(x, 78), accent);
+    }
+  }
+
+  /// Shot from above: mekhela folded on top, sador underneath with its border
+  /// and tassels along the bottom.
+  void _mekhalaFolded(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(12, 10, 88, 90);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+
+    const sador = Rect.fromLTRB(14, 34, 84, 78);
+    canvas.drawRect(sador, fill);
+    canvas.drawRect(sador, accent);
+    _foldedMotifs(canvas, const Rect.fromLTRB(18, 63, 72, 69));
+    canvas.drawLine(const Offset(14, 70), const Offset(84, 70), accent);
+    canvas.drawLine(const Offset(14, 74), const Offset(84, 74), faint);
+    for (final x in [66.0, 70.0, 74.0, 78.0]) {
+      canvas.drawLine(Offset(x, 78), Offset(x, 84), accent);
+    }
+
+    const mekhela = Rect.fromLTRB(18, 16, 80, 62);
+    canvas.drawRect(mekhela, Paint()..color = Colors.white);
+    canvas.drawRect(mekhela, fill);
+    canvas.drawRect(mekhela, accent);
+    _foldedMotifs(canvas, const Rect.fromLTRB(20, 18, 62, 60));
+    canvas.drawLine(const Offset(64, 16), const Offset(64, 62), accent);
+    canvas.drawLine(const Offset(70, 16), const Offset(70, 62), faint);
+    canvas.drawLine(const Offset(75, 16), const Offset(75, 62), faint);
+  }
+
+  /// Two hangers on one rod. The mekhela is shorter, with the border folded
+  /// across the bottom. The sador hangs longer, with side borders and tassels.
+  void _mekhalaHanging(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(10, 8, 90, 92);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+
+    canvas.drawLine(const Offset(14, 16), const Offset(86, 16), accent);
+    _hanger(canvas, 32, 22, 44);
+    _hanger(canvas, 66, 50, 82);
+
+    const mekhela = Rect.fromLTRB(24, 24, 42, 68);
+    canvas.drawRect(mekhela, fill);
+    canvas.drawRect(mekhela, accent);
+    for (final y in [52.0, 56.0, 60.0, 64.0]) {
+      canvas.drawLine(Offset(mekhela.left, y), Offset(mekhela.right, y), faint);
+    }
+
+    const sador = Rect.fromLTRB(50, 24, 80, 80);
+    canvas.drawRect(sador, fill);
+    canvas.drawRect(sador, accent);
+    canvas.drawLine(const Offset(56, 24), const Offset(56, 80), faint);
+    canvas.drawLine(const Offset(74, 24), const Offset(74, 80), faint);
+    _foldedMotifs(canvas, const Rect.fromLTRB(56, 28, 74, 66));
+    canvas.drawLine(const Offset(50, 68), const Offset(80, 68), accent);
+    canvas.drawLine(const Offset(50, 74), const Offset(80, 74), faint);
+    for (final x in [56.0, 62.0, 68.0, 74.0]) {
+      canvas.drawLine(Offset(x, 80), Offset(x, 86), accent);
+    }
+  }
+
+  void _hanger(Canvas canvas, double cx, double left, double right) {
+    final hook = Paint()
+      ..color = GuideDiagram.teal
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.6
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(Offset(cx, 16), Offset(cx, 19.2), hook);
+    canvas.drawLine(Offset(left, 24), Offset(cx, 18.4), hook);
+    canvas.drawLine(Offset(right, 24), Offset(cx, 18.4), hook);
+    canvas.drawLine(Offset(left, 24), Offset(right, 24), hook);
+  }
+
+  /// Two pieces side by side, each with a border along the bottom.
+  void _mekhalaPair(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(14, 10, 86, 90);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+    const mekhela = Rect.fromLTRB(20, 16, 46, 78);
+    const sador = Rect.fromLTRB(52, 16, 80, 78);
+    canvas.drawRect(mekhela, fill);
+    canvas.drawRect(sador, fill);
+    canvas.drawRect(mekhela, accent);
+    canvas.drawRect(sador, accent);
+    canvas.drawLine(const Offset(20, 64), const Offset(46, 64), accent);
+    canvas.drawLine(const Offset(52, 58), const Offset(80, 58), accent);
+    for (final x in [58.0, 64.0, 70.0, 76.0]) {
+      canvas.drawLine(Offset(x, 78), Offset(x, 84), accent);
+    }
+  }
+
+  /// Close-up: the weave fills the frame, threads parallel to the edges.
+  void _closeTexture(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(16, 12, 84, 88);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+
+    const cloth = Rect.fromLTRB(22, 20, 78, 80);
+    canvas.drawRect(cloth, fill);
+    canvas.drawRect(cloth, accent);
+
+    for (final x in [36.0, 50.0, 64.0]) {
+      canvas.drawLine(Offset(x, cloth.top), Offset(x, cloth.bottom), faint);
+    }
+    for (final y in [35.0, 50.0, 65.0]) {
+      canvas.drawLine(Offset(cloth.left, y), Offset(cloth.right, y), faint);
+    }
+    _foldedMotifs(canvas, cloth);
+  }
+
+  /// One folded sari from above, matching the cotton folded shot: a single
+  /// stack, small motifs on the body, patterned border down the right edge.
+  void _foldedSari(
+    Canvas canvas,
+    Paint fill,
+    Paint accent,
+    Paint faint,
+  ) {
+    const frame = Rect.fromLTRB(18, 8, 82, 92);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+
+    // Wide single stack, the same shape as the folded photo.
+    final saree = Rect.fromCenter(
+      center: frame.center,
+      width: frame.width * 0.86,
+      height: frame.height * 0.58,
+    );
+    final radius = RRect.fromRectAndRadius(saree, const Radius.circular(2));
+    canvas.drawRRect(radius, fill);
+    canvas.drawRRect(radius, accent);
+
+    final borderLeft = saree.left + saree.width * 0.74;
+    final body = Rect.fromLTRB(saree.left, saree.top, borderLeft, saree.bottom);
+    _foldedMotifs(canvas, body);
+
+    final strip = RRect.fromRectAndCorners(
+      Rect.fromLTRB(borderLeft, saree.top, saree.right, saree.bottom),
+      topRight: const Radius.circular(2),
+      bottomRight: const Radius.circular(2),
+    );
+    canvas.drawRRect(
+      strip,
+      Paint()..color = const Color(0x331B7574),
+    );
+    canvas.drawLine(
+      Offset(borderLeft, saree.top),
+      Offset(borderLeft, saree.bottom),
+      accent,
+    );
+    // Patterned border: two bands inside the right-hand strip.
+    final band = Paint()
+      ..color = GuideDiagram.teal.withValues(alpha: 0.75)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.3;
+    final inner = borderLeft + (saree.right - borderLeft) * 0.28;
+    final outer = borderLeft + (saree.right - borderLeft) * 0.72;
+    canvas.drawLine(Offset(inner, saree.top + 2), Offset(inner, saree.bottom - 2), band);
+    canvas.drawLine(Offset(outer, saree.top + 2), Offset(outer, saree.bottom - 2), band);
+  }
+
+  void _foldedMotifs(Canvas canvas, Rect body) {
+    final motif = Paint()
+      ..color = GuideDiagram.teal.withValues(alpha: 0.8)
+      ..style = PaintingStyle.fill;
+    const spots = <List<double>>[
+      [0.22, 0.28],
+      [0.48, 0.22],
+      [0.72, 0.34],
+      [0.30, 0.55],
+      [0.58, 0.62],
+      [0.78, 0.72],
+      [0.18, 0.78],
+    ];
+    for (final spot in spots) {
+      final c = Offset(
+        body.left + body.width * spot[0],
+        body.top + body.height * spot[1],
+      );
+      final diamond = Path()
+        ..moveTo(c.dx, c.dy - 1.6)
+        ..lineTo(c.dx + 1.3, c.dy)
+        ..lineTo(c.dx, c.dy + 1.6)
+        ..lineTo(c.dx - 1.3, c.dy)
+        ..close();
+      canvas.drawPath(diamond, motif);
     }
   }
 
