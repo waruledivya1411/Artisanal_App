@@ -18,18 +18,28 @@ class DisplayOption {
     const dir = 'assets/images/lessons/displays';
     final m = material.toLowerCase();
     if (_usesOwnPhoto(product, material)) {
+      // Cotton has no draped shot of its own.
+      if (product == 'Mekhala sador' &&
+          material == 'Cotton' &&
+          key == 'draped_look') {
+        return '$dir/${m}_$key.jpg';
+      }
       final slug = product!.toLowerCase().replaceAll(' ', '_');
       return '$dir/${slug}_${m}_$key.jpg';
     }
     return '$dir/${m}_$key.jpg';
   }
 
-  /// Mekhala sador has its own Mulberry shots for every display.
+  /// Mekhala sador has its own Cotton, Mulberry, Eri, and Muga shots.
   bool _usesOwnPhoto(String? product, String material) {
     if (product != null && productsWithOwnPhotos.contains(product)) {
       return true;
     }
-    return product == 'Mekhala sador' && material == 'Mulberry';
+    return product == 'Mekhala sador' &&
+        (material == 'Cotton' ||
+            material == 'Mulberry' ||
+            material == 'Eri' ||
+            material == 'Muga');
   }
 }
 
@@ -77,6 +87,7 @@ const productsWithOwnPhotos = {
   'Stole',
   'Cushion covers',
   'Jod kappur',
+  'Yardages',
 };
 
 /// A jod kappur is shown folded or hanging. There is no full-display shot.
@@ -85,10 +96,14 @@ const _jodDisplays = <DisplayOption>[_folded, _hanging];
 /// A cushion cover is shown on a sofa or laid flat.
 const _cushionDisplays = <DisplayOption>[_sofaSeated, _flatLay];
 
+/// Yardage is shown hanging or as a close-up of the weave.
+const _yardageDisplays = <DisplayOption>[_hanging, _closeUp];
+
 List<DisplayOption> displaysFor(String? product) {
   if (_drapedProducts.contains(product)) return everyDisplay;
   if (product == 'Jod kappur') return _jodDisplays;
   if (product == 'Cushion covers') return _cushionDisplays;
+  if (product == 'Yardages') return _yardageDisplays;
   return basicDisplays;
 }
 

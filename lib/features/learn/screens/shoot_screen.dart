@@ -50,7 +50,9 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
       _outline.kind == ShotOverlayKind.shawlFolded ||
       _outline.kind == ShotOverlayKind.gamusaFolded ||
       _outline.kind == ShotOverlayKind.jodFolded ||
-      _outline.kind == ShotOverlayKind.jodHanging;
+      _outline.kind == ShotOverlayKind.jodHanging ||
+      _outline.kind == ShotOverlayKind.yardageHanging ||
+      _outline.kind == ShotOverlayKind.yardageClose;
 
   int get _guideStepCount =>
       guideFor(widget.display.key, product: widget.product).length;
@@ -148,6 +150,12 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     if (_outline.kind == ShotOverlayKind.jodHanging) {
       return 'Hang both pieces under the rod — wide cloth on the left, tassels on the right';
     }
+    if (_outline.kind == ShotOverlayKind.yardageHanging) {
+      return 'Hang the cloth under the rod — motifs across the whole piece';
+    }
+    if (_outline.kind == ShotOverlayKind.yardageClose) {
+      return 'Fill the frame with the weave — a few motifs in the shot';
+    }
     if (_outline.kind == ShotOverlayKind.mekhalaFull) {
       return 'Lay both pieces side by side in the frame';
     }
@@ -207,6 +215,10 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     if (_outline.kind == ShotOverlayKind.sariDraped) {
       return 'Move the saree into the frame';
     }
+    if (_outline.kind == ShotOverlayKind.yardageHanging ||
+        _outline.kind == ShotOverlayKind.yardageClose) {
+      return 'Move the yardage into the frame';
+    }
     if (_guidedShoot) {
       return 'Move the saree into the frame';
     }
@@ -228,6 +240,7 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
       case ShotOverlayKind.hangingDisplay:
       case ShotOverlayKind.mekhalaHanging:
       case ShotOverlayKind.jodHanging:
+      case ShotOverlayKind.yardageHanging:
         return 'HANGING DISPLAY';
       case ShotOverlayKind.mekhalaFull:
       case ShotOverlayKind.stoleFull:
@@ -235,6 +248,7 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
       case ShotOverlayKind.gamusaFull:
       case ShotOverlayKind.cushionSofa:
       case ShotOverlayKind.cushionFlat:
+      case ShotOverlayKind.yardageClose:
       case ShotOverlayKind.standard:
         return widget.display.name.toUpperCase();
       case ShotOverlayKind.sariDraped:

@@ -291,6 +291,34 @@ const _jodHanging = <GuideStep>[
   ),
 ];
 
+const _yardageHanging = <GuideStep>[
+  GuideStep(
+    title: 'Hang the yardage straight',
+    subtitle: 'On a rod · motifs scattered across · no border or tassels',
+    art: GuideArt.yardageHanging,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'Whole cloth in frame, hanging from the rod',
+    showExample: true,
+    caption: 'Show the scattered motifs. Keep the cloth straight.',
+  ),
+];
+
+const _yardageClose = <GuideStep>[
+  GuideStep(
+    title: 'Fill the frame with the weave',
+    subtitle: 'Close on the cloth · a few motifs in the shot',
+    art: GuideArt.yardageClose,
+  ),
+  GuideStep(
+    title: 'Good examples',
+    subtitle: 'So close the weave and motifs fill the frame',
+    showExample: true,
+    caption: 'Count the threads. Keep a few motifs in the shot.',
+  ),
+];
+
 const _jodFolded = <GuideStep>[
   GuideStep(
     title: 'Lay both pieces side by side',
@@ -350,6 +378,12 @@ List<GuideStep> guideFor(String displayKey, {String? product}) {
   }
   if (displayKey == 'folded_stack' && product == 'Jod kappur') {
     return _jodFolded;
+  }
+  if (displayKey == 'hanging_display' && product == 'Yardages') {
+    return _yardageHanging;
+  }
+  if (displayKey == 'close-up_texture' && product == 'Yardages') {
+    return _yardageClose;
   }
   return _guides[displayKey] ?? _fullDisplay;
 }

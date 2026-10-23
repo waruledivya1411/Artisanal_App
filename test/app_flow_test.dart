@@ -509,7 +509,6 @@ void main() {
       'Stole',
       'Shawl',
       'Gamusa',
-      'Yardages',
     ]) {
       expect(
         displaysFor(product).map((d) => d.name),
@@ -524,6 +523,10 @@ void main() {
     expect(
       displaysFor('Jod kappur').map((d) => d.name),
       ['Folded', 'Hanging'],
+    );
+    expect(
+      displaysFor('Yardages').map((d) => d.name),
+      ['Hanging', 'Close-up texture'],
     );
   });
 

@@ -44,7 +44,11 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
 
   late final List<DisplayOption> _displays = displaysFor(widget.product);
 
-  late String? _selected = SelectedDisplay.instance.name;
+  late String? _selected = _displays.any(
+        (d) => d.name == SelectedDisplay.instance.name,
+      )
+      ? SelectedDisplay.instance.name
+      : null;
 
   @override
   void dispose() {
@@ -382,7 +386,9 @@ class _Example extends StatelessWidget {
     if (name == null) return const _NoExample();
     return Image.asset(
       display.imageFor(name, product: product),
-      fit: product == 'Cushion covers' || product == 'Jod kappur'
+      fit: product == 'Cushion covers' ||
+              product == 'Jod kappur' ||
+              product == 'Yardages'
           ? BoxFit.contain
           : BoxFit.cover,
       alignment: Alignment.center,

@@ -27,6 +27,8 @@ enum ShotOverlayKind {
   sariDraped,
   jodHanging,
   jodFolded,
+  yardageHanging,
+  yardageClose,
 }
 
 /// How the outer dashed frame is placed on the preview.
@@ -227,6 +229,22 @@ class ShotOutline {
         kind: ShotOverlayKind.foldedStack,
       );
     }
+    if (displayKey == 'hanging_display' && product == 'Yardages') {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: 0.58,
+        placement: ShotFramePlacement.inset,
+        kind: ShotOverlayKind.yardageHanging,
+      );
+    }
+    if (displayKey == 'close-up_texture' && product == 'Yardages') {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: 0.9,
+        placement: ShotFramePlacement.inset,
+        kind: ShotOverlayKind.yardageClose,
+      );
+    }
     if (displayKey == 'hanging_display' && product == 'Jod kappur') {
       return const ShotOutline(
         widthFactor: 0.88,
@@ -398,6 +416,10 @@ class _OutlinePainter extends CustomPainter {
         _jodHanging(canvas, rect);
       case ShotOverlayKind.jodFolded:
         _jodFolded(canvas, rect);
+      case ShotOverlayKind.yardageHanging:
+        _yardageHanging(canvas, rect);
+      case ShotOverlayKind.yardageClose:
+        _yardageClose(canvas, rect);
       case ShotOverlayKind.standard:
         break;
     }
@@ -1812,6 +1834,136 @@ class _OutlinePainter extends CustomPainter {
         paint,
       );
     }
+  }
+
+  /// Wide yardage on a rod: soft folds, stars across the cloth, no border.
+  void _yardageHanging(Canvas canvas, Rect frame) {
+    final stroke = Paint()
+      ..color = const Color(0xE8FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    final fill = Paint()..color = const Color(0x22FFFFFF);
+    final faint = Paint()
+      ..color = const Color(0x99FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    final cloth = Rect.fromLTRB(
+      frame.left + frame.width * 0.08,
+      frame.top + frame.height * 0.08,
+      frame.right - frame.width * 0.08,
+      frame.top + frame.height * 0.9,
+    );
+    canvas.drawRect(cloth, fill);
+    canvas.drawRect(cloth, stroke);
+    canvas.drawLine(
+      Offset(frame.left + frame.width * 0.03, cloth.top),
+      Offset(frame.right - frame.width * 0.03, cloth.top),
+      Paint()
+        ..color = const Color(0xE8FFFFFF)
+        ..strokeWidth = 3.6
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.drawLine(
+      Offset(cloth.left + cloth.width * 0.34, cloth.top),
+      Offset(cloth.left + cloth.width * 0.34, cloth.bottom),
+      faint,
+    );
+    canvas.drawLine(
+      Offset(cloth.left + cloth.width * 0.62, cloth.top),
+      Offset(cloth.left + cloth.width * 0.62, cloth.bottom),
+      faint,
+    );
+    final star = Paint()..color = const Color(0xE8FFFFFF);
+    final dim = Paint()..color = const Color(0x99FFFFFF);
+    const spots = <List<double>>[
+      [0.22, 0.14],
+      [0.7, 0.18],
+      [0.46, 0.3],
+      [0.18, 0.4],
+      [0.82, 0.46],
+      [0.36, 0.54],
+      [0.64, 0.62],
+      [0.24, 0.72],
+      [0.78, 0.76],
+      [0.5, 0.84],
+      [0.16, 0.9],
+      [0.68, 0.92],
+    ];
+    final radius = frame.width * 0.018;
+    for (var i = 0; i < spots.length; i++) {
+      _star(
+        canvas,
+        Offset(
+          cloth.left + cloth.width * spots[i][0],
+          cloth.top + cloth.height * spots[i][1],
+        ),
+        i.isEven ? radius : radius * 0.75,
+        i.isEven ? star : dim,
+      );
+    }
+  }
+
+  /// Close-up: the weave and a few stars fill the whole frame.
+  void _yardageClose(Canvas canvas, Rect frame) {
+    final faint = Paint()
+      ..color = const Color(0x66FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
+    final cloth = Rect.fromLTRB(
+      frame.left + frame.width * 0.06,
+      frame.top + frame.height * 0.06,
+      frame.right - frame.width * 0.06,
+      frame.top + frame.height * 0.94,
+    );
+    for (var i = 1; i <= 4; i++) {
+      final x = cloth.left + cloth.width * i / 5;
+      final y = cloth.top + cloth.height * i / 5;
+      canvas.drawLine(Offset(x, cloth.top), Offset(x, cloth.bottom), faint);
+      canvas.drawLine(Offset(cloth.left, y), Offset(cloth.right, y), faint);
+    }
+    final star = Paint()..color = const Color(0xE8FFFFFF);
+    final dim = Paint()..color = const Color(0x99FFFFFF);
+    const spots = <List<double>>[
+      [0.2, 0.16],
+      [0.78, 0.14],
+      [0.48, 0.32],
+      [0.14, 0.46],
+      [0.84, 0.5],
+      [0.36, 0.6],
+      [0.66, 0.72],
+      [0.22, 0.84],
+      [0.56, 0.9],
+    ];
+    final radius = frame.width * 0.028;
+    for (var i = 0; i < spots.length; i++) {
+      _star(
+        canvas,
+        Offset(
+          cloth.left + cloth.width * spots[i][0],
+          cloth.top + cloth.height * spots[i][1],
+        ),
+        i.isEven ? radius : radius * 0.72,
+        i.isEven ? star : dim,
+      );
+    }
+  }
+
+  void _star(Canvas canvas, Offset c, double r, Paint paint) {
+    final arm = r * 0.32;
+    canvas.drawPath(
+      Path()
+        ..moveTo(c.dx, c.dy - r)
+        ..lineTo(c.dx + arm, c.dy - arm)
+        ..lineTo(c.dx + r, c.dy)
+        ..lineTo(c.dx + arm, c.dy + arm)
+        ..lineTo(c.dx, c.dy + r)
+        ..lineTo(c.dx - arm, c.dy + arm)
+        ..lineTo(c.dx - r, c.dy)
+        ..lineTo(c.dx - arm, c.dy - arm)
+        ..close(),
+      paint,
+    );
   }
 
   @override

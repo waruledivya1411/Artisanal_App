@@ -278,7 +278,8 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
                   child: Image.asset(
                     widget.display.imageFor(material, product: widget.product),
                     fit: widget.product == 'Cushion covers' ||
-                            widget.product == 'Jod kappur'
+                            widget.product == 'Jod kappur' ||
+                            widget.product == 'Yardages'
                         ? BoxFit.contain
                         : BoxFit.cover,
                     alignment: Alignment.center,

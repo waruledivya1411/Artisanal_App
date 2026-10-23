@@ -69,6 +69,12 @@ enum GuideArt {
 
   /// Jod kappur folded: wide cloth beside the smaller tasseled piece.
   jodFolded,
+
+  /// Yardage on a rod: wide plain cloth, motifs scattered across it.
+  yardageHanging,
+
+  /// Close on yardage: the weave and scattered motifs fill the frame.
+  yardageClose,
 }
 
 class GuideDiagram extends StatelessWidget {
@@ -234,6 +240,10 @@ class _GuidePainter extends CustomPainter {
         _jodHanging(canvas, fill, accent, faint);
       case GuideArt.jodFolded:
         _jodFolded(canvas, fill, accent, faint);
+      case GuideArt.yardageHanging:
+        _yardageHanging(canvas, fill, accent, faint);
+      case GuideArt.yardageClose:
+        _yardageClose(canvas, fill, accent, faint);
     }
   }
 
@@ -757,6 +767,106 @@ class _GuidePainter extends CustomPainter {
     for (final x in [58.0, 64.0, 70.0, 76.0]) {
       canvas.drawLine(Offset(x, 78), Offset(x, 84), accent);
     }
+  }
+
+  /// Yardage on a rod: wide cloth, soft folds, stars scattered across. No border.
+  void _yardageHanging(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(8, 8, 92, 92);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+    const cloth = Rect.fromLTRB(16, 16, 84, 82);
+    canvas.drawRect(cloth, fill);
+    canvas.drawRect(cloth, accent);
+    canvas.drawLine(const Offset(10, 16), const Offset(90, 16), accent);
+    canvas.drawLine(const Offset(36, 16), const Offset(36, 82), faint);
+    canvas.drawLine(const Offset(58, 16), const Offset(58, 82), faint);
+    final star = Paint()
+      ..color = GuideDiagram.teal.withValues(alpha: 0.9)
+      ..style = PaintingStyle.fill;
+    final dim = Paint()
+      ..color = GuideDiagram.teal.withValues(alpha: 0.45)
+      ..style = PaintingStyle.fill;
+    const spots = <List<double>>[
+      [0.22, 0.14],
+      [0.7, 0.18],
+      [0.46, 0.3],
+      [0.18, 0.4],
+      [0.82, 0.46],
+      [0.36, 0.54],
+      [0.64, 0.62],
+      [0.24, 0.72],
+      [0.78, 0.76],
+      [0.5, 0.84],
+      [0.16, 0.9],
+      [0.68, 0.92],
+    ];
+    for (var i = 0; i < spots.length; i++) {
+      final c = Offset(
+        cloth.left + cloth.width * spots[i][0],
+        cloth.top + cloth.height * spots[i][1],
+      );
+      _star(canvas, c, i.isEven ? 2.4 : 1.8, i.isEven ? star : dim);
+    }
+  }
+
+  /// Close-up of yardage: weave and scattered stars fill the whole frame.
+  void _yardageClose(Canvas canvas, Paint fill, Paint accent, Paint faint) {
+    const frame = Rect.fromLTRB(10, 10, 90, 90);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(frame, const Radius.circular(3)),
+      faint,
+    );
+    const cloth = Rect.fromLTRB(14, 14, 86, 86);
+    canvas.drawRect(cloth, fill);
+    canvas.drawRect(cloth, accent);
+    for (final x in [28.0, 42.0, 56.0, 70.0]) {
+      canvas.drawLine(Offset(x, cloth.top), Offset(x, cloth.bottom), faint);
+    }
+    for (final y in [28.0, 42.0, 56.0, 70.0]) {
+      canvas.drawLine(Offset(cloth.left, y), Offset(cloth.right, y), faint);
+    }
+    final star = Paint()
+      ..color = GuideDiagram.teal.withValues(alpha: 0.9)
+      ..style = PaintingStyle.fill;
+    final dim = Paint()
+      ..color = GuideDiagram.teal.withValues(alpha: 0.45)
+      ..style = PaintingStyle.fill;
+    const spots = <List<double>>[
+      [0.2, 0.18],
+      [0.78, 0.16],
+      [0.48, 0.34],
+      [0.14, 0.48],
+      [0.84, 0.52],
+      [0.36, 0.62],
+      [0.66, 0.74],
+      [0.22, 0.84],
+    ];
+    for (var i = 0; i < spots.length; i++) {
+      final c = Offset(
+        cloth.left + cloth.width * spots[i][0],
+        cloth.top + cloth.height * spots[i][1],
+      );
+      _star(canvas, c, i.isEven ? 3.2 : 2.4, i.isEven ? star : dim);
+    }
+  }
+
+  void _star(Canvas canvas, Offset c, double r, Paint paint) {
+    final arm = r * 0.32;
+    canvas.drawPath(
+      Path()
+        ..moveTo(c.dx, c.dy - r)
+        ..lineTo(c.dx + arm, c.dy - arm)
+        ..lineTo(c.dx + r, c.dy)
+        ..lineTo(c.dx + arm, c.dy + arm)
+        ..lineTo(c.dx, c.dy + r)
+        ..lineTo(c.dx - arm, c.dy + arm)
+        ..lineTo(c.dx - r, c.dy)
+        ..lineTo(c.dx - arm, c.dy - arm)
+        ..close(),
+      paint,
+    );
   }
 
   /// Close-up: the weave fills the frame, threads parallel to the edges.

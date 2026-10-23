@@ -55,6 +55,7 @@ const _materialsByProduct = <String, Set<String>>{
   'Shawl': {'Cotton', 'Eri'},
   'Cushion covers': {'Cotton', 'Mulberry', 'Tussar', 'Muga', 'Eri'},
   'Jod kappur': {'Cotton'},
+  'Yardages': {'Cotton'},
 };
 
 /// Materials to offer for [product], in the usual order.
