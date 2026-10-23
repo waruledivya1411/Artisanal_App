@@ -302,8 +302,45 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     }
   }
 
+  final _stackKey = GlobalKey();
+  final _topControlsKey = GlobalKey();
+  final _bottomControlsKey = GlobalKey();
+
+  /// Where the pills end and the bottom text begins, plus a 16px margin, so
+  /// the box can be centred on the photo without running under either.
+  double? _clearTop;
+  double? _clearBottom;
+
+  void _measureControls() {
+    if (!mounted) return;
+    RenderBox? box(GlobalKey key) =>
+        key.currentContext?.findRenderObject() as RenderBox?;
+    final stack = box(_stackKey);
+    final top = box(_topControlsKey);
+    final bottom = box(_bottomControlsKey);
+    if (stack == null || top == null || bottom == null) return;
+    if (!stack.hasSize || !top.hasSize || !bottom.hasSize) return;
+    final clearTop = stack
+            .globalToLocal(top.localToGlobal(Offset(0, top.size.height)))
+            .dy +
+        8;
+    final clearBottom =
+        stack.globalToLocal(bottom.localToGlobal(Offset.zero)).dy - 8;
+    if ((clearTop - (_clearTop ?? -1)).abs() < 0.5 &&
+        (clearBottom - (_clearBottom ?? -1)).abs() < 0.5) {
+      return;
+    }
+    setState(() {
+      _clearTop = clearTop;
+      _clearBottom = clearBottom;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Re-measure after every layout: captions, screen size and rotation all
+    // move the controls. It only rebuilds when something actually moved.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measureControls());
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -315,27 +352,44 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
       child: Scaffold(
         backgroundColor: Colors.black,
         body: Stack(
+          key: _stackKey,
           fit: StackFit.expand,
           children: [
             _preview(),
-            ShotOutlineOverlay(outline: _outline),
+            ShotOutlineOverlay(
+              outline: _outline,
+              clearTop: _clearTop,
+              clearBottom: _clearBottom,
+            ),
             SafeArea(
               child: Column(
                 children: [
-                  _outline.kind == ShotOverlayKind.sariDraped
-                      ? _guidedTopBar()
-                      : _guidedShoot
+                  Column(
+                    key: _topControlsKey,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _outline.kind == ShotOverlayKind.sariDraped
                           ? _guidedTopBar()
-                          : _topBar(),
-                  _guidedShoot ? _guidedCheckPills() : _checkPills(),
+                          : _guidedShoot
+                              ? _guidedTopBar()
+                              : _topBar(),
+                      _guidedShoot ? _guidedCheckPills() : _checkPills(),
+                    ],
+                  ),
                   const Spacer(),
-                  if (_hint != null) ...[
-                    _hintBar(),
-                    const SizedBox(height: 8),
-                  ],
-                  _promptPill(),
-                  const SizedBox(height: 14),
-                  _shutterRow(),
+                  Column(
+                    key: _bottomControlsKey,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_hint != null) ...[
+                        _hintBar(),
+                        const SizedBox(height: 8),
+                      ],
+                      _promptPill(),
+                      const SizedBox(height: 14),
+                      _shutterRow(),
+                    ],
+                  ),
                   const SizedBox(height: 18),
                 ],
               ),

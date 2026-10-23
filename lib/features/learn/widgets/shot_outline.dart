@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'package:artisnal_app/features/learn/widgets/folded_stack_diagram.dart';
@@ -285,7 +287,40 @@ class ShotOutline {
   /// The box fills the space under the header and above the captions, so a
   /// real piece on the floor can sit inside it. The catalog photos are not
   /// used to decide how big that box is.
-  static Rect outerFrame(Size size, ShotOutline outline) {
+  ///
+  /// When [clearTop] and [clearBottom] are given - where the pills end and the
+  /// bottom text begins - the box is centred on the screen, which is the
+  /// centre of the photo, and made as large as fits between them without
+  /// changing its shape. Drawing it higher just to clear the bottom text
+  /// would put the product high in the picture.
+  static Rect outerFrame(
+    Size size,
+    ShotOutline outline, {
+    double? clearTop,
+    double? clearBottom,
+  }) {
+    final shape = _shapeFrame(size, outline);
+    if (clearTop == null || clearBottom == null) return shape;
+    final centreY = size.height / 2;
+    final half = math.min(centreY - clearTop, clearBottom - centreY);
+    if (half <= 60) return shape;
+    final aspect = shape.width / shape.height;
+    var height = half * 2;
+    var width = height * aspect;
+    if (width > shape.width) {
+      width = shape.width;
+      height = width / aspect;
+    }
+    return Rect.fromCenter(
+      center: Offset(size.width / 2, centreY),
+      width: width,
+      height: height,
+    );
+  }
+
+  /// The box as laid out from the insets alone; gives its shape and its
+  /// widest allowed size.
+  static Rect _shapeFrame(Size size, ShotOutline outline) {
     final inset = outline.inset;
     final left = inset.left;
     final top = inset.top;
@@ -326,15 +361,25 @@ class ShotOutline {
 
 /// Draws the outline over a camera preview.
 class ShotOutlineOverlay extends StatelessWidget {
-  const ShotOutlineOverlay({super.key, required this.outline});
+  const ShotOutlineOverlay({
+    super.key,
+    required this.outline,
+    this.clearTop,
+    this.clearBottom,
+  });
 
   final ShotOutline outline;
+
+  /// Where the controls above and below the box end, in this overlay's
+  /// coordinates. See [ShotOutline.outerFrame].
+  final double? clearTop;
+  final double? clearBottom;
 
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
       child: CustomPaint(
-        painter: _OutlinePainter(outline),
+        painter: _OutlinePainter(outline, clearTop, clearBottom),
         size: Size.infinite,
       ),
     );
@@ -342,16 +387,23 @@ class ShotOutlineOverlay extends StatelessWidget {
 }
 
 class _OutlinePainter extends CustomPainter {
-  const _OutlinePainter(this.outline);
+  const _OutlinePainter(this.outline, this.clearTop, this.clearBottom);
 
   final ShotOutline outline;
+  final double? clearTop;
+  final double? clearBottom;
 
   static const Color _blue = Color(0xFF7EAADB);
   static const Color _brightBlue = Color(0xFFA9CCF0);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = ShotOutline.outerFrame(size, outline);
+    final rect = ShotOutline.outerFrame(
+      size,
+      outline,
+      clearTop: clearTop,
+      clearBottom: clearBottom,
+    );
     final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(10));
 
     // Dim everything outside the box so the box reads as the target.
@@ -1968,6 +2020,8 @@ class _OutlinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _OutlinePainter oldDelegate) =>
+      oldDelegate.clearTop != clearTop ||
+      oldDelegate.clearBottom != clearBottom ||
       oldDelegate.outline.widthFactor != outline.widthFactor ||
       oldDelegate.outline.aspectRatio != outline.aspectRatio ||
       oldDelegate.outline.silhouette != outline.silhouette ||
