@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:artisnal_app/core/widgets/celebration_confetti.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
 import 'package:artisnal_app/features/learn/widgets/next_learn_task_button.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class CreatePostBadgeScreen extends StatefulWidget {
   const CreatePostBadgeScreen({super.key, required this.locale});
@@ -100,8 +100,8 @@ class _CreatePostBadgeScreenState extends State<CreatePostBadgeScreen>
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Badge earned',
-                          style: GoogleFonts.plusJakartaSans(
+                          tr('Badge earned'),
+                          style: appType(
                             color: CreatePostBadgeScreen.gold,
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
@@ -110,9 +110,9 @@ class _CreatePostBadgeScreenState extends State<CreatePostBadgeScreen>
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Create a post',
+                          tr('Create a post'),
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: appType(
                             color: CreatePostBadgeScreen.ink,
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
@@ -121,9 +121,9 @@ class _CreatePostBadgeScreenState extends State<CreatePostBadgeScreen>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'You practiced Post, Story, and Reel on Instagram.',
+                          tr('You practiced Post, Story, and Reel on Instagram.'),
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: appType(
                             color: CreatePostBadgeScreen.muted,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -138,6 +138,7 @@ class _CreatePostBadgeScreenState extends State<CreatePostBadgeScreen>
                             );
                             if (nextTask != null) {
                               return NextLearnTaskButton(
+                                locale: widget.locale,
                                 nextTaskTitle: nextTask,
                                 onTap: _done,
                               );
@@ -153,8 +154,8 @@ class _CreatePostBadgeScreenState extends State<CreatePostBadgeScreen>
                                   width: double.infinity,
                                   child: Center(
                                     child: Text(
-                                      'Continue',
-                                      style: GoogleFonts.plusJakartaSans(
+                                      tr('Continue'),
+                                      style: appType(
                                         color: Colors.white,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,

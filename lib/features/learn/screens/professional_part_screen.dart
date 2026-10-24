@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
@@ -8,6 +7,7 @@ import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/screens/check_part_screen.dart';
 import 'package:artisnal_app/features/learn/widgets/ig_profile_preview.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class ProfessionalPartScreen extends StatefulWidget {
   const ProfessionalPartScreen({super.key, required this.locale});
@@ -104,7 +104,7 @@ class _ProfessionalPartScreenState extends State<ProfessionalPartScreen> {
                           fit: BoxFit.scaleDown,
                           child: Text(
                             ProfessionalPartScreen.partLabel,
-                            style: GoogleFonts.plusJakartaSans(
+                            style: appType(
                               color: ProfessionalPartScreen.teal,
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
@@ -128,8 +128,8 @@ class _ProfessionalPartScreenState extends State<ProfessionalPartScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Use a professional page',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('Use a professional page'),
+                  style: appType(
                     color: ProfessionalPartScreen.ink,
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -138,8 +138,8 @@ class _ProfessionalPartScreenState extends State<ProfessionalPartScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Tap Professional dashboard on your page.',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('Tap Professional dashboard on your page.'),
+                  style: appType(
                     color: ProfessionalPartScreen.muted,
                     fontSize: 16,
                     height: 1.4,
@@ -182,8 +182,8 @@ class _ProfessionalPartScreenState extends State<ProfessionalPartScreen> {
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              'Next',
-                              style: GoogleFonts.plusJakartaSans(
+                              tr('Next'),
+                              style: appType(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,

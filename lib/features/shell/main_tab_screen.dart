@@ -48,11 +48,12 @@ class _MainTabScreenState extends State<MainTabScreen> {
                   locale: widget.locale,
                   showBottomNav: false,
                 ),
-                const MeScreen(),
+                MeScreen(locale: widget.locale),
               ],
             ),
           ),
           AppBottomNav(
+            locale: widget.locale,
             selectedTab: _tab,
             onLearnTap: () => setState(() => _tab = AppNavTab.learn),
             onPhotoTap: _openPhotographyLessons,

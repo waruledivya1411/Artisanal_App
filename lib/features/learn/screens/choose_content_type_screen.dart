@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
@@ -11,6 +10,7 @@ import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/screens/create_post_badge_screen.dart';
 import 'package:artisnal_app/features/learn/widgets/ig_create_illustration.dart';
 import 'package:artisnal_app/features/learn/screens/post_in_instagram_screen.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class ChooseContentTypeScreen extends StatefulWidget {
   const ChooseContentTypeScreen({super.key, required this.locale});
@@ -136,8 +136,8 @@ class _ChooseContentTypeScreenState extends State<ChooseContentTypeScreen> {
                         ),
                       ),
                       Text(
-                        'TASK 3 OF 5',
-                        style: GoogleFonts.plusJakartaSans(
+                        tr('TASK 3 OF 5'),
+                        style: appType(
                           color: ChooseContentTypeScreen.teal,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
@@ -159,8 +159,8 @@ class _ChooseContentTypeScreenState extends State<ChooseContentTypeScreen> {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  'What do you want to make?',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('What do you want to make?'),
+                  style: appType(
                     color: ChooseContentTypeScreen.ink,
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -169,8 +169,8 @@ class _ChooseContentTypeScreenState extends State<ChooseContentTypeScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Do Post first, then Story, then Reel. Tap Continue for each one.',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('Do Post first, then Story, then Reel. Tap Continue for each one.'),
+                  style: appType(
                     color: ChooseContentTypeScreen.muted,
                     fontSize: 16,
                     height: 1.4,
@@ -234,8 +234,8 @@ class _ChooseContentTypeScreenState extends State<ChooseContentTypeScreen> {
                         width: double.infinity,
                         child: Center(
                           child: Text(
-                            'Continue',
-                            style: GoogleFonts.plusJakartaSans(
+                            tr('Continue'),
+                            style: appType(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -331,7 +331,7 @@ class _TypeCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             title,
-                            style: GoogleFonts.plusJakartaSans(
+                            style: appType(
                               color: ChooseContentTypeScreen.ink,
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -342,7 +342,7 @@ class _TypeCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         detail,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: appType(
                           color: ChooseContentTypeScreen.muted,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,

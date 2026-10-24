@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:artisnal_app/core/widgets/celebration_confetti.dart';
 import 'package:artisnal_app/features/learn/widgets/next_learn_task_button.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class LessonBadgeScreen extends StatefulWidget {
   const LessonBadgeScreen({
@@ -97,8 +97,8 @@ class _LessonBadgeScreenState extends State<LessonBadgeScreen>
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Badge earned',
-                          style: GoogleFonts.plusJakartaSans(
+                          tr('Badge earned'),
+                          style: appType(
                             color: LessonBadgeScreen.gold,
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
@@ -107,9 +107,9 @@ class _LessonBadgeScreenState extends State<LessonBadgeScreen>
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          widget.title,
+                          tr(widget.title),
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: appType(
                             color: LessonBadgeScreen.ink,
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
@@ -118,9 +118,9 @@ class _LessonBadgeScreenState extends State<LessonBadgeScreen>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          widget.subtitle,
+                          tr(widget.subtitle),
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: appType(
                             color: LessonBadgeScreen.muted,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -145,8 +145,8 @@ class _LessonBadgeScreenState extends State<LessonBadgeScreen>
                                 width: double.infinity,
                                 child: Center(
                                   child: Text(
-                                    'Continue',
-                                    style: GoogleFonts.plusJakartaSans(
+                                    tr('Continue'),
+                                    style: appType(
                                       color: Colors.white,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,

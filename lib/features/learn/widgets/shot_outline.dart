@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:artisnal_app/core/l10n/app_text.dart';
 import 'package:flutter/material.dart';
 
 import 'package:artisnal_app/features/learn/widgets/folded_stack_diagram.dart';
@@ -366,9 +367,11 @@ class ShotOutlineOverlay extends StatelessWidget {
     required this.outline,
     this.clearTop,
     this.clearBottom,
+    this.locale,
   });
 
   final ShotOutline outline;
+  final String? locale;
 
   /// Where the controls above and below the box end, in this overlay's
   /// coordinates. See [ShotOutline.outerFrame].
@@ -379,7 +382,7 @@ class ShotOutlineOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return IgnorePointer(
       child: CustomPaint(
-        painter: _OutlinePainter(outline, clearTop, clearBottom),
+        painter: _OutlinePainter(outline, clearTop, clearBottom, locale),
         size: Size.infinite,
       ),
     );
@@ -387,11 +390,17 @@ class ShotOutlineOverlay extends StatelessWidget {
 }
 
 class _OutlinePainter extends CustomPainter {
-  const _OutlinePainter(this.outline, this.clearTop, this.clearBottom);
+  const _OutlinePainter(
+    this.outline,
+    this.clearTop,
+    this.clearBottom,
+    this.locale,
+  );
 
   final ShotOutline outline;
   final double? clearTop;
   final double? clearBottom;
+  final String? locale;
 
   static const Color _blue = Color(0xFF7EAADB);
   static const Color _brightBlue = Color(0xFFA9CCF0);
@@ -1659,13 +1668,14 @@ class _OutlinePainter extends CustomPainter {
   }) {
     final painter = TextPainter(
       text: TextSpan(
-        text: text,
-        style: const TextStyle(
+        text: tr(text),
+        style: appType(
           color: Colors.white,
           fontSize: 12,
           fontWeight: FontWeight.w800,
           height: 1,
-          shadows: [Shadow(color: Color(0xCC000000), blurRadius: 3)],
+        ).copyWith(
+          shadows: const [Shadow(color: Color(0xCC000000), blurRadius: 3)],
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -1815,13 +1825,14 @@ class _OutlinePainter extends CustomPainter {
   void _label(Canvas canvas, String text, Offset at) {
     final painter = TextPainter(
       text: TextSpan(
-        text: text,
-        style: const TextStyle(
+        text: tr(text),
+        style: appType(
           color: Colors.white,
           fontSize: 11,
           fontWeight: FontWeight.w700,
           height: 1,
-          shadows: [Shadow(color: Color(0xCC000000), blurRadius: 3)],
+        ).copyWith(
+          shadows: const [Shadow(color: Color(0xCC000000), blurRadius: 3)],
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -2029,5 +2040,6 @@ class _OutlinePainter extends CustomPainter {
       oldDelegate.outline.strip != outline.strip ||
       oldDelegate.outline.placement != outline.placement ||
       oldDelegate.outline.inset != outline.inset ||
-      oldDelegate.outline.kind != outline.kind;
+      oldDelegate.outline.kind != outline.kind ||
+      oldDelegate.locale != locale;
 }

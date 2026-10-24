@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class LearnPartScreen extends StatefulWidget {
   const LearnPartScreen({
@@ -98,8 +98,8 @@ class _LearnPartScreenState extends State<LearnPartScreen> {
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            widget.partLabel,
-                            style: GoogleFonts.plusJakartaSans(
+                            tr(widget.partLabel),
+                            style: appType(
                               color: LearnPartScreen.teal,
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
@@ -179,9 +179,9 @@ class _LearnPartScreenState extends State<LearnPartScreen> {
                       ),
                       const SizedBox(height: 34),
                       Text(
-                        widget.title,
+                        tr(widget.title),
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: appType(
                           color: LearnPartScreen.ink,
                           fontSize: 26,
                           fontWeight: FontWeight.w800,
@@ -217,8 +217,8 @@ class _LearnPartScreenState extends State<LearnPartScreen> {
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              'Next',
-                              style: GoogleFonts.plusJakartaSans(
+                              tr('Next'),
+                              style: appType(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:artisnal_app/features/auth/screens/login_screen.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -59,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen> {
         body: Align(
           alignment: const Alignment(0, 0.18),
           child: Text(
-            'Click & Social',
+            tr('Click & Social'),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,

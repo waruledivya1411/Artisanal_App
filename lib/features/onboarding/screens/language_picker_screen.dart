@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 import 'package:artisnal_app/features/onboarding/screens/welcome_learn_screen.dart';
 
 class LanguagePickerScreen extends StatefulWidget {
@@ -64,7 +65,7 @@ class _LanguageOption {
           height: 1.15,
         );
       case _Script.latin:
-        return GoogleFonts.plusJakartaSans(
+        return appType(
           color: color,
           fontSize: 18,
           fontWeight: FontWeight.w700,
@@ -112,8 +113,15 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
 
   String _selectedId = 'as';
 
-  void _speak(_LanguageOption language) {
+  @override
+  void initState() {
+    super.initState();
+    AppLang.current = 'as-IN';
+  }
+
+  void _choose(_LanguageOption language) {
     setState(() => _selectedId = language.id);
+    AppLang.current = language.locale;
   }
 
   @override
@@ -146,7 +154,7 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                         minWidth: 40,
                         minHeight: 40,
                       ),
-                      tooltip: 'Back',
+                      tooltip: tr('Back'),
                     ),
                     const SizedBox(width: 8),
                     const _TranslateBadge(),
@@ -154,8 +162,8 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Choose your language',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('Choose your language'),
+                  style: appType(
                     color: LanguagePickerScreen.ink,
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
@@ -165,8 +173,8 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  'Tap your language.',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('Tap your language.'),
+                  style: appType(
                     color: LanguagePickerScreen.muted,
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
@@ -185,9 +193,8 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                       return _LanguageCard(
                         language: language,
                         selected: selected,
-                        onSelect: () =>
-                            setState(() => _selectedId = language.id),
-                        onSpeak: () => _speak(language),
+                        onSelect: () => _choose(language),
+                        onSpeak: () => _choose(language),
                       );
                     },
                   ),
@@ -195,8 +202,8 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                 const SizedBox(height: 12),
                 Center(
                   child: Text(
-                    'You can change this later in Settings',
-                    style: GoogleFonts.plusJakartaSans(
+                    tr('You can change this later in Settings'),
+                    style: appType(
                       color: LanguagePickerScreen.hint,
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
@@ -218,7 +225,8 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                         final language = _languages.firstWhere(
                           (item) => item.id == _selectedId,
                         );
-                                                Navigator.of(context).push(
+                        AppLang.current = language.locale;
+                        Navigator.of(context).push(
                           MaterialPageRoute<void>(
                             builder: (_) =>
                                 WelcomeLearnScreen(locale: language.locale),
@@ -231,8 +239,8 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                         width: double.infinity,
                         child: Center(
                           child: Text(
-                            'Continue',
-                            style: GoogleFonts.plusJakartaSans(
+                            tr('Continue'),
+                            style: appType(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -320,8 +328,8 @@ class _LanguageCard extends StatelessWidget {
                     if (!language.singleLine) ...[
                       const SizedBox(height: 2),
                       Text(
-                        language.english,
-                        style: GoogleFonts.plusJakartaSans(
+                        tr(language.english),
+                        style: appType(
                           color: LanguagePickerScreen.muted,
                           fontSize: 13,
                           fontWeight: FontWeight.w400,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
@@ -12,6 +11,7 @@ import 'package:artisnal_app/features/learn/screens/lesson_badge_screen.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
 import 'package:artisnal_app/features/learn/widgets/next_learn_task_button.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class SetupTryItFlowScreen extends StatefulWidget {
   const SetupTryItFlowScreen({super.key, required this.locale});
@@ -68,23 +68,31 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
 
   String get _spoken {
     if (_step == 0) {
-      return 'Pick your name. Short and easy to say. '
-          'divya dot weaves is a good choice.';
+      return tr(
+        'Pick your name. Short and easy to say. '
+        'divya dot weaves is a good choice.',
+      );
     }
     if (_step == 1) {
-      return 'Set up your page. Add your photo, name, username, and bio. '
-          'Tap the tags to add them to your bio.';
+      return tr(
+        'Set up your page. Add your photo, name, username, and bio. '
+        'Tap the tags to add them to your bio.',
+      );
     }
     if (_step == 2) {
-      return 'Switch to a professional account to unlock business tools.';
+      return tr('Switch to a professional account to unlock business tools.');
     }
     if (_step == 3) {
-      return 'What do you sell? Weavers should pick Clothing Brand.';
+      return tr('What do you sell? Weavers should pick Clothing Brand.');
     }
     if (_step == 4) {
-      return 'Your professional page is ready. Name, category, and contact are set.';
+      return tr(
+        'Your professional page is ready. Name, category, and contact are set.',
+      );
     }
-    return 'Set up your page. Step ${_step + 1} of ${SetupTryItFlowScreen.stepCount}.';
+    return tr(
+      'Set up your page. Step ${_step + 1} of ${SetupTryItFlowScreen.stepCount}.',
+    );
   }
 
   String? get _effectiveHandle =>
@@ -142,10 +150,11 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
   }
 
   void _addBioTag(String tag) {
+    final translated = tr(tag);
     final bio = _bioController.text;
-    if (bio.contains(tag)) return;
+    if (bio.contains(translated)) return;
     setState(() {
-      _bioController.text = bio.isEmpty ? tag : '$bio · $tag';
+      _bioController.text = bio.isEmpty ? translated : '$bio · $translated';
     });
   }
 
@@ -235,8 +244,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
       builder: (context) {
         return AlertDialog(
           title: Text(
-            'Your handle',
-            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
+            tr('Your handle'),
+            style: appType(fontWeight: FontWeight.w800),
           ),
           content: TextField(
             controller: controller,
@@ -252,7 +261,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(tr('Cancel')),
             ),
             TextButton(
               onPressed: () {
@@ -260,7 +269,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
                 if (text.isEmpty) return;
                 Navigator.pop(context, text);
               },
-              child: const Text('Save'),
+              child: Text(tr('Save')),
             ),
           ],
         );
@@ -309,8 +318,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
                         ),
                       ),
                       Text(
-                        'TASK 2 · ${_step + 1} OF ${SetupTryItFlowScreen.stepCount}',
-                        style: GoogleFonts.plusJakartaSans(
+                        tr('TASK 2 · ${_step + 1} OF ${SetupTryItFlowScreen.stepCount}'),
+                        style: appType(
                           color: SetupTryItFlowScreen.teal,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
@@ -394,8 +403,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
                 ),
                 const SizedBox(width: 2),
                 Text(
-                  label,
-                  style: GoogleFonts.plusJakartaSans(
+                  tr(label),
+                  style: appType(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -415,6 +424,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
       return _buildPrimaryNextButton(onTap: _finishTryIt, label: 'Done');
     }
     return NextLearnTaskButton(
+      locale: widget.locale,
       nextTaskTitle: nextTitle,
       onTap: _showSetUpPageBadge,
     );
@@ -441,8 +451,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            'PRACTICE · LIKE INSTAGRAM',
-            style: GoogleFonts.plusJakartaSans(
+            tr('PRACTICE · LIKE INSTAGRAM'),
+            style: appType(
               color: SetupTryItFlowScreen.teal,
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -452,8 +462,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
         ),
         const SizedBox(height: 12),
         Text(
-          'Set up your page',
-          style: GoogleFonts.plusJakartaSans(
+          tr('Set up your page'),
+          style: appType(
             color: SetupTryItFlowScreen.ink,
             fontSize: 28,
             fontWeight: FontWeight.w800,
@@ -466,8 +476,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
     if (_step == 3) {
       return [
         Text(
-          'Set up your page',
-          style: GoogleFonts.plusJakartaSans(
+          tr('Set up your page'),
+          style: appType(
             color: SetupTryItFlowScreen.ink,
             fontSize: 26,
             fontWeight: FontWeight.w800,
@@ -476,8 +486,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
         ),
         const SizedBox(height: 10),
         Text(
-          'What do you sell?',
-          style: GoogleFonts.plusJakartaSans(
+          tr('What do you sell?'),
+          style: appType(
             color: SetupTryItFlowScreen.ink,
             fontSize: 28,
             fontWeight: FontWeight.w800,
@@ -490,8 +500,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
     if (_step == 4) {
       return [
         Text(
-          'Set up your page',
-          style: GoogleFonts.plusJakartaSans(
+          tr('Set up your page'),
+          style: appType(
             color: SetupTryItFlowScreen.ink,
             fontSize: 26,
             fontWeight: FontWeight.w800,
@@ -500,8 +510,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
         ),
         const SizedBox(height: 10),
         Text(
-          'Your Pro page',
-          style: GoogleFonts.plusJakartaSans(
+          tr('Your Pro page'),
+          style: appType(
             color: SetupTryItFlowScreen.ink,
             fontSize: 28,
             fontWeight: FontWeight.w800,
@@ -514,8 +524,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
     if (_step == 0) {
       return [
         Text(
-          'Set up your page',
-          style: GoogleFonts.plusJakartaSans(
+          tr('Set up your page'),
+          style: appType(
             color: SetupTryItFlowScreen.teal,
             fontSize: 14,
             fontWeight: FontWeight.w800,
@@ -523,8 +533,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          _stepTitle,
-          style: GoogleFonts.plusJakartaSans(
+          tr(_stepTitle),
+          style: appType(
             color: SetupTryItFlowScreen.ink,
             fontSize: 28,
             fontWeight: FontWeight.w800,
@@ -533,8 +543,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          _stepSubtitle,
-          style: GoogleFonts.plusJakartaSans(
+          tr(_stepSubtitle),
+          style: appType(
             color: SetupTryItFlowScreen.muted,
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -545,8 +555,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
 
     return [
       Text(
-        'Set up your page',
-        style: GoogleFonts.plusJakartaSans(
+        tr('Set up your page'),
+        style: appType(
           color: SetupTryItFlowScreen.teal,
           fontSize: 14,
           fontWeight: FontWeight.w800,
@@ -554,8 +564,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
       ),
       const SizedBox(height: 6),
       Text(
-        _stepTitle,
-        style: GoogleFonts.plusJakartaSans(
+        tr(_stepTitle),
+        style: appType(
           color: SetupTryItFlowScreen.ink,
           fontSize: 28,
           fontWeight: FontWeight.w800,
@@ -564,8 +574,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
       ),
       const SizedBox(height: 6),
       Text(
-        _stepSubtitle,
-        style: GoogleFonts.plusJakartaSans(
+        tr(_stepSubtitle),
+        style: appType(
           color: SetupTryItFlowScreen.muted,
           fontSize: 16,
           fontWeight: FontWeight.w500,
@@ -612,8 +622,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
     if (_step != 0) {
       return Center(
         child: Text(
-          'Step ${_step + 1}',
-          style: GoogleFonts.plusJakartaSans(
+          tr('Step ${_step + 1}'),
+          style: appType(
             color: SetupTryItFlowScreen.muted,
             fontSize: 16,
           ),
@@ -662,8 +672,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Type my own',
-                    style: GoogleFonts.plusJakartaSans(
+                    tr('Type my own'),
+                    style: appType(
                       color: SetupTryItFlowScreen.teal,
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -704,8 +714,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Your photo',
-                    style: GoogleFonts.plusJakartaSans(
+                    tr('Your photo'),
+                    style: appType(
                       color: SetupTryItFlowScreen.ink,
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
@@ -718,8 +728,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
                       onTap: _changePhoto,
                       borderRadius: BorderRadius.circular(6),
                       child: Text(
-                        'Change photo',
-                        style: GoogleFonts.plusJakartaSans(
+                        tr('Change photo'),
+                        style: appType(
                           color: SetupTryItFlowScreen.teal,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -746,8 +756,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
         _OutlinedField(controller: _bioController, maxLines: 3),
         const SizedBox(height: 16),
         Text(
-          'Tap to add to bio',
-          style: GoogleFonts.plusJakartaSans(
+          tr('Tap to add to bio'),
+          style: appType(
             color: SetupTryItFlowScreen.muted,
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -781,8 +791,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Professional dashboard',
-                style: GoogleFonts.plusJakartaSans(
+                tr('Professional dashboard'),
+                style: appType(
                   color: SetupTryItFlowScreen.ink,
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
@@ -790,9 +800,11 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                'Switch to professional so buyers can message you and '
-                'you can see your numbers.',
-                style: GoogleFonts.plusJakartaSans(
+                tr(
+                  'Switch to professional so buyers can message you and '
+                  'you can see your numbers.',
+                ),
+                style: appType(
                   color: SetupTryItFlowScreen.muted,
                   fontSize: 14,
                   height: 1.4,
@@ -852,8 +864,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Weavers: pick Clothing (Brand)',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('Weavers: pick Clothing (Brand)'),
+                  style: appType(
                     color: SetupTryItFlowScreen.ink,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -894,8 +906,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Show on my page',
-                      style: GoogleFonts.plusJakartaSans(
+                      tr('Show on my page'),
+                      style: appType(
                         color: SetupTryItFlowScreen.ink,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -986,7 +998,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
                   children: [
                     Text(
                       _nameController.text.trim(),
-                      style: GoogleFonts.plusJakartaSans(
+                      style: appType(
                         color: SetupTryItFlowScreen.ink,
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -1002,8 +1014,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _selectedCategoryTitle,
-                  style: GoogleFonts.plusJakartaSans(
+                  tr(_selectedCategoryTitle),
+                  style: appType(
                     color: SetupTryItFlowScreen.muted,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -1012,7 +1024,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
                 const SizedBox(height: 4),
                 Text(
                   bio,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: appType(
                     color: SetupTryItFlowScreen.muted,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -1046,8 +1058,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'ALL DONE',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('ALL DONE'),
+                  style: appType(
                     color: SetupTryItFlowScreen.teal,
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
@@ -1081,15 +1093,15 @@ class _MiniStat extends StatelessWidget {
       children: [
         Text(
           value,
-          style: GoogleFonts.plusJakartaSans(
+          style: appType(
             color: SetupTryItFlowScreen.ink,
             fontSize: 14,
             fontWeight: FontWeight.w800,
           ),
         ),
         Text(
-          label,
-          style: GoogleFonts.plusJakartaSans(
+          tr(label),
+          style: appType(
             color: SetupTryItFlowScreen.muted,
             fontSize: 11,
             fontWeight: FontWeight.w500,
@@ -1120,8 +1132,8 @@ class _PageActionChip extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text(
-              label,
-              style: GoogleFonts.plusJakartaSans(
+              tr(label),
+              style: appType(
                 color: SetupTryItFlowScreen.ink,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
@@ -1151,8 +1163,8 @@ class _DoneRow extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: Text(
-            text,
-            style: GoogleFonts.plusJakartaSans(
+            tr(text),
+            style: appType(
               color: SetupTryItFlowScreen.ink,
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -1229,8 +1241,8 @@ class _SellCategoryCard extends StatelessWidget {
                         children: [
                           Flexible(
                             child: Text(
-                              category.title,
-                              style: GoogleFonts.plusJakartaSans(
+                              tr(category.title),
+                              style: appType(
                                 color: selected
                                     ? SetupTryItFlowScreen.teal
                                     : SetupTryItFlowScreen.ink,
@@ -1251,8 +1263,8 @@ class _SellCategoryCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                'Best',
-                                style: GoogleFonts.plusJakartaSans(
+                                tr('Best'),
+                                style: appType(
                                   color: SetupTryItFlowScreen.teal,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w800,
@@ -1265,8 +1277,8 @@ class _SellCategoryCard extends StatelessWidget {
                       if (category.detail != null) ...[
                         const SizedBox(height: 2),
                         Text(
-                          category.detail!,
-                          style: GoogleFonts.plusJakartaSans(
+                          tr(category.detail!),
+                          style: appType(
                             color: SetupTryItFlowScreen.muted,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -1303,7 +1315,7 @@ class _FieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: GoogleFonts.plusJakartaSans(
+      style: appType(
         color: SetupTryItFlowScreen.ink,
         fontSize: 14,
         fontWeight: FontWeight.w700,
@@ -1326,7 +1338,7 @@ class _OutlinedField extends StatelessWidget {
     return TextField(
       controller: controller,
       maxLines: maxLines,
-      style: GoogleFonts.plusJakartaSans(
+      style: appType(
         color: SetupTryItFlowScreen.ink,
         fontSize: 15,
         fontWeight: FontWeight.w500,
@@ -1375,8 +1387,8 @@ class _BioChip extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Text(
-            '+ $label',
-            style: GoogleFonts.plusJakartaSans(
+            tr('+ $label'),
+            style: appType(
               color: SetupTryItFlowScreen.teal,
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -1438,8 +1450,8 @@ class _NameCard extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  '@ $handle',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('@ $handle'),
+                  style: appType(
                     color: SetupTryItFlowScreen.ink,
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
@@ -1457,8 +1469,8 @@ class _NameCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      'Best',
-                      style: GoogleFonts.plusJakartaSans(
+                      tr('Best'),
+                      style: appType(
                         color: SetupTryItFlowScreen.teal,
                         fontSize: 11,
                         fontWeight: FontWeight.w800,

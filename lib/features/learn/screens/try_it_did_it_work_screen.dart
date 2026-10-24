@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:artisnal_app/core/speech/speech_player.dart';
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 class TryItDidItWorkScreen extends StatefulWidget {
   const TryItDidItWorkScreen({
     super.key,
@@ -82,8 +82,8 @@ class _TryItDidItWorkScreenState extends State<TryItDidItWorkScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'Try it',
-                        style: GoogleFonts.plusJakartaSans(
+                        tr('Try it'),
+                        style: appType(
                           color: Colors.white,
                           fontSize: 19,
                           fontWeight: FontWeight.w700,
@@ -130,9 +130,9 @@ class _TryItDidItWorkScreenState extends State<TryItDidItWorkScreen> {
                         ),
                         const SizedBox(height: 22),
                         Text(
-                          'Did it work?',
+                          tr('Did it work?'),
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: appType(
                             color: TryItDidItWorkScreen.ink,
                             fontSize: 26,
                             fontWeight: FontWeight.w800,
@@ -141,9 +141,9 @@ class _TryItDidItWorkScreenState extends State<TryItDidItWorkScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Bright and straight?',
+                          tr('Bright and straight?'),
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: appType(
                             color: TryItDidItWorkScreen.muted,
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
@@ -174,8 +174,8 @@ class _TryItDidItWorkScreenState extends State<TryItDidItWorkScreen> {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'Yes, it worked',
-                                      style: GoogleFonts.plusJakartaSans(
+                                      tr('Yes, it worked'),
+                                      style: appType(
                                         color: Colors.white,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
@@ -210,8 +210,8 @@ class _TryItDidItWorkScreenState extends State<TryItDidItWorkScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Show me again',
-                                    style: GoogleFonts.plusJakartaSans(
+                                    tr('Show me again'),
+                                    style: appType(
                                       color: TryItDidItWorkScreen.teal,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,

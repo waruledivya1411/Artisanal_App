@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/displays.dart';
+import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
 import 'package:artisnal_app/features/learn/screens/display_guide_screen.dart';
 import 'package:artisnal_app/features/learn/screens/shoot_screen.dart';
 import 'package:artisnal_app/features/learn/screens/material_picker_screen.dart'
     show kPickerCardRatio, kPickerCaptionHeight;
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class DisplayPickerScreen extends StatefulWidget {
   const DisplayPickerScreen({
@@ -57,7 +58,7 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
   }
 
   String get _spokenText =>
-      'How will you show it? ${_displays.map((d) => d.name).join('. ')}.';
+      '${tr('How will you show it?')} ${_displays.map((d) => tr(d.name)).join('. ')}.';
 
   /// Tapping a display opens its guide; taking the shot there is what picks
   /// it, so the artisan sees how to frame it before choosing.
@@ -65,14 +66,15 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
     HapticFeedback.selectionClick();
     SelectedDisplay.instance.select(display.name);
     setState(() => _selected = display.name);
+    _openGuide(display);
   }
 
-  /// Continue goes on to the chosen display's guide, which ends at the
-  /// camera - it does not leave the setup.
-  void _continue() {
-    final name = _selected;
-    if (name == null) return;
-    _openGuide(_displays.firstWhere((d) => d.name == name));
+  /// Continue goes on to the chosen display's guide. Done, once a display is
+  /// chosen, leaves the setup and keeps that choice on the Learn card.
+  void _finish() {
+    Navigator.of(context).popUntil(
+      (route) => route.settings.name != photographySetupRoute,
+    );
   }
 
   void _openGuide(DisplayOption display) {
@@ -153,8 +155,8 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
                         ),
                       ),
                       Text(
-                        widget.taskLabel,
-                        style: GoogleFonts.plusJakartaSans(
+                        tr(widget.taskLabel),
+                        style: appType(
                           color: DisplayPickerScreen.teal,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
@@ -176,8 +178,8 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  'How will you show it?',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('How will you show it?'),
+                  style: appType(
                     color: DisplayPickerScreen.ink,
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
@@ -187,8 +189,8 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Tap one',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('Tap one'),
+                  style: appType(
                     color: DisplayPickerScreen.muted,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
@@ -236,15 +238,15 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
                       color: Colors.transparent,
                       borderRadius: BorderRadius.circular(18),
                       child: InkWell(
-                        onTap: picked ? _continue : null,
+                        onTap: picked ? _finish : null,
                         borderRadius: BorderRadius.circular(18),
                         child: SizedBox(
                           height: 56,
                           width: double.infinity,
                           child: Center(
                             child: Text(
-                              'Continue',
-                              style: GoogleFonts.plusJakartaSans(
+                              tr(picked ? 'Done' : 'Continue'),
+                              style: appType(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -345,11 +347,11 @@ class _DisplayCard extends StatelessWidget {
                   height: kPickerCaptionHeight,
                   child: Center(
                     child: Text(
-                      display.name,
+                      tr(display.name),
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: appType(
                         color: DisplayPickerScreen.ink,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/create_content_kind.dart';
 import 'package:artisnal_app/features/learn/screens/did_you_post_screen.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class PickPhotoGuideScreen extends StatefulWidget {
   const PickPhotoGuideScreen({
@@ -83,14 +83,14 @@ class _PickPhotoGuideScreenState extends State<PickPhotoGuideScreen> {
   }
 
   String get _spoken {
-    return switch (widget.kind) {
+    return tr(switch (widget.kind) {
       CreateContentKind.reel =>
         'Pick your video. Tap a clip of your weaving, then tap Next.',
       CreateContentKind.story =>
         'Pick your photo for your story. Tap the cloth picture, then tap Next.',
       CreateContentKind.post =>
         'Pick your photo. Tap the cloth picture, then tap Next.',
-    };
+    });
   }
 
   String get _guideStep =>
@@ -136,9 +136,9 @@ class _PickPhotoGuideScreenState extends State<PickPhotoGuideScreen> {
                         ),
                         Expanded(
                           child: Text(
-                            _headerTitle,
+                            tr(_headerTitle),
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.plusJakartaSans(
+                            style: appType(
                               color: PickPhotoGuideScreen.ink,
                               fontSize: 17,
                               fontWeight: FontWeight.w800,
@@ -148,8 +148,8 @@ class _PickPhotoGuideScreenState extends State<PickPhotoGuideScreen> {
                         GestureDetector(
                           onTap: hasSelection ? _openDidYouPost : null,
                           child: Text(
-                            'Next',
-                            style: GoogleFonts.plusJakartaSans(
+                            tr('Next'),
+                            style: appType(
                               color: hasSelection
                                   ? PickPhotoGuideScreen.teal
                                   : const Color(0xFFB8C5C2),
@@ -330,7 +330,7 @@ class _GuideCard extends StatelessWidget {
                     children: [
                       Text(
                         stepLabel,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: appType(
                           color: PickPhotoGuideScreen.teal,
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
@@ -340,7 +340,7 @@ class _GuideCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         title,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: appType(
                           color: PickPhotoGuideScreen.ink,
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
@@ -389,8 +389,8 @@ class _GuideCard extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Next',
-                            style: GoogleFonts.plusJakartaSans(
+                            tr('Next'),
+                            style: appType(
                               color: Colors.white,
                               fontSize: 15,
                               fontWeight: FontWeight.w700,

@@ -1,7 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
@@ -9,6 +8,7 @@ import 'package:artisnal_app/features/learn/data/display_guides.dart';
 import 'package:artisnal_app/features/learn/data/displays.dart';
 import 'package:artisnal_app/features/learn/screens/photo_edit_screen.dart';
 import 'package:artisnal_app/features/learn/widgets/shot_outline.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 /// Live camera with the dotted box the product should fill.
 ///
@@ -92,7 +92,7 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     try {
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
-        if (mounted) setState(() => _problem = 'No camera found on this device.');
+        if (mounted) setState(() => _problem = tr('No camera found on this device.'));
         return;
       }
       final back = cameras.firstWhere(
@@ -115,8 +115,9 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
       });
     } catch (e) {
       if (mounted) {
-        setState(() => _problem = 'The camera could not be opened. Allow '
-            'camera access, then try again.');
+        setState(() => _problem = tr(
+              'The camera could not be opened. Allow camera access, then try again.',
+            ));
       }
     }
   }
@@ -126,67 +127,67 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   String? get _hint {
     if (_outline.kind == ShotOverlayKind.embroideryBorder) return null;
     if (_outline.kind == ShotOverlayKind.foldedStack) {
-      return 'One folded sari in this box — border on the side';
+      return tr('One folded sari in this box — border on the side');
     }
     if (_outline.kind == ShotOverlayKind.mekhalaFolded) return null;
     if (_outline.kind == ShotOverlayKind.stoleFolded) {
-      return 'One folded stole — border and tassels along the front';
+      return tr('One folded stole — border and tassels along the front');
     }
     if (_outline.kind == ShotOverlayKind.shawlFolded) {
-      return 'One folded shawl — border on the side, tassels along the front';
+      return tr('One folded shawl — border on the side, tassels along the front');
     }
     if (_outline.kind == ShotOverlayKind.gamusaFolded) {
-      return 'One folded gamusa — end border across, tassels along the front';
+      return tr('One folded gamusa — end border across, tassels along the front');
     }
     if (_outline.kind == ShotOverlayKind.jodFolded) {
-      return 'Wide fold on the left · smaller piece with tassels on the right';
+      return tr('Wide fold on the left · smaller piece with tassels on the right');
     }
     if (_outline.kind == ShotOverlayKind.hangingDisplay) {
-      return 'Hang the piece in the centre, under the rod';
+      return tr('Hang the piece in the centre, under the rod');
     }
     if (_outline.kind == ShotOverlayKind.mekhalaHanging) {
-      return 'Hang both pieces under the rod — mekhela shorter, sador with tassels';
+      return tr('Hang both pieces under the rod — mekhela shorter, sador with tassels');
     }
     if (_outline.kind == ShotOverlayKind.jodHanging) {
-      return 'Hang both pieces under the rod — wide cloth on the left, tassels on the right';
+      return tr('Hang both pieces under the rod — wide cloth on the left, tassels on the right');
     }
     if (_outline.kind == ShotOverlayKind.yardageHanging) {
-      return 'Hang the cloth under the rod — motifs across the whole piece';
+      return tr('Hang the cloth under the rod — motifs across the whole piece');
     }
     if (_outline.kind == ShotOverlayKind.yardageClose) {
-      return 'Fill the frame with the weave — a few motifs in the shot';
+      return tr('Fill the frame with the weave — a few motifs in the shot');
     }
     if (_outline.kind == ShotOverlayKind.mekhalaFull) {
-      return 'Lay both pieces side by side in the frame';
+      return tr('Lay both pieces side by side in the frame');
     }
     if (_outline.kind == ShotOverlayKind.stoleFull) {
-      return 'Hang the stole under the rod — tassels along the bottom';
+      return tr('Hang the stole under the rod — tassels along the bottom');
     }
     if (_outline.kind == ShotOverlayKind.shawlFull) {
-      return 'Hang the shawl under the rod — border on the side, tassels along the bottom';
+      return tr('Hang the shawl under the rod — border on the side, tassels along the bottom');
     }
     if (_outline.kind == ShotOverlayKind.gamusaFull) {
-      return 'Hang the gamusa under the rod — borders on both sides, tassels along the bottom';
+      return tr('Hang the gamusa under the rod — borders on both sides, tassels along the bottom');
     }
     if (_outline.kind == ShotOverlayKind.cushionSofa) {
-      return 'Sit the cover against the back — only this side of the sofa in frame';
+      return tr('Sit the cover against the back — only this side of the sofa in frame');
     }
     if (_outline.kind == ShotOverlayKind.cushionFlat) {
-      return 'Lay the cover flat — all four corners in the frame';
+      return tr('Lay the cover flat — all four corners in the frame');
     }
     if (_outline.kind == ShotOverlayKind.sariDraped) {
-      return 'Chair, folded seat piece and pallu inside this box';
+      return tr('Chair, folded seat piece and pallu inside this box');
     }
     if (_outline.silhouette == ShotSilhouette.draped) {
-      return 'Cover the pale shape with your cloth';
+      return tr('Cover the pale shape with your cloth');
     }
     if (_outline.silhouette == ShotSilhouette.foldedSari) {
-      return 'One folded sari in this box — border on the side';
+      return tr('One folded sari in this box — border on the side');
     }
-    final product = widget.product?.toLowerCase();
+    final product = widget.product;
     return product == null
-        ? 'Fit the whole piece inside the dotted line'
-        : 'Fit the $product inside the dotted line';
+        ? tr('Fit the whole piece inside the dotted line')
+        : tr('Fit the $product inside the dotted line');
   }
 
   /// The one thing to do next, called out in yellow.
@@ -196,52 +197,52 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
         _outline.kind == ShotOverlayKind.mekhalaFolded ||
         _outline.kind == ShotOverlayKind.jodHanging ||
         _outline.kind == ShotOverlayKind.jodFolded) {
-      return 'Move both pieces into the frame';
+      return tr('Move both pieces into the frame');
     }
     if (_outline.kind == ShotOverlayKind.stoleFolded) {
-      return 'Move the stole into the frame';
+      return tr('Move the stole into the frame');
     }
     if (_outline.kind == ShotOverlayKind.shawlFolded) {
-      return 'Move the shawl into the frame';
+      return tr('Move the shawl into the frame');
     }
     if (_outline.kind == ShotOverlayKind.gamusaFull ||
         _outline.kind == ShotOverlayKind.gamusaFolded) {
-      return 'Move the gamusa into the frame';
+      return tr('Move the gamusa into the frame');
     }
     if (_outline.kind == ShotOverlayKind.cushionSofa ||
         _outline.kind == ShotOverlayKind.cushionFlat) {
-      return 'Move the cover into the frame';
+      return tr('Move the cover into the frame');
     }
     if (_outline.kind == ShotOverlayKind.sariDraped) {
-      return 'Move the saree into the frame';
+      return tr('Move the saree into the frame');
     }
     if (_outline.kind == ShotOverlayKind.yardageHanging ||
         _outline.kind == ShotOverlayKind.yardageClose) {
-      return 'Move the yardage into the frame';
+      return tr('Move the yardage into the frame');
     }
     if (_guidedShoot) {
-      return 'Move the saree into the frame';
+      return tr('Move the saree into the frame');
     }
-    final product = widget.product?.toLowerCase() ?? 'piece';
-    return 'Move the $product into the frame';
+    final product = widget.product ?? 'piece';
+    return tr('Move the $product into the frame');
   }
 
   String get _headerTitle {
     switch (_outline.kind) {
       case ShotOverlayKind.embroideryBorder:
-        return widget.display.name.toUpperCase().replaceAll(' AND ', ' & ');
+        return _shotTitle(widget.display.name);
       case ShotOverlayKind.foldedStack:
       case ShotOverlayKind.mekhalaFolded:
       case ShotOverlayKind.stoleFolded:
       case ShotOverlayKind.shawlFolded:
       case ShotOverlayKind.gamusaFolded:
       case ShotOverlayKind.jodFolded:
-        return 'FOLDED STACK';
+        return tr('FOLDED STACK');
       case ShotOverlayKind.hangingDisplay:
       case ShotOverlayKind.mekhalaHanging:
       case ShotOverlayKind.jodHanging:
       case ShotOverlayKind.yardageHanging:
-        return 'HANGING DISPLAY';
+        return tr('HANGING DISPLAY');
       case ShotOverlayKind.mekhalaFull:
       case ShotOverlayKind.stoleFull:
       case ShotOverlayKind.shawlFull:
@@ -250,10 +251,18 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
       case ShotOverlayKind.cushionFlat:
       case ShotOverlayKind.yardageClose:
       case ShotOverlayKind.standard:
-        return widget.display.name.toUpperCase();
+        return _shotTitle(widget.display.name);
       case ShotOverlayKind.sariDraped:
-        return 'DRAPED LOOK';
+        return tr('DRAPED LOOK');
     }
+  }
+
+  String _shotTitle(String english) {
+    final name = tr(english);
+    if (AppLang.code == 'en') {
+      return name.toUpperCase().replaceAll(' AND ', ' & ');
+    }
+    return name;
   }
 
   String? get _headerProduct =>
@@ -261,7 +270,8 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
           ? (widget.product ?? 'Saree')
           : null;
 
-  String get _spokenText => '${widget.display.name}. ${_hint ?? _prompt}.';
+  String get _spokenText =>
+      '${tr(widget.display.name)}. ${tr(_hint ?? _prompt)}.';
 
   Future<void> _capture() async {
     final controller = _controller;
@@ -286,16 +296,20 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            savedToGallery
-                ? 'Saved to your gallery'
-                : 'Photo downloaded',
+            tr(
+              savedToGallery
+                  ? 'Saved to your gallery'
+                  : 'Photo downloaded',
+            ),
           ),
         ),
       );
       Navigator.of(context).pop(true);
     } catch (_) {
       if (mounted) {
-        setState(() => _problem = 'That shot did not save. Try again.');
+        setState(
+          () => _problem = tr('That shot did not save. Try again.'),
+        );
       }
     } finally {
       if (mounted && _busy) setState(() => _busy = false);
@@ -360,6 +374,7 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
               outline: _outline,
               clearTop: _clearTop,
               clearBottom: _clearBottom,
+              locale: widget.locale,
             ),
             SafeArea(
               child: Column(
@@ -429,9 +444,9 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
               ),
               const SizedBox(height: 12),
               Text(
-                _problem ?? 'Opening the camera…',
+                tr(_problem ?? 'Opening the camera…'),
                 textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
+                style: appType(
                   color: Colors.white70,
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
@@ -458,8 +473,8 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
           ),
           Expanded(
             child: Text(
-              _headerTitle,
-              style: GoogleFonts.plusJakartaSans(
+              tr(_headerTitle),
+              style: appType(
                 color: Colors.white,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -495,8 +510,8 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _headerTitle,
-                  style: GoogleFonts.plusJakartaSans(
+                  tr(_headerTitle),
+                  style: appType(
                     color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -507,8 +522,8 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
                 if (product != null) ...[
                   const SizedBox(height: 2),
                   Text(
-                    product,
-                    style: GoogleFonts.plusJakartaSans(
+                    tr(product),
+                    style: appType(
                       color: Colors.white.withValues(alpha: 0.92),
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -522,8 +537,8 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(
-              '$_guideStepCount / $_guideStepCount',
-              style: GoogleFonts.plusJakartaSans(
+              tr('$_guideStepCount / $_guideStepCount'),
+              style: appType(
                 color: Colors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -575,8 +590,8 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
         child: Column(
           children: [
             Text(
-              label,
-              style: GoogleFonts.plusJakartaSans(
+              tr(label),
+              style: appType(
                 color: Colors.white,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
@@ -591,8 +606,8 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 child: Text(
-                  status,
-                  style: GoogleFonts.plusJakartaSans(
+                  tr(status),
+                  style: appType(
                     color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
@@ -636,8 +651,8 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
                     Icon(icon, color: Colors.white, size: 14),
                     const SizedBox(width: 5),
                     Text(
-                      label,
-                      style: GoogleFonts.plusJakartaSans(
+                      tr(label),
+                      style: appType(
                         color: Colors.white,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -663,10 +678,10 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Text(
-            _prompt,
+            child: Text(
+              tr(_prompt),
             textAlign: TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
+            style: appType(
               color: const Color(0xFF2A2109),
               fontSize: 14,
               fontWeight: FontWeight.w800,
@@ -689,9 +704,9 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           child: Text(
-            _hint ?? _prompt,
+            tr(_hint ?? _prompt),
             textAlign: TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
+            style: appType(
               color: Colors.white,
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -707,7 +722,7 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     final ready = _controller?.value.isInitialized ?? false;
     return Semantics(
       button: true,
-      label: 'Take photo',
+      label: tr('Take photo'),
       child: GestureDetector(
         onTap: ready && !_busy ? _capture : null,
         child: Container(

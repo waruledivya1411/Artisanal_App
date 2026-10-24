@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/widgets/app_bottom_nav.dart';
@@ -10,6 +9,7 @@ import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
 import 'package:artisnal_app/features/me/screens/me_screen.dart';
 import 'package:artisnal_app/features/shell/main_tab_screen.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 enum TaskPartState { done, current, pending }
 
@@ -111,7 +111,7 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
       return;
     }
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const MeScreen()),
+      MaterialPageRoute<void>(builder: (_) => MeScreen(locale: widget.locale)),
     );
   }
 
@@ -187,11 +187,7 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
   }
 
   String get _spokenText {
-    final titles = widget.parts
-        .where((p) => p.showOnList)
-        .map((p) => p.title)
-        .join('. ');
-    return '${widget.title}. $titles.';
+    return '${tr(widget.title)}. ${widget.parts.where((p) => p.showOnList).map((p) => tr(p.title)).join('. ')}.';
   }
 
   void _onPartTap(int index) {
@@ -206,8 +202,8 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Finish ${widget.parts[completed].title} first',
-            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+            tr('Finish ${widget.parts[completed].title} first'),
+            style: appType(fontWeight: FontWeight.w600),
           ),
           behavior: SnackBarBehavior.floating,
         ),
@@ -266,8 +262,8 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
                             ),
                           ),
                           Text(
-                            widget.taskLabel,
-                            style: GoogleFonts.plusJakartaSans(
+                            tr(widget.taskLabel),
+                            style: appType(
                               color: TaskPartsScreen.teal,
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
@@ -288,8 +284,8 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      widget.title,
-                      style: GoogleFonts.plusJakartaSans(
+                      tr(widget.title),
+                      style: appType(
                         color: TaskPartsScreen.ink,
                         fontSize: 30,
                         fontWeight: FontWeight.w800,
@@ -334,6 +330,7 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
                 ),
               ),
               AppBottomNav(
+                locale: widget.locale,
                 onLearnTap: _openLearn,
                 onPhotoTap: _openPhoto,
                 onMeTap: _openMe,
@@ -403,7 +400,7 @@ class _PartCard extends StatelessWidget {
                     )
                   : Text(
                       part.number,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: appType(
                         color: TaskPartsScreen.teal,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -413,8 +410,8 @@ class _PartCard extends StatelessWidget {
             const SizedBox(width: 18),
             Expanded(
               child: Text(
-                part.title,
-                style: GoogleFonts.plusJakartaSans(
+                tr(part.title),
+                style: appType(
                   color: current ? Colors.white : TaskPartsScreen.ink,
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
@@ -425,8 +422,8 @@ class _PartCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 6),
                 child: Text(
-                  'Done',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('Done'),
+                  style: appType(
                     color: TaskPartsScreen.done,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,

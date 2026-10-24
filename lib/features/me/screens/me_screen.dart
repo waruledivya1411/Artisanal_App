@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class MeScreen extends StatefulWidget {
-  const MeScreen({super.key});
+  const MeScreen({super.key, required this.locale});
+
+  final String locale;
 
   static const Color background = Color(0xFFF6F7F4);
   static const Color teal = Color(0xFF1B7574);
@@ -47,8 +49,8 @@ class _MeScreenState extends State<MeScreen> {
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
           children: [
             Text(
-              'Me',
-              style: GoogleFonts.plusJakartaSans(
+              tr('Me'),
+              style: appType(
                 color: MeScreen.ink,
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
@@ -57,8 +59,8 @@ class _MeScreenState extends State<MeScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Finish Learn tasks to unlock your badges.',
-              style: GoogleFonts.plusJakartaSans(
+              tr('Finish Learn tasks to unlock your badges.'),
+              style: appType(
                 color: MeScreen.muted,
                 fontSize: 14,
                 height: 1.4,
@@ -66,8 +68,8 @@ class _MeScreenState extends State<MeScreen> {
             ),
             const SizedBox(height: 22),
             Text(
-              'YOUR BADGES',
-              style: GoogleFonts.plusJakartaSans(
+              tr('YOUR BADGES'),
+              style: appType(
                 color: MeScreen.muted,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
@@ -154,7 +156,7 @@ class _BadgeTile extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.plusJakartaSans(
+              style: appType(
                 color: unlocked ? MeScreen.ink : MeScreen.muted,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,

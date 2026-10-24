@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 enum AppNavTab { learn, me }
 
 class AppBottomNav extends StatelessWidget {
   const AppBottomNav({
     super.key,
+    required this.locale,
     this.selectedTab = AppNavTab.learn,
     this.onLearnTap,
     this.onPhotoTap,
     this.onMeTap,
   });
 
+  final String locale;
   final AppNavTab selectedTab;
   final VoidCallback? onLearnTap;
   final VoidCallback? onPhotoTap;
@@ -56,6 +58,7 @@ class AppBottomNav extends StatelessWidget {
                         behavior: HitTestBehavior.opaque,
                         onTap: onLearnTap,
                         child: _NavItem(
+                          locale: locale,
                           image: 'assets/images/icons/book.png',
                           label: 'Learn',
                           selected: selectedTab == AppNavTab.learn,
@@ -68,6 +71,7 @@ class AppBottomNav extends StatelessWidget {
                         behavior: HitTestBehavior.opaque,
                         onTap: onMeTap,
                         child: _NavItem(
+                          locale: locale,
                           image: 'assets/images/icons/user.png',
                           label: 'Me',
                           selected: selectedTab == AppNavTab.me,
@@ -118,8 +122,8 @@ class AppBottomNav extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Photo',
-                      style: GoogleFonts.plusJakartaSans(
+                      tr('Photo'),
+                      style: appType(
                         color: muted,
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -138,11 +142,13 @@ class AppBottomNav extends StatelessWidget {
 
 class _NavItem extends StatelessWidget {
   const _NavItem({
+    required this.locale,
     required this.image,
     required this.label,
     this.selected = false,
   });
 
+  final String locale;
   final String image;
   final String label;
   final bool selected;
@@ -156,8 +162,8 @@ class _NavItem extends StatelessWidget {
         SharpImage(image, width: 24, height: 24, fit: BoxFit.contain),
         const SizedBox(height: 8),
         Text(
-          label,
-          style: GoogleFonts.plusJakartaSans(
+          tr(label),
+          style: appType(
             color: color,
             fontSize: 13,
             fontWeight: FontWeight.w700,

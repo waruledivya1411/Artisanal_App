@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
 import 'package:artisnal_app/features/shell/main_tab_screen.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class WelcomeShareScreen extends StatefulWidget {
   const WelcomeShareScreen({super.key, required this.locale});
@@ -79,7 +79,7 @@ class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
                         minWidth: 40,
                         minHeight: 40,
                       ),
-                      tooltip: 'Back',
+                      tooltip: tr('Back'),
                     ),
                     const SizedBox(height: 16),
                     Align(
@@ -103,8 +103,8 @@ class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      'Share and sell',
-                      style: GoogleFonts.plusJakartaSans(
+                      tr('Share and sell'),
+                      style: appType(
                         color: WelcomeShareScreen.ink,
                         fontSize: 26,
                         fontWeight: FontWeight.w800,
@@ -114,8 +114,8 @@ class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Send your photos to Instagram and\nWhatsApp in a few taps.',
-                      style: GoogleFonts.plusJakartaSans(
+                      tr('Send your photos to Instagram and\nWhatsApp in a few taps.'),
+                      style: appType(
                         color: WelcomeShareScreen.muted,
                         fontSize: 15,
                         fontWeight: FontWeight.w400,
@@ -150,8 +150,8 @@ class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
                             width: double.infinity,
                             child: Center(
                               child: Text(
-                                'Get started',
-                                style: GoogleFonts.plusJakartaSans(
+                                tr('Get started'),
+                                style: appType(
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/features/onboarding/screens/welcome_share_screen.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class WelcomeShootScreen extends StatefulWidget {
   const WelcomeShootScreen({super.key, required this.locale});
@@ -78,7 +78,7 @@ class _WelcomeShootScreenState extends State<WelcomeShootScreen> {
                         minWidth: 40,
                         minHeight: 40,
                       ),
-                      tooltip: 'Back',
+                      tooltip: tr('Back'),
                     ),
                     const SizedBox(height: 16),
                     Align(
@@ -102,8 +102,8 @@ class _WelcomeShootScreenState extends State<WelcomeShootScreen> {
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      'Take beautiful photos',
-                      style: GoogleFonts.plusJakartaSans(
+                      tr('Take beautiful photos'),
+                      style: appType(
                         color: WelcomeShootScreen.ink,
                         fontSize: 26,
                         fontWeight: FontWeight.w800,
@@ -113,8 +113,8 @@ class _WelcomeShootScreenState extends State<WelcomeShootScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'The camera helps you keep the photo\nstraight and bright.',
-                      style: GoogleFonts.plusJakartaSans(
+                      tr('The camera helps you keep the photo\nstraight and bright.'),
+                      style: appType(
                         color: WelcomeShootScreen.muted,
                         fontSize: 15,
                         fontWeight: FontWeight.w400,
@@ -154,8 +154,8 @@ class _WelcomeShootScreenState extends State<WelcomeShootScreen> {
                                 ),
                                 const SizedBox(width: 2),
                                 Text(
-                                  'Next',
-                                  style: GoogleFonts.plusJakartaSans(
+                                  tr('Next'),
+                                  style: appType(
                                     color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,

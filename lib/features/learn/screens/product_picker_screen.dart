@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/products.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 /// Product photos are a mix of upright and wide shots, so their frame is
 /// square: that costs each one the same quarter rather than taking half the
@@ -50,8 +50,8 @@ class _ProductPickerScreenState extends State<ProductPickerScreen> {
   }
 
   String get _spokenText =>
-      'What are you photographing? '
-      '${photographyProducts.map((p) => p.name).join('. ')}.';
+      '${tr('What are you photographing?')} '
+      '${photographyProducts.map((p) => tr(p.name)).join('. ')}.';
 
   void _select(String product) {
     HapticFeedback.selectionClick();
@@ -113,8 +113,8 @@ class _ProductPickerScreenState extends State<ProductPickerScreen> {
                         ),
                       ),
                       Text(
-                        widget.taskLabel,
-                        style: GoogleFonts.plusJakartaSans(
+                        tr(widget.taskLabel),
+                        style: appType(
                           color: ProductPickerScreen.teal,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
@@ -136,8 +136,8 @@ class _ProductPickerScreenState extends State<ProductPickerScreen> {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  'What are you photographing?',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('What are you photographing?'),
+                  style: appType(
                     color: ProductPickerScreen.ink,
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
@@ -147,8 +147,8 @@ class _ProductPickerScreenState extends State<ProductPickerScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Tap one',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('Tap one'),
+                  style: appType(
                     color: ProductPickerScreen.muted,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
@@ -201,8 +201,8 @@ class _ProductPickerScreenState extends State<ProductPickerScreen> {
                           width: double.infinity,
                           child: Center(
                             child: Text(
-                              'Continue',
-                              style: GoogleFonts.plusJakartaSans(
+                              tr('Continue'),
+                              style: appType(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -309,11 +309,11 @@ class _ProductCard extends StatelessWidget {
                   height: 34,
                   child: Center(
                     child: Text(
-                      product.name,
+                      tr(product.name),
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: appType(
                         color: ProductPickerScreen.ink,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,

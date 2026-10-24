@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
@@ -8,6 +7,7 @@ import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/display_guides.dart';
 import 'package:artisnal_app/features/learn/data/displays.dart';
 import 'package:artisnal_app/features/learn/widgets/guide_diagram.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 /// Walks the artisan through setting up one shot, ending on a worked example.
 class DisplayGuideScreen extends StatefulWidget {
@@ -62,8 +62,8 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
 
   String get _spokenText {
     final caption = _step.caption;
-    return '${_step.title}. ${_step.subtitle}.'
-        '${caption == null ? '' : ' $caption'}';
+    return '${tr(_step.title)}. ${tr(_step.subtitle)}.'
+        '${caption == null ? '' : ' ${tr(caption)}'}';
   }
 
   void _back() {
@@ -112,8 +112,8 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
                   _progress(),
                   const SizedBox(height: 16),
                   Text(
-                    _step.title,
-                    style: GoogleFonts.plusJakartaSans(
+                    tr(_step.title),
+                    style: appType(
                       color: DisplayGuideScreen.ink,
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
@@ -123,8 +123,8 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    _step.subtitle,
-                    style: GoogleFonts.plusJakartaSans(
+                    tr(_step.subtitle),
+                    style: appType(
                       color: DisplayGuideScreen.muted,
                       fontSize: 15,
                       fontWeight: FontWeight.w400,
@@ -166,8 +166,12 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
-                widget.display.name.toUpperCase(),
-                style: GoogleFonts.plusJakartaSans(
+                AppLang.code == 'en'
+                    ? tr(widget.display.name)
+                        .toUpperCase()
+                        .replaceAll(' AND ', ' & ')
+                    : tr(widget.display.name),
+                style: appType(
                   color: DisplayGuideScreen.teal,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -233,7 +237,10 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
               padding: const EdgeInsets.all(10),
               child: _step.showExample
                   ? _example()
-                  : GuideDiagram(art: _step.art ?? GuideArt.grid),
+                  : GuideDiagram(
+                      art: _step.art ?? GuideArt.grid,
+                      locale: widget.locale,
+                    ),
             ),
           ),
         ),
@@ -241,7 +248,7 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
           const SizedBox(height: 12),
           Text(
             caption,
-            style: GoogleFonts.plusJakartaSans(
+            style: appType(
               color: DisplayGuideScreen.muted,
               fontSize: 14,
               fontWeight: FontWeight.w400,
@@ -320,7 +327,7 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
               children: [
                 Text(
                   _isLast ? 'Take the shot' : 'Next',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: appType(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,

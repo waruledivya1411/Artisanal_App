@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/widgets/ig_create_illustration.dart';
 import 'package:artisnal_app/features/learn/data/create_content_kind.dart';
 import 'package:artisnal_app/features/learn/screens/pick_photo_guide_screen.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class PostInInstagramScreen extends StatefulWidget {
   const PostInInstagramScreen({
@@ -157,7 +157,7 @@ class _PostInInstagramScreenState extends State<PostInInstagramScreen> {
                       ),
                       Text(
                         _guide.headerTitle,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: appType(
                           color: PostInInstagramScreen.teal,
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
@@ -197,7 +197,7 @@ class _PostInInstagramScreenState extends State<PostInInstagramScreen> {
                         const SizedBox(height: 14),
                         Text(
                           _guide.instructionTitle,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: appType(
                             color: PostInInstagramScreen.ink,
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -206,7 +206,7 @@ class _PostInInstagramScreenState extends State<PostInInstagramScreen> {
                         const SizedBox(height: 6),
                         Text(
                           _guide.instructionBody,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: appType(
                             color: PostInInstagramScreen.muted,
                             fontSize: 15,
                             height: 1.35,
@@ -255,8 +255,8 @@ class _ScrollDownCue extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            'Scroll down',
-            style: GoogleFonts.plusJakartaSans(
+            tr('Scroll down'),
+            style: appType(
               color: PostInInstagramScreen.muted,
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -409,8 +409,8 @@ class _StepRow extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: Text(
-                          '$number',
-                          style: GoogleFonts.plusJakartaSans(
+                          tr('$number'),
+                          style: appType(
                             color: current
                                 ? Colors.white
                                 : PostInInstagramScreen.muted,
@@ -422,8 +422,8 @@ class _StepRow extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          label,
-                          style: GoogleFonts.plusJakartaSans(
+                          tr(label),
+                          style: appType(
                             color: current
                                 ? PostInInstagramScreen.ink
                                 : PostInInstagramScreen.muted,

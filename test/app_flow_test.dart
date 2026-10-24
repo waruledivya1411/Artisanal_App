@@ -20,15 +20,17 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('login-submit')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Choose your language'), findsOneWidget);
+    expect(find.text('আপোনাৰ ভাষা বাছনি কৰক'), findsOneWidget);
     expect(find.text('Assamese'), findsOneWidget);
     expect(find.text('English'), findsOneWidget);
     expect(find.text('Odia'), findsOneWidget);
     expect(find.text('Telugu'), findsOneWidget);
-    expect(find.text('Continue'), findsOneWidget);
 
     await tester.tap(find.text('English'));
     await tester.pump();
+
+    expect(find.text('Choose your language'), findsOneWidget);
+    expect(find.text('Continue'), findsOneWidget);
 
     final selectedCard = find.byWidgetPredicate((widget) {
       if (widget is! Container) return false;
@@ -334,7 +336,10 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Photography'));
+    final photography = find.text('Photography');
+    await tester.ensureVisible(photography);
+    await tester.pumpAndSettle();
+    await tester.tap(photography);
     await tester.pumpAndSettle();
     expect(find.text('What are you photographing?'), findsOneWidget);
     // Photo cards build a row at a time, so walk down the grid.

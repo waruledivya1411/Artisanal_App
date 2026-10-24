@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class NumbersMeanScreen extends StatefulWidget {
   const NumbersMeanScreen({super.key, required this.locale, this.nextBuilder});
@@ -95,8 +95,8 @@ class _NumbersMeanScreenState extends State<NumbersMeanScreen> {
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            'TASK 5 · 1 OF 2',
-                            style: GoogleFonts.plusJakartaSans(
+                            tr('TASK 5 · 1 OF 2'),
+                            style: appType(
                               color: NumbersMeanScreen.teal,
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
@@ -120,8 +120,8 @@ class _NumbersMeanScreenState extends State<NumbersMeanScreen> {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  'Read the numbers',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('Read the numbers'),
+                  style: appType(
                     color: NumbersMeanScreen.ink,
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -131,8 +131,8 @@ class _NumbersMeanScreenState extends State<NumbersMeanScreen> {
                 const _StepBar(filled: 1),
                 const SizedBox(height: 16),
                 Text(
-                  'What they mean',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('What they mean'),
+                  style: appType(
                     color: NumbersMeanScreen.ink,
                     fontSize: 30,
                     fontWeight: FontWeight.w800,
@@ -142,8 +142,8 @@ class _NumbersMeanScreenState extends State<NumbersMeanScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '4 numbers to watch',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('4 numbers to watch'),
+                  style: appType(
                     color: NumbersMeanScreen.muted,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
@@ -218,8 +218,8 @@ class _NumbersMeanScreenState extends State<NumbersMeanScreen> {
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              'Next',
-                              style: GoogleFonts.plusJakartaSans(
+                              tr('Next'),
+                              style: appType(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -304,8 +304,8 @@ class _NumberTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      'BEST',
-                      style: GoogleFonts.plusJakartaSans(
+                      tr('BEST'),
+                      style: appType(
                         color: const Color(0xFF8A5A12),
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
@@ -318,7 +318,7 @@ class _NumberTile extends StatelessWidget {
             const Spacer(),
             Text(
               value,
-              style: GoogleFonts.plusJakartaSans(
+              style: appType(
                 color: NumbersMeanScreen.ink,
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
@@ -328,7 +328,7 @@ class _NumberTile extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               name,
-              style: GoogleFonts.plusJakartaSans(
+              style: appType(
                 color: NumbersMeanScreen.ink,
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -339,7 +339,7 @@ class _NumberTile extends StatelessWidget {
               detail,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.plusJakartaSans(
+              style: appType(
                 color: NumbersMeanScreen.muted,
                 fontSize: 12,
                 fontWeight: FontWeight.w400,

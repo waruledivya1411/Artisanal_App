@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class PhotoAccessScreen extends StatefulWidget {
   const PhotoAccessScreen({super.key, required this.locale, this.nextBuilder});
@@ -84,8 +84,8 @@ class _PhotoAccessScreenState extends State<PhotoAccessScreen> {
                         ),
                       ),
                       Text(
-                        'TASK 3 OF 5',
-                        style: GoogleFonts.plusJakartaSans(
+                        tr('TASK 3 OF 5'),
+                        style: appType(
                           color: PhotoAccessScreen.teal,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
@@ -138,9 +138,9 @@ class _PhotoAccessScreenState extends State<PhotoAccessScreen> {
                         ),
                         const SizedBox(height: 22),
                         Text(
-                          'Allow photo access',
+                          tr('Allow photo access'),
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: appType(
                             color: PhotoAccessScreen.ink,
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
@@ -150,9 +150,9 @@ class _PhotoAccessScreenState extends State<PhotoAccessScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Your phone will ask the first time you post.\nTap Allow all or Select photos.',
+                          tr('Your phone will ask the first time you post.\nTap Allow all or Select photos.'),
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: appType(
                             color: PhotoAccessScreen.muted,
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
@@ -178,7 +178,7 @@ class _PhotoAccessScreenState extends State<PhotoAccessScreen> {
                       child: Center(
                         child: Text(
                           widget.nextBuilder == null ? 'Got it' : 'Continue',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: appType(
                             color: PhotoAccessScreen.teal,
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -237,8 +237,8 @@ class _PermissionCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Photos and videos',
-                    style: GoogleFonts.plusJakartaSans(
+                    tr('Photos and videos'),
+                    style: appType(
                       color: PhotoAccessScreen.ink,
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
@@ -282,8 +282,8 @@ class _Choice extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              label,
-              style: GoogleFonts.plusJakartaSans(
+              tr(label),
+              style: appType(
                 color: selected ? Colors.white : PhotoAccessScreen.ink,
                 fontSize: 15,
                 fontWeight: FontWeight.w700,

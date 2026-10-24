@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
@@ -9,6 +8,7 @@ import 'package:artisnal_app/core/widgets/sharp_image.dart';
 import 'package:artisnal_app/features/learn/widgets/ig_profile_preview.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class CheckOption {
   const CheckOption({
@@ -130,10 +130,10 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
       widget.right.profileVariant != null;
 
   String get _spokenText {
-    if (_choice == null) return 'Which is better? Tap one.';
+    if (_choice == null) return tr('Which is better? Tap one.');
     return _correct
-        ? 'Yes! B is better. ${widget.rightReason}.'
-        : 'Not quite. B is better. ${widget.wrongReason}.';
+        ? '${tr('Yes! B is better')}. ${tr(widget.rightReason)}.'
+        : '${tr('Not quite. B is better')}. ${tr(widget.wrongReason)}.';
   }
 
   @override
@@ -229,8 +229,8 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            widget.partLabel,
-                            style: GoogleFonts.plusJakartaSans(
+                            tr(widget.partLabel),
+                            style: appType(
                               color: CheckPartScreen.teal,
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
@@ -271,8 +271,8 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  'Which is better?',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('Which is better?'),
+                  style: appType(
                     color: CheckPartScreen.ink,
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -282,8 +282,8 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Tap one',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('Tap one'),
+                  style: appType(
                     color: CheckPartScreen.muted,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
@@ -402,10 +402,10 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
                               const SizedBox(width: 2),
                               Flexible(
                                 child: Text(
-                                  _nextLabel(),
+                                  tr(_nextLabel()),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: appType(
                                     color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
@@ -550,9 +550,9 @@ class _ChoiceCard extends StatelessWidget {
                                 child: FittedBox(
                                   fit: BoxFit.scaleDown,
                                   child: Text(
-                                    option.text!,
+                                    tr(option.text!),
                                     textAlign: TextAlign.center,
-                                    style: GoogleFonts.plusJakartaSans(
+                                    style: appType(
                                       color: showRight
                                           ? CheckPartScreen.teal
                                           : CheckPartScreen.ink,
@@ -605,8 +605,8 @@ class _ChoiceCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            option.label,
-                            style: GoogleFonts.plusJakartaSans(
+                            tr(option.label),
+                            style: appType(
                               color: labelColor,
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -660,7 +660,7 @@ class _ProfilePreview extends StatelessWidget {
                   fit: BoxFit.scaleDown,
                   child: Text(
                     caption,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: appType(
                       color: CheckPartScreen.ink,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -696,8 +696,8 @@ class _TilePreview extends StatelessWidget {
               Icon(tile.icon, color: tile.iconColor, size: 44),
               const SizedBox(height: 10),
               Text(
-                tile.title,
-                style: GoogleFonts.plusJakartaSans(
+                tr(tile.title),
+                style: appType(
                   color: tile.titleColor,
                   fontSize: 34,
                   fontWeight: FontWeight.w800,
@@ -709,8 +709,8 @@ class _TilePreview extends StatelessWidget {
                 duration: const Duration(milliseconds: 220),
                 opacity: revealed ? 1 : 0,
                 child: Text(
-                  tile.subtitle,
-                  style: GoogleFonts.plusJakartaSans(
+                  tr(tile.subtitle),
+                  style: appType(
                     color: tile.subtitleColor,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -750,7 +750,7 @@ class _CaptionedPicture extends StatelessWidget {
               fit: BoxFit.scaleDown,
               child: Text(
                 caption,
-                style: GoogleFonts.plusJakartaSans(
+                style: appType(
                   color: highlight ? CheckPartScreen.teal : CheckPartScreen.ink,
                   fontSize: 19,
                   fontWeight: FontWeight.w700,
@@ -812,8 +812,8 @@ class _PostPreview extends StatelessWidget {
                           Icon(stats[i].icon, color: color, size: 18),
                           const SizedBox(width: 6),
                           Text(
-                            stats[i].text,
-                            style: GoogleFonts.plusJakartaSans(
+                            tr(stats[i].text),
+                            style: appType(
                               color: color,
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -891,8 +891,8 @@ class _ChatPreview extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: Text(
-                            chat.question,
-                            style: GoogleFonts.plusJakartaSans(
+                            tr(chat.question),
+                            style: appType(
                               color: CheckPartScreen.ink,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -912,8 +912,8 @@ class _ChatPreview extends StatelessWidget {
                       Icon(Icons.timer_outlined, color: timeColor, size: 16),
                       const SizedBox(width: 4),
                       Text(
-                        chat.time,
-                        style: GoogleFonts.plusJakartaSans(
+                        tr(chat.time),
+                        style: appType(
                           color: timeColor,
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -935,8 +935,8 @@ class _ChatPreview extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Text(
-                      chat.reply,
-                      style: GoogleFonts.plusJakartaSans(
+                      tr(chat.reply),
+                      style: appType(
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -996,7 +996,7 @@ class _Badge extends StatelessWidget {
       ),
       child: Text(
         letter,
-        style: GoogleFonts.plusJakartaSans(
+        style: appType(
           color: CheckPartScreen.ink,
           fontSize: 15,
           fontWeight: FontWeight.w800,
@@ -1042,7 +1042,7 @@ class _Feedback extends StatelessWidget {
               children: [
                 Text(
                   correct ? 'Yes! B is better' : 'Not quite. B is better',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: appType(
                     color: color,
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -1050,8 +1050,8 @@ class _Feedback extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  reason,
-                  style: GoogleFonts.plusJakartaSans(
+                  tr(reason),
+                  style: appType(
                     color: CheckPartScreen.ink,
                     fontSize: 14,
                     fontWeight: FontWeight.w400,

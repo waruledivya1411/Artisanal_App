@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 import 'package:artisnal_app/features/learn/create_post_flow.dart';
 import 'package:artisnal_app/features/learn/data/create_content_kind.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class DidYouPostScreen extends StatelessWidget {
   const DidYouPostScreen({
@@ -84,9 +84,9 @@ class DidYouPostScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 22),
                         Text(
-                          'Did you post it?',
+                          tr('Did you post it?'),
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: appType(
                             color: ink,
                             fontSize: 26,
                             fontWeight: FontWeight.w800,
@@ -95,9 +95,9 @@ class DidYouPostScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Look at your Instagram page',
+                          tr('Look at your Instagram page'),
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: appType(
                             color: muted,
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
@@ -132,8 +132,8 @@ class DidYouPostScreen extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'Yes, I posted',
-                                      style: GoogleFonts.plusJakartaSans(
+                                      tr('Yes, I posted'),
+                                      style: appType(
                                         color: Colors.white,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
@@ -168,8 +168,8 @@ class DidYouPostScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Show me again',
-                                    style: GoogleFonts.plusJakartaSans(
+                                    tr('Show me again'),
+                                    style: appType(
                                       color: teal,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 enum IgProfileVariant {
   business,
@@ -12,6 +12,7 @@ class IgProfilePreview extends StatelessWidget {
   const IgProfilePreview({
     super.key,
     required this.variant,
+    this.locale = 'en-US',
     this.compact = false,
     this.quizCard = false,
     this.onDashboardTap,
@@ -19,6 +20,7 @@ class IgProfilePreview extends StatelessWidget {
   });
 
   final IgProfileVariant variant;
+  final String locale;
   final bool compact;
   final bool quizCard;
   final VoidCallback? onDashboardTap;
@@ -76,7 +78,7 @@ class IgProfilePreview extends StatelessWidget {
                     children: [
                       Text(
                         'divya.weaves',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: appType(
                           color: ink,
                           fontSize: nameSize,
                           fontWeight: FontWeight.w800,
@@ -102,8 +104,8 @@ class IgProfilePreview extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Divya Warule\nHandwoven cloth · Sualkuchi, Assam',
-                style: GoogleFonts.plusJakartaSans(
+                '${tr('Divya Warule')}\n${tr('Handwoven cloth · Sualkuchi, Assam')}',
+                style: appType(
                   color: ink,
                   fontSize: bioSize,
                   fontWeight: FontWeight.w500,
@@ -211,8 +213,8 @@ class _DashboardButton extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'Professional dashboard',
-            style: GoogleFonts.plusJakartaSans(
+            tr('Professional dashboard'),
+            style: appType(
               color: IgProfilePreview.ink,
               fontSize: quizCard ? 12 : (compact ? 11 : 14),
               fontWeight: FontWeight.w800,
@@ -221,10 +223,10 @@ class _DashboardButton extends StatelessWidget {
           SizedBox(height: compact ? 1 : 2),
           Text(
             quizCard
-                ? 'Tools for businesses.'
-                : 'Tools and resources just for businesses.',
+                ? tr('Tools for businesses.')
+                : tr('Tools and resources just for businesses.'),
             textAlign: TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
+            style: appType(
               color: IgProfilePreview.muted,
               fontSize: quizCard ? 9.5 : (compact ? 8 : 11),
               fontWeight: FontWeight.w500,
@@ -276,8 +278,8 @@ class _ProfileButton extends StatelessWidget {
         child: FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
-            label,
-            style: GoogleFonts.plusJakartaSans(
+            tr(label),
+            style: appType(
               color: IgProfilePreview.ink,
               fontSize: quizCard ? 10 : (compact ? 9 : 12),
               fontWeight: FontWeight.w700,
@@ -349,7 +351,7 @@ class _StatColumn extends StatelessWidget {
         Text(
           value,
           maxLines: 1,
-          style: GoogleFonts.plusJakartaSans(
+          style: appType(
             color: IgProfilePreview.ink,
             fontSize: valueSize,
             fontWeight: FontWeight.w800,
@@ -357,10 +359,10 @@ class _StatColumn extends StatelessWidget {
           ),
         ),
         Text(
-          label,
+          tr(label),
           maxLines: 1,
           softWrap: false,
-          style: GoogleFonts.plusJakartaSans(
+          style: appType(
             color: IgProfilePreview.muted,
             fontSize: labelSize,
             fontWeight: FontWeight.w500,

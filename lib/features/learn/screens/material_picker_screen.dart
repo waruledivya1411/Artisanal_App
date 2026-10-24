@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/materials.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 /// Every picker card is this shape, so all the photo frames match. It leaves
 /// the photo area at roughly 3:4 on a phone, the shape most of the photos
@@ -63,8 +63,8 @@ class _MaterialPickerScreenState extends State<MaterialPickerScreen> {
   }
 
   String get _spokenText =>
-      'What is it made of? '
-      '${_materials.map((m) => m.name).join('. ')}.';
+      '${tr('What is it made of?')} '
+      '${_materials.map((m) => tr(m.name)).join('. ')}.';
 
   void _select(String material) {
     HapticFeedback.selectionClick();
@@ -125,8 +125,8 @@ class _MaterialPickerScreenState extends State<MaterialPickerScreen> {
                         ),
                       ),
                       Text(
-                        widget.taskLabel,
-                        style: GoogleFonts.plusJakartaSans(
+                        tr(widget.taskLabel),
+                        style: appType(
                           color: MaterialPickerScreen.teal,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
@@ -148,8 +148,8 @@ class _MaterialPickerScreenState extends State<MaterialPickerScreen> {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  'What is it made of?',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('What is it made of?'),
+                  style: appType(
                     color: MaterialPickerScreen.ink,
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
@@ -159,8 +159,8 @@ class _MaterialPickerScreenState extends State<MaterialPickerScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Tap one',
-                  style: GoogleFonts.plusJakartaSans(
+                  tr('Tap one'),
+                  style: appType(
                     color: MaterialPickerScreen.muted,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
@@ -213,8 +213,8 @@ class _MaterialPickerScreenState extends State<MaterialPickerScreen> {
                           width: double.infinity,
                           child: Center(
                             child: Text(
-                              'Continue',
-                              style: GoogleFonts.plusJakartaSans(
+                              tr('Continue'),
+                              style: appType(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -312,11 +312,11 @@ class _MaterialCard extends StatelessWidget {
                   height: kPickerCaptionHeight,
                   child: Center(
                     child: Text(
-                      material.name,
+                      tr(material.name),
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: appType(
                         color: MaterialPickerScreen.ink,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,

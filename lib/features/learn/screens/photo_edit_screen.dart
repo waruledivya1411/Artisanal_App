@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gal/gal.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:artisnal_app/core/gallery/save_photo.dart';
 import 'package:artisnal_app/features/learn/data/photo_edit.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 enum PhotoEditOutcome { cancelled, saved, downloaded }
 
@@ -168,7 +168,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                 Text(
                   _sliderHint,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: appType(
                     color: Colors.white70,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -226,8 +226,8 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                           )
                         : const Icon(Icons.check_rounded, size: 22),
                     label: Text(
-                      'Done',
-                      style: GoogleFonts.plusJakartaSans(
+                      tr('Done'),
+                      style: appType(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
@@ -237,8 +237,8 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                 TextButton(
                   onPressed: _saving ? null : () => _finish(applyEdits: false),
                   child: Text(
-                    'Skip',
-                    style: GoogleFonts.plusJakartaSans(
+                    tr('Skip'),
+                    style: appType(
                       color: Colors.white70,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -267,9 +267,9 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
           ),
           Expanded(
             child: Text(
-              'Edit',
+              tr('Edit'),
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
+              style: appType(
                 color: Colors.white,
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
@@ -279,8 +279,8 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
           TextButton(
             onPressed: _saving ? null : _reset,
             child: Text(
-              'Reset',
-              style: GoogleFonts.plusJakartaSans(
+              tr('Reset'),
+              style: appType(
                 color: Colors.white,
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -359,8 +359,8 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              label,
-              style: GoogleFonts.plusJakartaSans(
+              tr(label),
+              style: appType(
                 color: Colors.white,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,

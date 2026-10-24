@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
@@ -12,6 +11,7 @@ import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/widgets/ig_profile_preview.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class FindNumbersScreen extends StatefulWidget {
   const FindNumbersScreen({
@@ -123,8 +123,8 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
                             ),
                           ),
                           Text(
-                            'TASK 5 · 2 OF 2',
-                            style: GoogleFonts.plusJakartaSans(
+                            tr('TASK 5 · 2 OF 2'),
+                            style: appType(
                               color: FindNumbersScreen.teal,
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
@@ -146,8 +146,8 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
                     ),
                     const SizedBox(height: 14),
                     Text(
-                      'Read the numbers',
-                      style: GoogleFonts.plusJakartaSans(
+                      tr('Read the numbers'),
+                      style: appType(
                         color: FindNumbersScreen.ink,
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -157,8 +157,8 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
                     const _StepBar(filled: 2),
                     const SizedBox(height: 14),
                     Text(
-                      'Find your numbers',
-                      style: GoogleFonts.plusJakartaSans(
+                      tr('Find your numbers'),
+                      style: appType(
                         color: FindNumbersScreen.ink,
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
@@ -205,8 +205,8 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Open Instagram',
-                                  style: GoogleFonts.plusJakartaSans(
+                                  tr('Open Instagram'),
+                                  style: appType(
                                     color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
@@ -238,8 +238,8 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'Complete',
-                                style: GoogleFonts.plusJakartaSans(
+                                tr('Complete'),
+                                style: appType(
                                   color: FindNumbersScreen.teal,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
@@ -307,8 +307,8 @@ class _BadgeCard extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Badge earned',
-                style: GoogleFonts.plusJakartaSans(
+                tr('Badge earned'),
+                style: appType(
                   color: FindNumbersScreen.gold,
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -317,9 +317,9 @@ class _BadgeCard extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'Read the numbers',
+                tr('Read the numbers'),
                 textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
+                style: appType(
                   color: FindNumbersScreen.ink,
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
@@ -328,9 +328,9 @@ class _BadgeCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'You can read views, likes, saves and messages.',
+                tr('You can read views, likes, saves and messages.'),
                 textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
+                style: appType(
                   color: FindNumbersScreen.muted,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -349,8 +349,8 @@ class _BadgeCard extends StatelessWidget {
                     width: double.infinity,
                     child: Center(
                       child: Text(
-                        'Continue',
-                        style: GoogleFonts.plusJakartaSans(
+                        tr('Continue'),
+                        style: appType(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -528,7 +528,7 @@ class _Step extends StatelessWidget {
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             child: Text(
               number,
-              style: GoogleFonts.plusJakartaSans(
+              style: appType(
                 color: current ? Colors.white : FindNumbersScreen.muted,
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
@@ -539,7 +539,7 @@ class _Step extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.plusJakartaSans(
+              style: appType(
                 color: ink,
                 fontSize: 15,
                 fontWeight: current ? FontWeight.w800 : FontWeight.w500,

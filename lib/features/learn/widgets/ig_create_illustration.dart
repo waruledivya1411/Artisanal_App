@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 import 'package:artisnal_app/features/learn/data/create_content_kind.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 /// Consistent wireframe Instagram art for Post / Story / Reel lessons.
 class IgCreateIllustration extends StatelessWidget {
   const IgCreateIllustration({
     super.key,
     required this.kind,
+    this.locale = 'en-US',
     this.onTapPrimary,
     this.onTapMenu,
     this.compact = false,
   });
 
   final CreateContentKind kind;
+  final String locale;
   final VoidCallback? onTapPrimary;
   final VoidCallback? onTapMenu;
   final bool compact;
@@ -35,6 +37,7 @@ class IgCreateIllustration extends StatelessWidget {
           color: _cream,
           child: LayoutBuilder(
             builder: (context, c) => _PhoneFrame(
+              locale: locale,
               width: c.maxWidth,
               height: c.maxHeight,
               kind: kind,
@@ -68,6 +71,7 @@ class IgCreateIllustration extends StatelessWidget {
                 child: ColoredBox(
                   color: _cream,
                   child: _PhoneFrame(
+                    locale: locale,
                     width: constraints.maxWidth,
                     height: constraints.maxHeight,
                     kind: kind,
@@ -86,6 +90,7 @@ class IgCreateIllustration extends StatelessWidget {
 
 class _PhoneFrame extends StatelessWidget {
   const _PhoneFrame({
+    required this.locale,
     required this.width,
     required this.height,
     required this.kind,
@@ -93,6 +98,7 @@ class _PhoneFrame extends StatelessWidget {
     this.onTapMenu,
   });
 
+  final String locale;
   final double width;
   final double height;
   final CreateContentKind kind;
@@ -390,8 +396,8 @@ class _CreateMenuBody extends StatelessWidget {
           Icon(icon, size: phoneW * 0.08, color: IgCreateIllustration._ink),
           SizedBox(width: phoneW * 0.04),
           Text(
-            label,
-            style: GoogleFonts.plusJakartaSans(
+            tr(label),
+            style: appType(
               color: IgCreateIllustration._ink,
               fontSize: phoneW * 0.065,
               fontWeight: FontWeight.w800,
@@ -409,7 +415,7 @@ class _CreateMenuBody extends StatelessWidget {
               ),
               child: Text(
                 '1',
-                style: GoogleFonts.plusJakartaSans(
+                style: appType(
                   color: Colors.white,
                   fontSize: phoneW * 0.045,
                   fontWeight: FontWeight.w800,
@@ -505,7 +511,7 @@ Widget _goldPlusBadge({required double size}) {
           ),
           child: Text(
             '1',
-            style: GoogleFonts.plusJakartaSans(
+            style: appType(
               color: Colors.white,
               fontSize: size * 0.22,
               fontWeight: FontWeight.w800,

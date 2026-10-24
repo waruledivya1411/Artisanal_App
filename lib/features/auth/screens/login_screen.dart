@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/features/auth/screens/forgot_password_screen.dart';
 import 'package:artisnal_app/features/onboarding/screens/language_picker_screen.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -68,8 +68,8 @@ class _LoginScreenState extends State<LoginScreen> {
             padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
             children: [
               Text(
-                'Click & Social',
-                style: GoogleFonts.plusJakartaSans(
+                tr('Click & Social'),
+                style: appType(
                   color: LoginScreen.teal,
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
@@ -78,8 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 32),
               Text(
-                'Log in',
-                style: GoogleFonts.plusJakartaSans(
+                tr('Log in'),
+                style: appType(
                   color: LoginScreen.ink,
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
@@ -89,8 +89,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Use your email and password to open your lessons.',
-                style: GoogleFonts.plusJakartaSans(
+                tr('Use your email and password to open your lessons.'),
+                style: appType(
                   color: LoginScreen.muted,
                   fontSize: 15,
                   height: 1.45,
@@ -126,8 +126,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   child: Text(
-                    'Forgot password?',
-                    style: GoogleFonts.plusJakartaSans(
+                    tr('Forgot password?'),
+                    style: appType(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
@@ -152,8 +152,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: double.infinity,
                       child: Center(
                         child: Text(
-                          'Log in',
-                          style: GoogleFonts.plusJakartaSans(
+                          tr('Log in'),
+                          style: appType(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -197,8 +197,8 @@ class _AuthField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
-          style: GoogleFonts.plusJakartaSans(
+          tr(label),
+          style: appType(
             color: LoginScreen.ink,
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -211,14 +211,14 @@ class _AuthField extends StatelessWidget {
           keyboardType: keyboardType,
           textInputAction: textInputAction,
           onSubmitted: onSubmitted,
-          style: GoogleFonts.plusJakartaSans(
+          style: appType(
             color: LoginScreen.ink,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
           decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: GoogleFonts.plusJakartaSans(
+            hintText: tr(hint),
+            hintStyle: appType(
               color: LoginScreen.muted,
               fontWeight: FontWeight.w500,
             ),

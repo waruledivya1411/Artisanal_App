@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class NextLearnTaskButton extends StatelessWidget {
   const NextLearnTaskButton({
     super.key,
+    this.locale = 'en-US',
     required this.nextTaskTitle,
     required this.onTap,
   });
 
+  final String locale;
   final String nextTaskTitle;
   final VoidCallback onTap;
 
@@ -34,10 +36,10 @@ class NextLearnTaskButton extends StatelessWidget {
               const SizedBox(width: 4),
               Flexible(
                 child: Text(
-                  'Next task: $nextTaskTitle',
+                  tr('Next task: $nextTaskTitle'),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: appType(
                     color: teal,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,

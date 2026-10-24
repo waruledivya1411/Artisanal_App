@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:artisnal_app/core/l10n/app_text.dart';
 import 'package:flutter/material.dart';
 
 /// The line drawing that shows how to set a shot up.
@@ -78,9 +79,10 @@ enum GuideArt {
 }
 
 class GuideDiagram extends StatelessWidget {
-  const GuideDiagram({super.key, required this.art});
+  const GuideDiagram({super.key, required this.art, this.locale});
 
   final GuideArt art;
+  final String? locale;
 
   static const Color ink = Color(0xFF152322);
   static const Color teal = Color(0xFF1B7574);
@@ -88,7 +90,7 @@ class GuideDiagram extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
         return CustomPaint(
-          painter: _GuidePainter(art),
+          painter: _GuidePainter(art, locale),
           size: Size.infinite,
           isComplex: true,
         );
@@ -96,9 +98,10 @@ class GuideDiagram extends StatelessWidget {
 }
 
 class _GuidePainter extends CustomPainter {
-  const _GuidePainter(this.art);
+  const _GuidePainter(this.art, this.locale);
 
   final GuideArt art;
+  final String? locale;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -209,8 +212,8 @@ class _GuidePainter extends CustomPainter {
           RRect.fromRectAndRadius(window, const Radius.circular(2.5)),
           accent,
         );
-        _label(canvas, 'Motif', window.center);
-        _label(canvas, 'Border', strip.center, boxed: true, vertical: true);
+        _label(canvas, tr('Motif'), window.center);
+        _label(canvas, tr('Border'), strip.center, boxed: true, vertical: true);
 
       case GuideArt.hangingDisplayCentre:
         _hangingSari(canvas, fill, accent, faint, showEnd: false);
@@ -981,7 +984,7 @@ class _GuidePainter extends CustomPainter {
     final painter = TextPainter(
       text: TextSpan(
         text: text,
-        style: const TextStyle(
+        style: appType(
           color: GuideDiagram.ink,
           fontSize: 5.5,
           fontWeight: FontWeight.w800,
@@ -1036,5 +1039,5 @@ class _GuidePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _GuidePainter oldDelegate) =>
-      oldDelegate.art != art;
+      oldDelegate.art != art || oldDelegate.locale != locale;
 }

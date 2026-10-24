@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/widgets/app_bottom_nav.dart';
@@ -14,6 +13,7 @@ import 'package:artisnal_app/features/me/screens/me_screen.dart';
 import 'package:artisnal_app/features/learn/screens/photo_access_screen.dart';
 import 'package:artisnal_app/features/learn/screens/choose_content_type_screen.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
+import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class LearnHomeScreen extends StatefulWidget {
   const LearnHomeScreen({
@@ -130,8 +130,8 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
       SelectedProduct.instance.name,
       SelectedMaterial.instance.name,
       SelectedDisplay.instance.name,
-    ].whereType<String>().toList();
-    if (picked.isEmpty) return 'Choose what to shoot';
+    ].whereType<String>().map(tr).toList();
+    if (picked.isEmpty) return tr('Choose what to shoot');
     return picked.join(' · ');
   }
 
@@ -209,8 +209,8 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      'Hello, Divya Warule',
-                      style: GoogleFonts.plusJakartaSans(
+                      tr('Hello, Divya Warule'),
+                      style: appType(
                         color: LearnHomeScreen.ink,
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
@@ -222,8 +222,8 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
                     Row(
                       children: [
                         Text(
-                          '$tasksDone OF $tasksTotal TASKS DONE',
-                          style: GoogleFonts.plusJakartaSans(
+                          tr('$tasksDone OF $tasksTotal TASKS DONE'),
+                          style: appType(
                             color: LearnHomeScreen.muted,
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -232,8 +232,8 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
                         ),
                         const Spacer(),
                         Text(
-                          '${(progressValue * 100).round()}%',
-                          style: GoogleFonts.plusJakartaSans(
+                          tr('${(progressValue * 100).round()}%'),
+                          style: appType(
                             color: LearnHomeScreen.teal,
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -274,10 +274,11 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
               ),
               if (widget.showBottomNav)
                 AppBottomNav(
+                  locale: widget.locale,
                   selectedTab: AppNavTab.learn,
                   onMeTap: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
-                      builder: (_) => const MeScreen(),
+                      builder: (_) => MeScreen(locale: widget.locale),
                     ),
                   ),
                 ),
@@ -301,8 +302,8 @@ class _Header extends StatelessWidget {
         const _LogoMark(),
         const SizedBox(width: 8),
         Text(
-          'Click & Social',
-          style: GoogleFonts.plusJakartaSans(
+          tr('Click & Social'),
+          style: appType(
             color: LearnHomeScreen.teal,
             fontSize: 15,
             fontWeight: FontWeight.w700,
@@ -440,7 +441,7 @@ class _TaskCard extends StatelessWidget {
                       ),
                       child: Text(
                         task.number,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: appType(
                           color: active ? Colors.white : LearnHomeScreen.muted,
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
@@ -450,10 +451,10 @@ class _TaskCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        task.title,
+                        tr(task.title),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: appType(
                           color: LearnHomeScreen.ink,
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
@@ -465,10 +466,10 @@ class _TaskCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  task.detail,
+                  tr(task.detail),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: appType(
                     color: active
                         ? LearnHomeScreen.teal
                         : LearnHomeScreen.muted,
