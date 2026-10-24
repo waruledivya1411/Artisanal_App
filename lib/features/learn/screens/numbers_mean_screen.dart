@@ -111,7 +111,10 @@ class _NumbersMeanScreenState extends State<NumbersMeanScreen> {
                           playing: _speech.playing,
                           onTap: () => _speech.toggle(
                             locale: widget.locale,
-                            text: NumbersMeanScreen.spoken,
+                            text:
+                                '${tr('What they mean. Four numbers to watch.')} '
+                                '${tr('Views are people who saw it. Likes are people who liked it.')} '
+                                '${tr('Saves mean they want to buy later. Messages are buyers asking.')}',
                           ),
                         ),
                       ),
@@ -327,7 +330,7 @@ class _NumberTile extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              name,
+              tr(name),
               style: appType(
                 color: NumbersMeanScreen.ink,
                 fontSize: 15,
@@ -336,7 +339,7 @@ class _NumberTile extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              detail,
+              tr(detail),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: appType(

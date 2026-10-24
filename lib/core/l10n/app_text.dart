@@ -155,6 +155,10 @@ TextStyle appType({
 
 const _as = <String, String>{
   'Choose your language': 'আপোনাৰ ভাষা বাছনি কৰক',
+  'Assamese': 'অসমীয়া',
+  'English': 'ইংৰাজী',
+  'Odia': 'ওড়িয়া',
+  'Telugu': 'তেলেগু',
   'Tap your language.': 'আপোনাৰ ভাষাত টিপক।',
   'Continue': 'আগবাঢ়ক',
   'You can change this later in Settings': 'ইয়াক পাছত ছেটিংছত সলনি কৰিব পাৰিব',
@@ -527,6 +531,8 @@ const _as = <String, String>{
   'Which is better? Tap one.': 'কোনটো ভাল? এটা টিপক।',
   'Yes! B is better': 'হয়! খ ভাল',
   'Not quite. B is better': 'ঠিক নহয়। খ ভাল',
+  'A': 'ক',
+  'B': 'খ',
   'Next task: {task}': 'পৰৱৰ্তী কাম: {task}',
   'Next part · {part}': 'পৰৱৰ্তী ভাগ · {part}',
   'Finish {part} first': 'প্ৰথমে {part} শেষ কৰক',
@@ -547,6 +553,28 @@ const _as = <String, String>{
   'Yes, I posted': 'হয়, মই পোষ্ট কৰিলোঁ',
   'Show me again': 'পুনৰ দেখুৱাওক',
   'Post in Instagram': 'ইনষ্টাগ্ৰামত পোষ্ট কৰক',
+  'Make a feed post': 'এটা ফিড পোষ্ট বনাওক',
+  'A post stays on your page. Use a clear photo of your cloth.':
+      'পোষ্ট এটা আপোনাৰ পৃষ্ঠাত থাকি যায়। কাপোৰৰ স্পষ্ট ফটো ব্যৱহাৰ কৰক।',
+  'Share a story': 'ষ্ট’ৰী শ্বেয়াৰ কৰক',
+  'Make a story': 'এটা ষ্ট’ৰী বনাওক',
+  'Stories disappear after one day. Show your weave up close.':
+      'ষ্ট’ৰী এদিনৰ পাছত নাইকিয়া হয়। আপোনাৰ বোৱা কাপোৰ ওচৰৰ পৰা দেখুৱাওক।',
+  'Make a reel': 'এটা ৰিল বনাওক',
+  'Reels are short videos. Show your hands at the loom.':
+      'ৰিল চুটি ভিডিঅ’। তাঁতত আপোনাৰ হাত দেখুৱাওক।',
+  'Post in Instagram. Tap plus at the top left. Pick your photo, paste your words, then tap Share.':
+      'ইনষ্টাগ্ৰামত পোষ্ট কৰক। ওপৰৰ বাওঁফালে প্লাছ টিপক। ফটো বাছক, আপোনাৰ কথা পেষ্ট কৰক, তাৰ পাছত শ্বেয়াৰ টিপক।',
+  'Tap the plus sign to start a new post.':
+      'নতুন পোষ্ট আৰম্ভ কৰিবলৈ প্লাছ চিন টিপক।',
+  'To share a story, tap plus, then tap Story. Pick your photo and tap Your story.':
+      'ষ্ট’ৰী শ্বেয়াৰ কৰিবলৈ প্লাছ টিপক, তাৰ পাছত ষ্ট’ৰী টিপক। ফটো বাছক আৰু আপোনাৰ ষ্ট’ৰী টিপক।',
+  'Tap plus, then choose Story.': 'প্লাছ টিপক, তাৰ পাছত ষ্ট’ৰী বাছক।',
+  'To make a reel, tap plus, then tap Reel. Pick a short clip of your work and tap Share.':
+      'ৰিল বনাবলৈ প্লাছ টিপক, তাৰ পাছত ৰিল টিপক। আপোনাৰ কামৰ চুটি ক্লিপ বাছক আৰু শ্বেয়াৰ টিপক।',
+  'Tap plus, then choose Reel.': 'প্লাছ টিপক, তাৰ পাছত ৰিল বাছক।',
+  'What do you want to make? Choose Post, Story, or Reel. Then tap Continue.':
+      'আপুনি কি বনাব বিচাৰে? পোষ্ট, ষ্ট’ৰী বা ৰিল বাছক। তাৰ পাছত আগবাঢ়ক টিপক।',
   'Tap +': '+ টিপক',
   'New post': 'নতুন পোষ্ট',
   'New story': 'নতুন ষ্ট’ৰী',
@@ -568,6 +596,8 @@ const _as = <String, String>{
   'Pick your video. Tap a clip of your weaving, then tap Next.':
       'ভিডিঅ’ বাছক। তাঁতৰ ক্লিপ টিপক, তাৰ পাছত পৰৱৰ্তী টিপক।',
   'Allow photo access': 'ফটোৰ অনুমতি দিয়ক',
+  'Allow photo access. The first time you tap plus to make a post, your phone asks for permission. Tap Allow all or Select photos.':
+      'ফটোৰ অনুমতি দিয়ক। প্ৰথমবাৰ পোষ্ট কৰিবলৈ প্লাছ টিপোঁতে ফোনে অনুমতি বিচাৰে। সকলো অনুমতি বা ফটো বাছক টিপক।',
   'Photos and videos': 'ফটো আৰু ভিডিঅ’',
   'Allow all': 'সকলো অনুমতি দিয়ক',
   'Select photos': 'ফটো বাছক',
@@ -728,6 +758,10 @@ const _as = <String, String>{
 
 const _or = <String, String>{
   'Choose your language': 'ଆପଣଙ୍କ ଭାଷା ବାଛନ୍ତୁ',
+  'Assamese': 'ଅସମୀୟା',
+  'English': 'ଇଂରାଜୀ',
+  'Odia': 'ଓଡ଼ିଆ',
+  'Telugu': 'ତେଲୁଗୁ',
   'Tap your language.': 'ଆପଣଙ୍କ ଭାଷାରେ ଟ୍ୟାପ୍ କରନ୍ତୁ।',
   'Continue': 'ଆଗକୁ ବଢ଼ନ୍ତୁ',
   'You can change this later in Settings': 'ଏହାକୁ ପରେ ସେଟିଂସରେ ବଦଳାଇ ପାରିବେ',
@@ -864,6 +898,8 @@ const _or = <String, String>{
   'Which is better?': 'କେଉଁଟି ଭଲ?',
   'Yes! B is better': 'ହଁ! ଖ ଭଲ',
   'Not quite. B is better': 'ଠିକ୍ ନୁହେଁ। ଖ ଭଲ',
+  'A': 'କ',
+  'B': 'ଖ',
   'TASK 1 OF 5': '୫ ରୁ କାମ ୧',
   'TASK 2 OF 5': '୫ ରୁ କାମ ୨',
   'TASK 3 OF 5': '୫ ରୁ କାମ ୩',
@@ -873,6 +909,8 @@ const _or = <String, String>{
   'Story': 'ଷ୍ଟୋରି',
   'Reel': 'ରିଲ୍',
   'Allow photo access': 'ଫଟୋ ଅନୁମତି ଦିଅନ୍ତୁ',
+  'Allow photo access. The first time you tap plus to make a post, your phone asks for permission. Tap Allow all or Select photos.':
+      'ଫଟୋ ଅନୁମତି ଦିଅନ୍ତୁ। ପ୍ରଥମ ଥର ପୋଷ୍ଟ କରିବାକୁ ପ୍ଲସ୍ ଟ୍ୟାପ୍ କଲେ ଫୋନ୍ ଅନୁମତି ମାଗେ। ସବୁ ଅନୁମତି କିମ୍ବା ଫଟୋ ବାଛନ୍ତୁ ଟ୍ୟାପ୍ କରନ୍ତୁ।',
   'Photos and videos': 'ଫଟୋ ଓ ଭିଡିଓ',
   'Allow all': 'ସବୁ ଅନୁମତି ଦିଅନ୍ତୁ',
   'Select photos': 'ଫଟୋ ବାଛନ୍ତୁ',
@@ -885,6 +923,28 @@ const _or = <String, String>{
   'Yes, I posted': 'ହଁ, ମୁଁ ପୋଷ୍ଟ କଲି',
   'Show me again': 'ପୁଣି ଦେଖାନ୍ତୁ',
   'Post in Instagram': 'ଇନଷ୍ଟାଗ୍ରାମରେ ପୋଷ୍ଟ କରନ୍ତୁ',
+  'Make a feed post': 'ଏକ ଫିଡ୍ ପୋଷ୍ଟ ତିଆରି କରନ୍ତୁ',
+  'A post stays on your page. Use a clear photo of your cloth.':
+      'ପୋଷ୍ଟ ଆପଣଙ୍କ ପୃଷ୍ଠାରେ ରହେ। ଆପଣଙ୍କ କପଡ଼ାର ସ୍ପଷ୍ଟ ଫଟୋ ବ୍ୟବହାର କରନ୍ତୁ।',
+  'Share a story': 'ଷ୍ଟୋରି ସେୟାର କରନ୍ତୁ',
+  'Make a story': 'ଏକ ଷ୍ଟୋରି ତିଆରି କରନ୍ତୁ',
+  'Stories disappear after one day. Show your weave up close.':
+      'ଷ୍ଟୋରି ଗୋଟିଏ ଦିନ ପରେ ହଜିଯାଏ। ଆପଣଙ୍କ ବୁଣା ଓଚରରୁ ଦେଖାନ୍ତୁ।',
+  'Make a reel': 'ଏକ ରିଲ୍ ତିଆରି କରନ୍ତୁ',
+  'Reels are short videos. Show your hands at the loom.':
+      'ରିଲ୍ ହେଉଛି ଛୋଟ ଭିଡିଓ। ତନ୍ତରେ ଆପଣଙ୍କ ହାତ ଦେଖାନ୍ତୁ।',
+  'Post in Instagram. Tap plus at the top left. Pick your photo, paste your words, then tap Share.':
+      'ଇନଷ୍ଟାଗ୍ରାମରେ ପୋଷ୍ଟ କରନ୍ତୁ। ଉପର ବାମରେ ପ୍ଲସ୍ ଟ୍ୟାପ୍ କରନ୍ତୁ। ଫଟୋ ବାଛନ୍ତୁ, ଆପଣଙ୍କ କଥା ପେଷ୍ଟ କରନ୍ତୁ, ତାପରେ ସେୟାର ଟ୍ୟାପ୍ କରନ୍ତୁ।',
+  'Tap the plus sign to start a new post.':
+      'ନୂଆ ପୋଷ୍ଟ ଆରମ୍ଭ କରିବାକୁ ପ୍ଲସ୍ ଚିହ୍ନ ଟ୍ୟାପ୍ କରନ୍ତୁ।',
+  'To share a story, tap plus, then tap Story. Pick your photo and tap Your story.':
+      'ଷ୍ଟୋରି ସେୟାର କରିବାକୁ ପ୍ଲସ୍ ଟ୍ୟାପ୍ କରନ୍ତୁ, ତାପରେ ଷ୍ଟୋରି ଟ୍ୟାପ୍ କରନ୍ତୁ। ଫଟୋ ବାଛନ୍ତୁ ଏବଂ ଆପଣଙ୍କ ଷ୍ଟୋରି ଟ୍ୟାପ୍ କରନ୍ତୁ।',
+  'Tap plus, then choose Story.': 'ପ୍ଲସ୍ ଟ୍ୟାପ୍ କରନ୍ତୁ, ତାପରେ ଷ୍ଟୋରି ବାଛନ୍ତୁ।',
+  'To make a reel, tap plus, then tap Reel. Pick a short clip of your work and tap Share.':
+      'ରିଲ୍ ତିଆରି କରିବାକୁ ପ୍ଲସ୍ ଟ୍ୟାପ୍ କରନ୍ତୁ, ତାପରେ ରିଲ୍ ଟ୍ୟାପ୍ କରନ୍ତୁ। ଆପଣଙ୍କ କାମର ଛୋଟ କ୍ଲିପ୍ ବାଛନ୍ତୁ ଏବଂ ସେୟାର ଟ୍ୟାପ୍ କରନ୍ତୁ।',
+  'Tap plus, then choose Reel.': 'ପ୍ଲସ୍ ଟ୍ୟାପ୍ କରନ୍ତୁ, ତାପରେ ରିଲ୍ ବାଛନ୍ତୁ।',
+  'What do you want to make? Choose Post, Story, or Reel. Then tap Continue.':
+      'ଆପଣ କ’ଣ ତିଆରି କରିବାକୁ ଚାହୁଁଛନ୍ତି? ପୋଷ୍ଟ, ଷ୍ଟୋରି କିମ୍ବା ରିଲ୍ ବାଛନ୍ତୁ। ତାପରେ ଆଗକୁ ବଢ଼ନ୍ତୁ ଟ୍ୟାପ୍ କରନ୍ତୁ।',
   'Tap +': '+ ଟ୍ୟାପ୍ କରନ୍ତୁ',
   'New post': 'ନୂଆ ପୋଷ୍ଟ',
   'Pick your photo': 'ଆପଣଙ୍କ ଫଟୋ ବାଛନ୍ତୁ',
@@ -1211,6 +1271,10 @@ const _or = <String, String>{
 
 const _te = <String, String>{
   'Choose your language': 'మీ భాషను ఎంచుకోండి',
+  'Assamese': 'అస్సామీ',
+  'English': 'ఇంగ్లీష్',
+  'Odia': 'ఒడియా',
+  'Telugu': 'తెలుగు',
   'Tap your language.': 'మీ భాషపై నొక్కండి.',
   'Continue': 'కొనసాగించండి',
   'You can change this later in Settings': 'దీన్ని తర్వాత సెట్టింగ్‌లలో మార్చవచ్చు',
@@ -1348,6 +1412,8 @@ const _te = <String, String>{
   'Which is better?': 'ఏది మంచిది?',
   'Yes! B is better': 'అవును! బి మంచిది',
   'Not quite. B is better': 'కాదు. బి మంచిది',
+  'A': 'ఎ',
+  'B': 'బి',
   'TASK 1 OF 5': '5లో పని 1',
   'TASK 2 OF 5': '5లో పని 2',
   'TASK 3 OF 5': '5లో పని 3',
@@ -1357,6 +1423,8 @@ const _te = <String, String>{
   'Story': 'స్టోరీ',
   'Reel': 'రీల్',
   'Allow photo access': 'ఫోటో అనుమతి ఇవ్వండి',
+  'Allow photo access. The first time you tap plus to make a post, your phone asks for permission. Tap Allow all or Select photos.':
+      'ఫోటో అనుమతి ఇవ్వండి. మొదటిసారి పోస్ట్ చేయడానికి ప్లస్ నొక్కితే ఫోన్ అనుమతి అడుగుతుంది. అన్నీ అనుమతించండి లేదా ఫోటోలు ఎంచుకోండి నొక్కండి.',
   'Photos and videos': 'ఫోటోలు మరియు వీడియోలు',
   'Allow all': 'అన్నీ అనుమతించండి',
   'Select photos': 'ఫోటోలు ఎంచుకోండి',
@@ -1369,6 +1437,28 @@ const _te = <String, String>{
   'Yes, I posted': 'అవును, పోస్ట్ చేశాను',
   'Show me again': 'మళ్లీ చూపించండి',
   'Post in Instagram': 'ఇన్‌స్టాగ్రామ్లో పోస్ట్ చేయండి',
+  'Make a feed post': 'ఫీడ్ పోస్ట్ చేయండి',
+  'A post stays on your page. Use a clear photo of your cloth.':
+      'పోస్ట్ మీ పేజీలో ఉంటుంది. మీ గుడ్డ యొక్క స్పష్టమైన ఫోటో వాడండి.',
+  'Share a story': 'స్టోరీని షేర్ చేయండి',
+  'Make a story': 'స్టోరీ చేయండి',
+  'Stories disappear after one day. Show your weave up close.':
+      'స్టోరీలు ఒక రోజు తర్వాత మాయమవుతాయి. మీ నేయడాన్ని దగ్గరగా చూపించండి.',
+  'Make a reel': 'రీల్ చేయండి',
+  'Reels are short videos. Show your hands at the loom.':
+      'రీల్స్ చిన్న వీడియోలు. మగ్గం దగ్గర మీ చేతులు చూపించండి.',
+  'Post in Instagram. Tap plus at the top left. Pick your photo, paste your words, then tap Share.':
+      'ఇన్‌స్టాగ్రామ్లో పోస్ట్ చేయండి. పైన ఎడమవైపు ప్లస్ నొక్కండి. ఫోటో ఎంచుకోండి, మీ మాటలు అంటించండి, ఆపై షేర్ నొక్కండి.',
+  'Tap the plus sign to start a new post.':
+      'కొత్త పోస్ట్ మొదలు పెట్టడానికి ప్లస్ గుర్తు నొక్కండి.',
+  'To share a story, tap plus, then tap Story. Pick your photo and tap Your story.':
+      'స్టోరీ షేర్ చేయడానికి ప్లస్ నొక్కండి, ఆపై స్టోరీ నొక్కండి. ఫోటో ఎంచుకుని మీ స్టోరీ నొక్కండి.',
+  'Tap plus, then choose Story.': 'ప్లస్ నొక్కి, ఆపై స్టోరీ ఎంచుకోండి.',
+  'To make a reel, tap plus, then tap Reel. Pick a short clip of your work and tap Share.':
+      'రీల్ చేయడానికి ప్లస్ నొక్కండి, ఆపై రీల్ నొక్కండి. మీ పని యొక్క చిన్న క్లిప్ ఎంచుకుని షేర్ నొక్కండి.',
+  'Tap plus, then choose Reel.': 'ప్లస్ నొక్కి, ఆపై రీల్ ఎంచుకోండి.',
+  'What do you want to make? Choose Post, Story, or Reel. Then tap Continue.':
+      'మీరు ఏమి చేయాలనుకుంటున్నారు? పోస్ట్, స్టోరీ లేదా రీల్ ఎంచుకోండి. ఆపై కొనసాగించండి నొక్కండి.',
   'Tap +': '+ నొక్కండి',
   'New post': 'కొత్త పోస్ట్',
   'Pick your photo': 'మీ ఫోటోను ఎంచుకోండి',

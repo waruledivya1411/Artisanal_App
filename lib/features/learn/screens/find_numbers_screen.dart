@@ -137,7 +137,9 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
                               playing: _speech.playing,
                               onTap: () => _speech.toggle(
                                 locale: widget.locale,
-                                text: FindNumbersScreen.spoken,
+                                text:
+                                '${tr('Find your numbers. Open your page.')} '
+                                '${tr('Tap Professional dashboard. Tap a post, then View insights.')}',
                               ),
                             ),
                           ),
@@ -538,7 +540,7 @@ class _Step extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              text,
+              tr(text),
               style: appType(
                 color: ink,
                 fontSize: 15,

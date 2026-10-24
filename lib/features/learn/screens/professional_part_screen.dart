@@ -103,7 +103,7 @@ class _ProfessionalPartScreenState extends State<ProfessionalPartScreen> {
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            ProfessionalPartScreen.partLabel,
+                            tr(ProfessionalPartScreen.partLabel),
                             style: appType(
                               color: ProfessionalPartScreen.teal,
                               fontSize: 12,
@@ -119,7 +119,7 @@ class _ProfessionalPartScreenState extends State<ProfessionalPartScreen> {
                           playing: _speech.playing,
                           onTap: () => _speech.toggle(
                             locale: widget.locale,
-                            text: ProfessionalPartScreen.spoken,
+                            text: tr(ProfessionalPartScreen.spoken),
                           ),
                         ),
                       ),

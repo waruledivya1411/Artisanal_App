@@ -98,7 +98,7 @@ class _PhotoAccessScreenState extends State<PhotoAccessScreen> {
                           playing: _speech.playing,
                           onTap: () => _speech.toggle(
                             locale: widget.locale,
-                            text: PhotoAccessScreen.spoken,
+                            text: tr(PhotoAccessScreen.spoken),
                           ),
                         ),
                       ),

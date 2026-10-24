@@ -94,7 +94,7 @@ class _TryItDidItWorkScreenState extends State<TryItDidItWorkScreen> {
                         playing: _speech.playing,
                         onTap: () => _speech.toggle(
                           locale: widget.locale,
-                          text: TryItDidItWorkScreen.spoken,
+                          text: tr(TryItDidItWorkScreen.spoken),
                         ),
                       ),
                     ],

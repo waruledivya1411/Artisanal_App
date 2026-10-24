@@ -114,7 +114,7 @@ class _LearnPartScreenState extends State<LearnPartScreen> {
                           playing: _speech.playing,
                           onTap: () => _speech.toggle(
                             locale: widget.locale,
-                            text: '${widget.title}.',
+                            text: '${tr(widget.title)}.',
                           ),
                         ),
                       ),

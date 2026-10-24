@@ -152,7 +152,7 @@ class _BadgeTile extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              title,
+              tr(title),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

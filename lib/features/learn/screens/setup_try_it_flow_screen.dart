@@ -44,7 +44,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
   late final TextEditingController _usernameController =
       TextEditingController(text: 'divya.weaves');
   late final TextEditingController _bioController = TextEditingController(
-    text: 'Handwoven cloth · Sualkuchi, Assam',
+    text: tr('Handwoven cloth · Sualkuchi, Assam'),
   );
 
   final _picker = ImagePicker();
@@ -1314,7 +1314,7 @@ class _FieldLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      text,
+      tr(text),
       style: appType(
         color: SetupTryItFlowScreen.ink,
         fontSize: 14,

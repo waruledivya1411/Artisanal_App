@@ -150,7 +150,7 @@ class _ChooseContentTypeScreenState extends State<ChooseContentTypeScreen> {
                           playing: _speech.playing,
                           onTap: () => _speech.toggle(
                             locale: widget.locale,
-                            text: ChooseContentTypeScreen.spoken,
+                            text: tr(ChooseContentTypeScreen.spoken),
                           ),
                         ),
                       ),
@@ -330,7 +330,7 @@ class _TypeCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            title,
+                            tr(title),
                             style: appType(
                               color: ChooseContentTypeScreen.ink,
                               fontSize: 18,
@@ -341,7 +341,7 @@ class _TypeCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        detail,
+                        tr(detail),
                         style: appType(
                           color: ChooseContentTypeScreen.muted,
                           fontSize: 14,

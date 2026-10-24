@@ -4,6 +4,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+import 'package:artisnal_app/core/l10n/app_text.dart';
+
 /// Setup-guide emphasis for the two folded-stack steps before the camera.
 enum FoldedStackGuideAccent {
   /// One rectangle in the dashed box — not a pile.
@@ -144,8 +146,8 @@ class FoldedStackOverlay {
   }) {
     final painter = TextPainter(
       text: TextSpan(
-        text: text,
-        style: TextStyle(
+        text: tr(text),
+        style: appType(
           color: muted
               ? const Color(0x99FFFFFF)
               : highlight
@@ -153,6 +155,7 @@ class FoldedStackOverlay {
                   : Colors.white,
           fontSize: fontSize,
           fontWeight: FontWeight.w700,
+        ).copyWith(
           shadows: const [
             Shadow(color: Color(0xCC000000), blurRadius: 4),
           ],

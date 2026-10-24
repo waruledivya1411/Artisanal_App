@@ -329,7 +329,7 @@ class _GuideCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        stepLabel,
+                        tr(stepLabel),
                         style: appType(
                           color: PickPhotoGuideScreen.teal,
                           fontSize: 11,
@@ -339,7 +339,7 @@ class _GuideCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        title,
+                        tr(title),
                         style: appType(
                           color: PickPhotoGuideScreen.ink,
                           fontSize: 22,

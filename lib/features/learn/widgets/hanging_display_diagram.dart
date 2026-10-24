@@ -2,6 +2,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+import 'package:artisnal_app/core/l10n/app_text.dart';
+
 import 'package:artisnal_app/features/learn/widgets/folded_stack_diagram.dart';
 
 /// Setup-guide emphasis for hanging-display steps before the camera.
@@ -202,11 +204,12 @@ class HangingDisplayOverlay {
   }) {
     final painter = TextPainter(
       text: TextSpan(
-        text: text,
-        style: TextStyle(
+        text: tr(text),
+        style: appType(
           color: highlight ? teal : Colors.white,
           fontSize: fontSize,
           fontWeight: FontWeight.w700,
+        ).copyWith(
           shadows: const [
             Shadow(color: Color(0xCC000000), blurRadius: 4),
           ],

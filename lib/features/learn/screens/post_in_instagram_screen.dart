@@ -102,7 +102,10 @@ class _PostInInstagramScreenState extends State<PostInInstagramScreen> {
 
   void _playStepAudio() {
     _speech.stop();
-    _stepSpeech.toggle(locale: widget.locale, text: _guide.firstStepSpoken);
+    _stepSpeech.toggle(
+      locale: widget.locale,
+      text: tr(_guide.firstStepSpoken),
+    );
   }
 
   void _openMediaPicker() {
@@ -156,7 +159,7 @@ class _PostInInstagramScreenState extends State<PostInInstagramScreen> {
                         ),
                       ),
                       Text(
-                        _guide.headerTitle,
+                        tr(_guide.headerTitle),
                         style: appType(
                           color: PostInInstagramScreen.teal,
                           fontSize: 13,
@@ -171,7 +174,7 @@ class _PostInInstagramScreenState extends State<PostInInstagramScreen> {
                             _stepSpeech.stop();
                             _speech.toggle(
                               locale: widget.locale,
-                              text: _guide.spoken,
+                              text: tr(_guide.spoken),
                             );
                           },
                         ),
@@ -196,7 +199,7 @@ class _PostInInstagramScreenState extends State<PostInInstagramScreen> {
                         ),
                         const SizedBox(height: 14),
                         Text(
-                          _guide.instructionTitle,
+                          tr(_guide.instructionTitle),
                           style: appType(
                             color: PostInInstagramScreen.ink,
                             fontSize: 18,
@@ -205,7 +208,7 @@ class _PostInInstagramScreenState extends State<PostInInstagramScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          _guide.instructionBody,
+                          tr(_guide.instructionBody),
                           style: appType(
                             color: PostInInstagramScreen.muted,
                             fontSize: 15,

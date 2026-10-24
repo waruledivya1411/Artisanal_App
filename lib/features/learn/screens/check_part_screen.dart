@@ -995,7 +995,7 @@ class _Badge extends StatelessWidget {
         ],
       ),
       child: Text(
-        letter,
+        tr(letter),
         style: appType(
           color: CheckPartScreen.ink,
           fontSize: 15,
@@ -1041,7 +1041,7 @@ class _Feedback extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  correct ? 'Yes! B is better' : 'Not quite. B is better',
+                  tr(correct ? 'Yes! B is better' : 'Not quite. B is better'),
                   style: appType(
                     color: color,
                     fontSize: 17,

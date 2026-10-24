@@ -21,10 +21,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('আপোনাৰ ভাষা বাছনি কৰক'), findsOneWidget);
-    expect(find.text('Assamese'), findsOneWidget);
+    expect(find.text('অসমীয়া'), findsWidgets);
     expect(find.text('English'), findsOneWidget);
-    expect(find.text('Odia'), findsOneWidget);
-    expect(find.text('Telugu'), findsOneWidget);
+    expect(find.text('ଓଡ଼ିଆ'), findsOneWidget);
+    expect(find.text('తెలుగు'), findsOneWidget);
 
     await tester.tap(find.text('English'));
     await tester.pump();

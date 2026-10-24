@@ -204,7 +204,7 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
                     _Header(
                       onSpeak: () => _speech.toggle(
                         locale: widget.locale,
-                        text: LearnHomeScreen.spoken,
+                        text: tr(LearnHomeScreen.spoken),
                       ),
                     ),
                     const SizedBox(height: 18),

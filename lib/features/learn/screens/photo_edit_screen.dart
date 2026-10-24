@@ -123,7 +123,9 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+      SnackBar(
+        content: Text(tr(message), style: appType()),
+      ),
     );
   }
 
@@ -166,7 +168,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                   ),
                 ),
                 Text(
-                  _sliderHint,
+                  tr(_sliderHint),
                   textAlign: TextAlign.center,
                   style: appType(
                     color: Colors.white70,
