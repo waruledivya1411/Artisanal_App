@@ -177,7 +177,7 @@ class _PhotoAccessScreenState extends State<PhotoAccessScreen> {
                       width: double.infinity,
                       child: Center(
                         child: Text(
-                          widget.nextBuilder == null ? 'Got it' : 'Continue',
+                          tr(widget.nextBuilder == null ? 'Got it' : 'Continue'),
                           style: appType(
                             color: PhotoAccessScreen.teal,
                             fontSize: 16,

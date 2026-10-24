@@ -659,7 +659,7 @@ class _ProfilePreview extends StatelessWidget {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    caption,
+                    tr(caption),
                     style: appType(
                       color: CheckPartScreen.ink,
                       fontSize: 16,
@@ -749,7 +749,7 @@ class _CaptionedPicture extends StatelessWidget {
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
-                caption,
+                tr(caption),
                 style: appType(
                   color: highlight ? CheckPartScreen.teal : CheckPartScreen.ink,
                   fontSize: 19,

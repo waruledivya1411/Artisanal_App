@@ -247,7 +247,7 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
         if (caption != null) ...[
           const SizedBox(height: 12),
           Text(
-            caption,
+            tr(caption),
             style: appType(
               color: DisplayGuideScreen.muted,
               fontSize: 14,
@@ -326,7 +326,7 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  _isLast ? 'Take the shot' : 'Next',
+                  tr(_isLast ? 'Take the shot' : 'Next'),
                   style: appType(
                     color: Colors.white,
                     fontSize: 16,
