@@ -183,8 +183,8 @@ class _GuidePainter extends CustomPainter {
         _closeTexture(canvas, fill, accent, faint);
 
       case GuideArt.border:
-        // Same layout as the camera frame for this shot: upright piece,
-        // motif window top left, border strip down the right.
+        // Upright piece: the motif area fills the body, the border strip
+        // runs down the right.
         const frame = Rect.fromLTRB(18, 11, 82, 89);
         Rect inside(double l, double t, double r, double b) => Rect.fromLTRB(
           frame.left + frame.width * l,
@@ -208,7 +208,7 @@ class _GuidePainter extends CustomPainter {
           );
         }
 
-        final window = inside(0.07, 0.07, 0.62, 0.48);
+        final window = inside(0.07, 0.05, 0.67, 0.95);
         canvas.drawRRect(
           RRect.fromRectAndRadius(window, const Radius.circular(2.5)),
           accent,

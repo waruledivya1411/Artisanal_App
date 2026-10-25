@@ -244,7 +244,7 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
                           if (_ghostPhoto case final ghost?)
                             IgnorePointer(
                               child: Opacity(
-                                opacity: 0.65,
+                                opacity: 0.5,
                                 child: Image.asset(
                                   ghost,
                                   fit: BoxFit.cover,
