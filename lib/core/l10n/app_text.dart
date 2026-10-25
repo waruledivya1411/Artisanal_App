@@ -314,10 +314,6 @@ const _as = <String, String>{
   'So close you can count the threads': 'ইমান ওচৰত যে সূতা গণিব পাৰি',
   'The shadows in the weave are the raking light doing the work.':
       'বয়নৰ ছাঁবোৰ কাষৰ পোহৰৰ কাম।',
-  'Pleats falling free — or over the back of a chair':
-      'প্লিট মুক্তকৈ নামি আছে — বা চকীৰ পিঠিত',
-  'A dark background makes pale silk glow.':
-      'ডাঠ পটভূমিয়ে পাতল ৰেচম জিলিকাই।',
   'Find the border': 'পাৰি বিচাৰক',
   'Close on the extra-weft buta of the pallu — that is the handwork':
       'পাল্লুৰ অতিৰিক্ত সূতাৰ ফুলৰ ওচৰত — সেয়াই হাতৰ কাম',
@@ -339,8 +335,6 @@ const _as = <String, String>{
       'ওপৰৰ পৰা · কাষত পাৰি · সন্মুখত ফুল',
   'One fold in frame — tassels along the bottom':
       'ফ্ৰেমত এটা ভাঁজ — তলত ফুল',
-  'Fold it so the border and tassels show.':
-      'এনেকৈ ভাঁজ কৰক যাতে পাৰি আৰু ফুল দেখা যায়।',
   'Hang the stole straight': 'চ’ল পোনকৈ ওলোমাওক',
   'On a rod · borders down the sides · tassels along the bottom':
       'দণ্ডত · দুয়োকাষে পাৰি · তলত ফুল',
@@ -401,8 +395,6 @@ const _as = <String, String>{
   'One folded gamusa': 'এখন ভাঁজ কৰা গামোচা',
   'Shot from above · end border across · tassels along the front':
       'ওপৰৰ পৰা · মূৰৰ পাৰি আৰু সন্মুখত ফুল',
-  'Fold it so the end border and tassels show.':
-      'এনেকৈ ভাঁজ কৰক যাতে মূৰৰ পাৰি আৰু ফুল দেখা যায়।',
   'One rod · wide cloth on the left · narrow piece with tassels':
       'এডাল দণ্ড · বাওঁফালে বহল কাপোৰ · ফুল থকা ঠেক টুকুৰা',
   'Both pieces in frame, hanging straight':
@@ -987,8 +979,6 @@ const _or = <String, String>{
   'Fill the centre box · edges parallel': 'ମଝି ବାକ୍ସ ଭରନ୍ତୁ · ଧାର ସମାନ୍ତରାଳ',
   'So close you can count the threads': 'ଏତେ ପାଖରେ ଯେ ସୂତା ଗଣିପାରିବେ',
   'The shadows in the weave are the raking light doing the work.': 'ବୁଣାର ଛାଇ କାତି ଆସୁଥିବା ଆଲୋକର କାମ।',
-  'Pleats falling free — or over the back of a chair': 'ପ୍ଲିଟ୍ ଖୋଲା ହୋଇ ଝୁଲୁଛି — କିମ୍ବା ଚୌକି ପିଠିରେ',
-  'A dark background makes pale silk glow.': 'ଗାଢ଼ ପୃଷ୍ଠଭୂମି ଫିକା ରେଶମକୁ ଚମକାଏ।',
   'Find the border': 'ପାରି ଖୋଜନ୍ତୁ',
   'Close on the extra-weft buta of the pallu — that is the handwork': 'ପଲ୍ଲୁର ଅତିରିକ୍ତ ସୂତା ଫୁଲ ପାଖରେ — ସେ ହାତକାମ',
   'Motif on a crossing point': 'ଫୁଲକୁ ଛେଦ ବିନ୍ଦୁରେ ରଖନ୍ତୁ',
@@ -1002,7 +992,6 @@ const _or = <String, String>{
   'One folded shawl': 'ଗୋଟିଏ ଭଙ୍ଗା ଶାଲ',
   'Shot from above · border on the side · tassels along the front': 'ଉପରୁ · ପାଖରେ ପାରି · ଆଗରେ ଝାଲର',
   'One fold in frame — tassels along the bottom': 'ଫ୍ରେମରେ ଗୋଟିଏ ଭଙ୍ଗା — ତଳେ ଝାଲର',
-  'Fold it so the border and tassels show.': 'ପାରି ଓ ଝାଲର ଦେଖାଯିବା ଭଳି ଭଙ୍ଗନ୍ତୁ।',
   'Hang the stole straight': 'ଷ୍ଟୋଲ ସିଧା ଝୁଲାନ୍ତୁ',
   'On a rod · borders down the sides · tassels along the bottom': 'ଦଣ୍ଡରେ · ଦୁଇ ପାଖରେ ପାରି · ତଳେ ଝାଲର',
   'Whole stole in frame, hanging straight': 'ସମସ୍ତ ଷ୍ଟୋଲ ଫ୍ରେମରେ, ସିଧା ଝୁଲୁଛି',
@@ -1038,7 +1027,6 @@ const _or = <String, String>{
   'Show the end border and the tassels. Keep it straight.': 'ମୁଣ୍ଡ ପାରି ଓ ଝାଲର ଦେଖାନ୍ତୁ। ସିଧା ରଖନ୍ତୁ।',
   'One folded gamusa': 'ଗୋଟିଏ ଭଙ୍ଗା ଗାମୁଛା',
   'Shot from above · end border across · tassels along the front': 'ଉପରୁ · ମୁଣ୍ଡ ପାରି ଆଡ଼େ · ଆଗରେ ଝାଲର',
-  'Fold it so the end border and tassels show.': 'ମୁଣ୍ଡ ପାରି ଓ ଝାଲର ଦେଖାଯିବା ଭଳି ଭଙ୍ଗନ୍ତୁ।',
   'One rod · wide cloth on the left · narrow piece with tassels': 'ଗୋଟିଏ ଦଣ୍ଡ · ବାମରେ ଓସାର କପଡ଼ା · ଝାଲର ଥିବା ସରୁ ଟୁକୁଡ଼ା',
   'Both pieces in frame, hanging straight': 'ଦୁଇ ଟୁକୁଡ଼ା ଫ୍ରେମରେ, ସିଧା ଝୁଲୁଛି',
   'Show the wide border and the tassels. Keep both pieces straight.': 'ଓସାର ପାରି ଓ ଝାଲର ଦେଖାନ୍ତୁ। ଦୁଇଟି ସିଧା ରଖନ୍ତୁ।',
@@ -1501,8 +1489,6 @@ const _te = <String, String>{
   'Fill the centre box · edges parallel': 'మధ్య పెట్టె నింపండి · అంచులు సమాంతరంగా',
   'So close you can count the threads': 'దారాలు లెక్కపెట్టేంత దగ్గరగా',
   'The shadows in the weave are the raking light doing the work.': 'నేతలోని నీడలు పక్క వెలుగు చేసే పని.',
-  'Pleats falling free — or over the back of a chair': 'మడతలు విడిగా వాలుతున్నాయి — లేదా కుర్చీ వీపుపై',
-  'A dark background makes pale silk glow.': 'ముదురు నేపథ్యం లేత పట్టును మెరపించేస్తుంది.',
   'Find the border': 'అంచును కనుక్కోండి',
   'Close on the extra-weft buta of the pallu — that is the handwork': 'పల్లులోని అదనపు పోగు పూవు దగ్గర — అదే చేతిపని',
   'Motif on a crossing point': 'కలిసే చోట మోటిఫ్ ఉంచండి',
@@ -1516,7 +1502,6 @@ const _te = <String, String>{
   'One folded shawl': 'ఒక మడత శాలువ',
   'Shot from above · border on the side · tassels along the front': 'పై నుంచి · పక్కన అంచు · ముందు కుచ్చులు',
   'One fold in frame — tassels along the bottom': 'ఫ్రేమ్‌లో ఒక మడత — కింద కుచ్చులు',
-  'Fold it so the border and tassels show.': 'అంచు మరియు కుచ్చులు కనిపించేలా మడవండి.',
   'Hang the stole straight': 'స్టోల్‌ను నిటారుగా వేలాడదీయండి',
   'On a rod · borders down the sides · tassels along the bottom': 'కడ్డీపై · రెండు వైపులా అంచులు · కింద కుచ్చులు',
   'Whole stole in frame, hanging straight': 'మొత్తం స్టోల్ ఫ్రేమ్‌లో, నిటారుగా వేలాడుతోంది',
@@ -1552,7 +1537,6 @@ const _te = <String, String>{
   'Show the end border and the tassels. Keep it straight.': 'చివరి అంచు మరియు కుచ్చులు చూపండి. నిటారుగా ఉంచండి.',
   'One folded gamusa': 'ఒక మడత గాముసా',
   'Shot from above · end border across · tassels along the front': 'పై నుంచి · చివరి అంచు అడ్డంగా · ముందు కుచ్చులు',
-  'Fold it so the end border and tassels show.': 'చివరి అంచు మరియు కుచ్చులు కనిపించేలా మడవండి.',
   'One rod · wide cloth on the left · narrow piece with tassels': 'ఒక కడ్డీ · ఎడమవైపు వెడల్పు గుడ్డ · కుచ్చులున్న సన్నని ముక్క',
   'Both pieces in frame, hanging straight': 'రెండు ముక్కలు ఫ్రేమ్‌లో, నిటారుగా వేలాడుతున్నాయి',
   'Show the wide border and the tassels. Keep both pieces straight.': 'వెడల్పు అంచు మరియు కుచ్చులు చూపండి. రెండూ నిటారుగా ఉంచండి.',

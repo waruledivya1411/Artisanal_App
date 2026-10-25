@@ -93,8 +93,6 @@ class _WelcomeShootScreenState extends State<WelcomeShootScreen> {
                     const SizedBox(height: 16),
                     const Row(
                       children: [
-                        _PageDot(),
-                        SizedBox(width: 8),
                         _PageDash(),
                         SizedBox(width: 8),
                         _PageDot(),

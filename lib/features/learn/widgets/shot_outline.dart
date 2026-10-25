@@ -687,18 +687,14 @@ class _OutlinePainter extends CustomPainter {
     }
   }
 
-  /// Wide fold on the left, smaller tasseled piece on the right.
+  /// Two plain boxes: the wide fold on the left, the smaller piece on the
+  /// right.
   void _jodFolded(Canvas canvas, Rect frame) {
     final stroke = Paint()
       ..color = const Color(0xE8FFFFFF)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round;
+      ..strokeWidth = 2.4;
     final fill = Paint()..color = const Color(0x22FFFFFF);
-    final faint = Paint()
-      ..color = const Color(0x99FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
 
     final wide = Rect.fromLTRB(
       frame.left + frame.width * 0.02,
@@ -706,79 +702,16 @@ class _OutlinePainter extends CustomPainter {
       frame.left + frame.width * 0.72,
       frame.top + frame.height * 0.86,
     );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(wide, const Radius.circular(6)),
-      fill,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(wide, const Radius.circular(6)),
-      stroke,
-    );
-    final bandTop = wide.top + wide.height * 0.62;
-    canvas.drawRect(
-      Rect.fromLTRB(wide.left, bandTop, wide.right, wide.bottom),
-      Paint()..color = const Color(0x18FFFFFF),
-    );
-    canvas.drawLine(Offset(wide.left, bandTop), Offset(wide.right, bandTop), stroke);
-    canvas.drawLine(
-      Offset(wide.left, wide.top + wide.height * 0.8),
-      Offset(wide.right, wide.top + wide.height * 0.8),
-      faint,
-    );
-    _templePeaks(
-      canvas,
-      wide.left,
-      wide.right,
-      bandTop - wide.height * 0.14,
-      stroke,
-      drop: wide.height * 0.12,
-    );
-    for (final fraction in [0.32, 0.4, 0.52, 0.6]) {
-      canvas.drawLine(
-        Offset(wide.left + wide.width * fraction, wide.top),
-        Offset(wide.left + wide.width * fraction, wide.bottom),
-        fraction == 0.4 || fraction == 0.6 ? stroke : faint,
-      );
-    }
-
     final small = Rect.fromLTRB(
       frame.left + frame.width * 0.56,
       frame.top + frame.height * 0.42,
       frame.right - frame.width * 0.02,
-      frame.top + frame.height * 0.88,
+      frame.top + frame.height * 0.97,
     );
-    canvas.drawRRect(RRect.fromRectAndRadius(small, const Radius.circular(6)), fill);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(small, const Radius.circular(6)),
-      stroke,
-    );
-    canvas.drawLine(
-      Offset(small.left + small.width * 0.22, small.top),
-      Offset(small.left + small.width * 0.22, small.bottom),
-      faint,
-    );
-    canvas.drawLine(
-      Offset(small.left + small.width * 0.36, small.top),
-      Offset(small.left + small.width * 0.36, small.bottom),
-      stroke,
-    );
-    canvas.drawLine(
-      Offset(small.left, small.top + small.height * 0.36),
-      Offset(small.right, small.top + small.height * 0.36),
-      stroke,
-    );
-    canvas.drawLine(
-      Offset(small.left, small.top + small.height * 0.64),
-      Offset(small.right, small.top + small.height * 0.64),
-      faint,
-    );
-    for (var i = 0; i < 6; i++) {
-      final x = small.left + small.width * (0.1 + i * 0.15);
-      canvas.drawLine(
-        Offset(x, small.bottom),
-        Offset(x, small.bottom + frame.height * 0.08),
-        stroke,
-      );
+    for (final piece in [wide, small]) {
+      final box = RRect.fromRectAndRadius(piece, const Radius.circular(6));
+      canvas.drawRRect(box, fill);
+      canvas.drawRRect(box, stroke);
     }
   }
 

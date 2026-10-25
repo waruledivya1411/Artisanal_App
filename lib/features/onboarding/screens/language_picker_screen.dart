@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
-import 'package:artisnal_app/features/onboarding/screens/welcome_learn_screen.dart';
+import 'package:artisnal_app/features/onboarding/screens/welcome_shoot_screen.dart';
 
 class LanguagePickerScreen extends StatefulWidget {
   const LanguagePickerScreen({super.key});
@@ -229,7 +229,7 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                         Navigator.of(context).push(
                           MaterialPageRoute<void>(
                             builder: (_) =>
-                                WelcomeLearnScreen(locale: language.locale),
+                                WelcomeShootScreen(locale: language.locale),
                           ),
                         );
                       },

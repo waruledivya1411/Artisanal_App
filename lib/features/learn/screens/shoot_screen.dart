@@ -241,18 +241,22 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
                         fit: StackFit.expand,
                         children: [
                           _preview(),
-                          if (_ghostPhoto case final ghost?)
-                            IgnorePointer(
-                              child: Opacity(
-                                opacity: 0.5,
-                                child: Image.asset(
-                                  ghost,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stack) =>
-                                      const SizedBox.shrink(),
+                          // Only over the live picture - not while the camera
+                          // is still opening or could not open.
+                          if (_ghostPhoto case final ghost?) ...[
+                            if (_controller?.value.isInitialized ?? false)
+                              IgnorePointer(
+                                child: Opacity(
+                                  opacity: 0.5,
+                                  child: Image.asset(
+                                    ghost,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stack) =>
+                                        const SizedBox.shrink(),
+                                  ),
                                 ),
                               ),
-                            )
+                          ]
                           else
                             ShotOutlineOverlay(
                               outline: _outline,

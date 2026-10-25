@@ -79,9 +79,8 @@ const _closeUp = <GuideStep>[
 const _draped = <GuideStep>[
   GuideStep(
     title: 'Good example',
-    subtitle: 'Pleats falling free — or over the back of a chair',
+    subtitle: 'Over a chair — pleats in front, pallu down the side',
     showExample: true,
-    caption: 'A dark background makes pale silk glow.',
   ),
 ];
 
@@ -129,7 +128,6 @@ const _shawlFolded = <GuideStep>[
     title: 'Good example',
     subtitle: 'One fold in frame — tassels along the bottom',
     showExample: true,
-    caption: 'Fold it so the border and tassels show.',
   ),
 ];
 
@@ -157,7 +155,6 @@ const _stoleFolded = <GuideStep>[
     title: 'Good example',
     subtitle: 'One fold in frame — tassels along the bottom',
     showExample: true,
-    caption: 'Fold it so the border and tassels show.',
   ),
 ];
 
@@ -222,12 +219,7 @@ const _hanging = <GuideStep>[
 
 const _cushionSofa = <GuideStep>[
   GuideStep(
-    title: 'Sit the cover on the sofa',
-    subtitle: 'Close on one side of the sofa · whole cover in frame',
-    art: GuideArt.cushionSofa,
-  ),
-  GuideStep(
-    title: 'Good examples',
+    title: 'Good example',
     subtitle: 'Cover against the back, only part of the sofa in frame',
     showExample: true,
     caption: 'Show the whole cover. Do not crop the corners.',
@@ -236,12 +228,7 @@ const _cushionSofa = <GuideStep>[
 
 const _cushionFlat = <GuideStep>[
   GuideStep(
-    title: 'Lay the cover flat',
-    subtitle: 'Shot from above · all four corners in frame',
-    art: GuideArt.cushionFlat,
-  ),
-  GuideStep(
-    title: 'Good examples',
+    title: 'Good example',
     subtitle: 'Laid flat so the whole cover is in frame',
     showExample: true,
     caption: 'Keep it flat and show every corner.',
@@ -255,7 +242,7 @@ const _gamusaFull = <GuideStep>[
     art: GuideArt.gamusaFull,
   ),
   GuideStep(
-    title: 'Good examples',
+    title: 'Good example',
     subtitle: 'Whole gamusa in frame, hanging straight',
     showExample: true,
     caption: 'Show the end border and the tassels. Keep it straight.',
@@ -269,10 +256,9 @@ const _gamusaFolded = <GuideStep>[
     art: GuideArt.gamusaFolded,
   ),
   GuideStep(
-    title: 'Good examples',
+    title: 'Good example',
     subtitle: 'One fold in frame — tassels along the bottom',
     showExample: true,
-    caption: 'Fold it so the end border and tassels show.',
   ),
 ];
 
@@ -283,7 +269,7 @@ const _jodHanging = <GuideStep>[
     art: GuideArt.jodHanging,
   ),
   GuideStep(
-    title: 'Good examples',
+    title: 'Good example',
     subtitle: 'Both pieces in frame, hanging straight',
     showExample: true,
     caption: 'Show the wide border and the tassels. Keep both pieces straight.',
@@ -297,7 +283,7 @@ const _yardageHanging = <GuideStep>[
     art: GuideArt.yardageHanging,
   ),
   GuideStep(
-    title: 'Good examples',
+    title: 'Good example',
     subtitle: 'Whole cloth in frame, hanging from the rod',
     showExample: true,
     caption: 'Show the scattered motifs. Keep the cloth straight.',
@@ -311,7 +297,7 @@ const _yardageClose = <GuideStep>[
     art: GuideArt.yardageClose,
   ),
   GuideStep(
-    title: 'Good examples',
+    title: 'Good example',
     subtitle: 'So close the weave and motifs fill the frame',
     showExample: true,
     caption: 'Count the threads. Keep a few motifs in the shot.',
@@ -320,12 +306,7 @@ const _yardageClose = <GuideStep>[
 
 const _jodFolded = <GuideStep>[
   GuideStep(
-    title: 'Lay both pieces side by side',
-    subtitle: 'Wide fold on the left · smaller piece with tassels on the right',
-    art: GuideArt.jodFolded,
-  ),
-  GuideStep(
-    title: 'Good examples',
+    title: 'Good example',
     subtitle: 'Both folds in frame — tassels along the small piece',
     showExample: true,
     caption: 'Keep them side by side so the border and the tassels show.',

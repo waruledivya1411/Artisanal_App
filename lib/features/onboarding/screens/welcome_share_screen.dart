@@ -96,8 +96,6 @@ class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
                       children: [
                         _PageDot(),
                         SizedBox(width: 8),
-                        _PageDot(),
-                        SizedBox(width: 8),
                         _PageDash(),
                       ],
                     ),

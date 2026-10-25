@@ -50,14 +50,7 @@ void main() {
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Learn step by step'), findsOneWidget);
-    expect(find.text('Listen'), findsNothing);
-    expect(find.text('Next'), findsOneWidget);
-    expect(find.byType(Image), findsWidgets);
-
-    await tester.tap(find.text('Next'));
-    await tester.pumpAndSettle();
-
+    // The language choice goes straight to the photo welcome page.
     expect(find.text('Take beautiful photos'), findsOneWidget);
     expect(find.text('Listen'), findsNothing);
     expect(
