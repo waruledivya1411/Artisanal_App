@@ -73,3 +73,46 @@ Uint8List bakePhotoEdits(Uint8List bytes, PhotoEdits edits) {
 
   return img.encodeJpg(out, quality: 92);
 }
+
+/// Returns a JPEG of the part of [bytes] that lay between the photo lines on
+/// the camera screen.
+///
+/// [previewAspect] is the width over height of the live picture as shown,
+/// and [region] is the photo's share of that picture, 0 to 1 on each side
+/// (left, top, right, bottom). A still can be wider or taller than the live
+/// picture, so the centred part matching the live picture is found first.
+Uint8List cropToPreviewRegion(
+  Uint8List bytes,
+  double previewAspect,
+  (double, double, double, double) region,
+) {
+  final decoded = img.decodeImage(bytes);
+  if (decoded == null) return bytes;
+  var out = img.bakeOrientation(decoded);
+
+  var liveWidth = out.width.toDouble();
+  var liveHeight = liveWidth / previewAspect;
+  if (liveHeight > out.height) {
+    liveHeight = out.height.toDouble();
+    liveWidth = liveHeight * previewAspect;
+  }
+  final liveLeft = (out.width - liveWidth) / 2;
+  final liveTop = (out.height - liveHeight) / 2;
+
+  final (left, top, right, bottom) = region;
+  final x = (liveLeft + liveWidth * left).round().clamp(0, out.width - 1);
+  final y = (liveTop + liveHeight * top).round().clamp(0, out.height - 1);
+  final width =
+      (liveWidth * (right - left)).round().clamp(1, out.width - x);
+  final height =
+      (liveHeight * (bottom - top)).round().clamp(1, out.height - y);
+  out = img.copyCrop(out, x: x, y: y, width: width, height: height);
+
+  const maxSide = 2048;
+  if (out.width > maxSide || out.height > maxSide) {
+    out = out.width >= out.height
+        ? img.copyResize(out, width: maxSide)
+        : img.copyResize(out, height: maxSide);
+  }
+  return img.encodeJpg(out, quality: 92);
+}

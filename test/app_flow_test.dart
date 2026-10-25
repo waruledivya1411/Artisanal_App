@@ -462,13 +462,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // The camera opens with the dotted box to fit the product into. There is
-    // no camera under test, so it says so and keeps the outline.
+    // no camera under test, so it says so and keeps the outline. Like a phone
+    // camera, the black bands hold only Back and the shutter - no captions.
     expect(find.byType(ShotOutlineOverlay), findsOneWidget);
-    expect(
-      find.text('One folded sari in this box — border on the side'),
-      findsOneWidget,
-    );
-    expect(find.text('Move the saree into the frame'), findsOneWidget);
+    expect(find.text('Move the saree into the frame'), findsNothing);
 
     // Backing out of the camera leaves the guide open on its last step.
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));

@@ -1,16 +1,16 @@
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:artisnal_app/core/speech/speech_player.dart';
 
-import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
-import 'package:artisnal_app/features/learn/data/display_guides.dart';
 import 'package:artisnal_app/features/learn/data/displays.dart';
+import 'package:artisnal_app/features/learn/data/photo_edit.dart';
 import 'package:artisnal_app/features/learn/screens/photo_edit_screen.dart';
 import 'package:artisnal_app/features/learn/widgets/shot_outline.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
 
-/// Live camera with the dotted box the product should fill.
+/// Live camera in an upright 4:3 photo area, with the dotted box the product
+/// should fill. Black above and below, holding only Back and the shutter.
 ///
 /// Pops `true` once a photo is kept, so the caller knows the shot was taken.
 class ShootScreen extends StatefulWidget {
@@ -33,29 +33,8 @@ class ShootScreen extends StatefulWidget {
 }
 
 class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
-  late final SpeechPlayer _speech = SpeechPlayer((_) {
-    if (mounted) setState(() {});
-  });
-
   late final ShotOutline _outline =
       ShotOutline.forShot(widget.product, widget.display.key);
-
-  bool get _guidedShoot =>
-      _outline.kind == ShotOverlayKind.embroideryBorder ||
-      _outline.kind == ShotOverlayKind.foldedStack ||
-      _outline.kind == ShotOverlayKind.hangingDisplay ||
-      _outline.kind == ShotOverlayKind.mekhalaHanging ||
-      _outline.kind == ShotOverlayKind.mekhalaFolded ||
-      _outline.kind == ShotOverlayKind.stoleFolded ||
-      _outline.kind == ShotOverlayKind.shawlFolded ||
-      _outline.kind == ShotOverlayKind.gamusaFolded ||
-      _outline.kind == ShotOverlayKind.jodFolded ||
-      _outline.kind == ShotOverlayKind.jodHanging ||
-      _outline.kind == ShotOverlayKind.yardageHanging ||
-      _outline.kind == ShotOverlayKind.yardageClose;
-
-  int get _guideStepCount =>
-      guideFor(widget.display.key, product: widget.product).length;
 
   CameraController? _controller;
   String? _problem;
@@ -71,7 +50,6 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _speech.stop();
     _controller?.dispose();
     super.dispose();
   }
@@ -122,156 +100,29 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     }
   }
 
-  /// Shots whose drawing already names the pieces and marks the border have
-  /// no dark caption, so that text does not cover the border.
-  String? get _hint {
-    if (_outline.kind == ShotOverlayKind.embroideryBorder) return null;
-    if (_outline.kind == ShotOverlayKind.foldedStack) {
-      return tr('One folded sari in this box — border on the side');
-    }
-    if (_outline.kind == ShotOverlayKind.mekhalaFolded) return null;
-    if (_outline.kind == ShotOverlayKind.stoleFolded) {
-      return tr('One folded stole — border and tassels along the front');
-    }
-    if (_outline.kind == ShotOverlayKind.shawlFolded) {
-      return tr('One folded shawl — border on the side, tassels along the front');
-    }
-    if (_outline.kind == ShotOverlayKind.gamusaFolded) {
-      return tr('One folded gamusa — end border across, tassels along the front');
-    }
-    if (_outline.kind == ShotOverlayKind.jodFolded) {
-      return tr('Wide fold on the left · smaller piece with tassels on the right');
-    }
-    if (_outline.kind == ShotOverlayKind.hangingDisplay) {
-      return tr('Hang the piece in the centre, under the rod');
-    }
-    if (_outline.kind == ShotOverlayKind.mekhalaHanging) {
-      return tr('Hang both pieces under the rod — mekhela shorter, sador with tassels');
-    }
-    if (_outline.kind == ShotOverlayKind.jodHanging) {
-      return tr('Hang both pieces under the rod — wide cloth on the left, tassels on the right');
-    }
-    if (_outline.kind == ShotOverlayKind.yardageHanging) {
-      return tr('Hang the cloth under the rod — motifs across the whole piece');
-    }
-    if (_outline.kind == ShotOverlayKind.yardageClose) {
-      return tr('Fill the frame with the weave — a few motifs in the shot');
-    }
-    if (_outline.kind == ShotOverlayKind.mekhalaFull) {
-      return tr('Lay both pieces side by side in the frame');
-    }
-    if (_outline.kind == ShotOverlayKind.stoleFull) {
-      return tr('Hang the stole under the rod — tassels along the bottom');
-    }
-    if (_outline.kind == ShotOverlayKind.shawlFull) {
-      return tr('Hang the shawl under the rod — border on the side, tassels along the bottom');
-    }
-    if (_outline.kind == ShotOverlayKind.gamusaFull) {
-      return tr('Hang the gamusa under the rod — borders on both sides, tassels along the bottom');
-    }
-    if (_outline.kind == ShotOverlayKind.cushionSofa) {
-      return tr('Sit the cover against the back — only this side of the sofa in frame');
-    }
-    if (_outline.kind == ShotOverlayKind.cushionFlat) {
-      return tr('Lay the cover flat — all four corners in the frame');
-    }
-    if (_outline.kind == ShotOverlayKind.sariDraped) {
-      return tr('Chair, folded seat piece and pallu inside this box');
-    }
-    if (_outline.silhouette == ShotSilhouette.draped) {
-      return tr('Cover the pale shape with your cloth');
-    }
-    if (_outline.silhouette == ShotSilhouette.foldedSari) {
-      return tr('One folded sari in this box — border on the side');
-    }
-    final product = widget.product;
-    return product == null
-        ? tr('Fit the whole piece inside the dotted line')
-        : tr('Fit the $product inside the dotted line');
-  }
+  /// Cuts the shot down to the 4:3 photo area, so the saved picture is
+  /// exactly what the artisan saw.
+  Future<Uint8List> _cropToPhoto(Uint8List bytes) async {
+    final aspect = _previewAspect;
+    if (aspect == null) return bytes;
 
-  /// The one thing to do next, called out in yellow.
-  String get _prompt {
-    if (_outline.kind == ShotOverlayKind.mekhalaFull ||
-        _outline.kind == ShotOverlayKind.mekhalaHanging ||
-        _outline.kind == ShotOverlayKind.mekhalaFolded ||
-        _outline.kind == ShotOverlayKind.jodHanging ||
-        _outline.kind == ShotOverlayKind.jodFolded) {
-      return tr('Move both pieces into the frame');
+    // The live picture covers the 3:4 photo area, centred.
+    const photo = Size(3, 4);
+    var shownWidth = photo.width;
+    var shownHeight = shownWidth / aspect;
+    if (shownHeight < photo.height) {
+      shownHeight = photo.height;
+      shownWidth = shownHeight * aspect;
     }
-    if (_outline.kind == ShotOverlayKind.stoleFolded) {
-      return tr('Move the stole into the frame');
-    }
-    if (_outline.kind == ShotOverlayKind.shawlFolded) {
-      return tr('Move the shawl into the frame');
-    }
-    if (_outline.kind == ShotOverlayKind.gamusaFull ||
-        _outline.kind == ShotOverlayKind.gamusaFolded) {
-      return tr('Move the gamusa into the frame');
-    }
-    if (_outline.kind == ShotOverlayKind.cushionSofa ||
-        _outline.kind == ShotOverlayKind.cushionFlat) {
-      return tr('Move the cover into the frame');
-    }
-    if (_outline.kind == ShotOverlayKind.sariDraped) {
-      return tr('Move the saree into the frame');
-    }
-    if (_outline.kind == ShotOverlayKind.yardageHanging ||
-        _outline.kind == ShotOverlayKind.yardageClose) {
-      return tr('Move the yardage into the frame');
-    }
-    if (_guidedShoot) {
-      return tr('Move the saree into the frame');
-    }
-    final product = widget.product ?? 'piece';
-    return tr('Move the $product into the frame');
-  }
-
-  String get _headerTitle {
-    switch (_outline.kind) {
-      case ShotOverlayKind.embroideryBorder:
-        return _shotTitle(widget.display.name);
-      case ShotOverlayKind.foldedStack:
-      case ShotOverlayKind.mekhalaFolded:
-      case ShotOverlayKind.stoleFolded:
-      case ShotOverlayKind.shawlFolded:
-      case ShotOverlayKind.gamusaFolded:
-      case ShotOverlayKind.jodFolded:
-        return tr('FOLDED STACK');
-      case ShotOverlayKind.hangingDisplay:
-      case ShotOverlayKind.mekhalaHanging:
-      case ShotOverlayKind.jodHanging:
-      case ShotOverlayKind.yardageHanging:
-        return tr('HANGING DISPLAY');
-      case ShotOverlayKind.mekhalaFull:
-      case ShotOverlayKind.stoleFull:
-      case ShotOverlayKind.shawlFull:
-      case ShotOverlayKind.gamusaFull:
-      case ShotOverlayKind.cushionSofa:
-      case ShotOverlayKind.cushionFlat:
-      case ShotOverlayKind.yardageClose:
-      case ShotOverlayKind.standard:
-        return _shotTitle(widget.display.name);
-      case ShotOverlayKind.sariDraped:
-        return tr('DRAPED LOOK');
+    final left = (shownWidth - photo.width) / 2 / shownWidth;
+    final top = (shownHeight - photo.height) / 2 / shownHeight;
+    final region = (left, top, 1 - left, 1 - top);
+    try {
+      return await compute(_cropMessage, (bytes, aspect, region));
+    } catch (_) {
+      return bytes;
     }
   }
-
-  String _shotTitle(String english) {
-    final name = tr(english);
-    if (AppLang.code == 'en') {
-      return name.toUpperCase().replaceAll(' AND ', ' & ');
-    }
-    return name;
-  }
-
-  String? get _headerProduct =>
-      _guidedShoot || _outline.kind == ShotOverlayKind.sariDraped
-          ? (widget.product ?? 'Saree')
-          : null;
-
-  String get _spokenText =>
-      '${tr(widget.display.name)}. ${tr(_hint ?? _prompt)}.';
 
   Future<void> _capture() async {
     final controller = _controller;
@@ -279,7 +130,7 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     setState(() => _busy = true);
     try {
       final file = await controller.takePicture();
-      final bytes = await file.readAsBytes();
+      final bytes = await _cropToPhoto(await file.readAsBytes());
       if (!mounted) return;
       setState(() => _busy = false);
       final outcome = await Navigator.of(context).push<PhotoEditOutcome>(
@@ -316,45 +167,23 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     }
   }
 
-  final _stackKey = GlobalKey();
-  final _topControlsKey = GlobalKey();
-  final _bottomControlsKey = GlobalKey();
-
-  /// Where the pills end and the bottom text begins, plus a 16px margin, so
-  /// the box can be centred on the photo without running under either.
-  double? _clearTop;
-  double? _clearBottom;
-
-  void _measureControls() {
-    if (!mounted) return;
-    RenderBox? box(GlobalKey key) =>
-        key.currentContext?.findRenderObject() as RenderBox?;
-    final stack = box(_stackKey);
-    final top = box(_topControlsKey);
-    final bottom = box(_bottomControlsKey);
-    if (stack == null || top == null || bottom == null) return;
-    if (!stack.hasSize || !top.hasSize || !bottom.hasSize) return;
-    final clearTop = stack
-            .globalToLocal(top.localToGlobal(Offset(0, top.size.height)))
-            .dy +
-        8;
-    final clearBottom =
-        stack.globalToLocal(bottom.localToGlobal(Offset.zero)).dy - 8;
-    if ((clearTop - (_clearTop ?? -1)).abs() < 0.5 &&
-        (clearBottom - (_clearBottom ?? -1)).abs() < 0.5) {
-      return;
-    }
-    setState(() {
-      _clearTop = clearTop;
-      _clearBottom = clearBottom;
-    });
+  /// Width over height of the live picture as it is laid out. On a phone
+  /// the camera reports its size lying down, so it is turned upright; a
+  /// browser reports the picture the way it is shown.
+  double? get _previewAspect {
+    final size = _controller?.value.previewSize;
+    if (size == null || size.width == 0 || size.height == 0) return null;
+    return kIsWeb ? size.width / size.height : size.height / size.width;
   }
+
+  /// Height of the black band above the photo, which holds only Back.
+  static const double _topBand = 56;
+
+  /// Least room left under the photo for the shutter.
+  static const double _minBottomBand = 112;
 
   @override
   Widget build(BuildContext context) {
-    // Re-measure after every layout: captions, screen size and rotation all
-    // move the controls. It only rebuilds when something actually moved.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _measureControls());
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -365,51 +194,55 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
       ),
       child: Scaffold(
         backgroundColor: Colors.black,
-        body: Stack(
-          key: _stackKey,
-          fit: StackFit.expand,
-          children: [
-            _preview(),
-            ShotOutlineOverlay(
-              outline: _outline,
-              clearTop: _clearTop,
-              clearBottom: _clearBottom,
-              locale: widget.locale,
-            ),
-            SafeArea(
-              child: Column(
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Like a phone camera: an upright 4:3 photo as wide as the
+              // screen, black above and below. A short screen narrows it.
+              var width = constraints.maxWidth;
+              var height = width * 4 / 3;
+              final room =
+                  constraints.maxHeight - _topBand - _minBottomBand;
+              if (height > room) {
+                height = room;
+                width = height * 3 / 4;
+              }
+              return Column(
                 children: [
-                  Column(
-                    key: _topControlsKey,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _outline.kind == ShotOverlayKind.sariDraped
-                          ? _guidedTopBar()
-                          : _guidedShoot
-                              ? _guidedTopBar()
-                              : _topBar(),
-                      _guidedShoot ? _guidedCheckPills() : _checkPills(),
-                    ],
+                  SizedBox(
+                    height: _topBand,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        tooltip: tr('Back'),
+                        onPressed: () => Navigator.of(context).maybePop(),
+                        icon: const Icon(Icons.arrow_back_rounded),
+                        color: Colors.white,
+                        iconSize: 24,
+                      ),
+                    ),
                   ),
-                  const Spacer(),
-                  Column(
-                    key: _bottomControlsKey,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (_hint != null) ...[
-                        _hintBar(),
-                        const SizedBox(height: 8),
-                      ],
-                      _promptPill(),
-                      const SizedBox(height: 14),
-                      _shutterRow(),
-                    ],
+                  SizedBox(
+                    width: width,
+                    height: height,
+                    child: ClipRect(
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          _preview(),
+                          ShotOutlineOverlay(
+                            outline: _outline,
+                            locale: widget.locale,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 18),
+                  Expanded(child: Center(child: _shutterRow())),
                 ],
-              ),
-            ),
-          ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -418,11 +251,24 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   Widget _preview() {
     final controller = _controller;
     if (controller != null && controller.value.isInitialized) {
+      final size = controller.value.previewSize;
+      // In a browser the picture is shown as it comes, so the box takes the
+      // picture's own shape and nothing is cut before the screen crops it.
+      if (kIsWeb && size != null) {
+        return FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox(
+            width: size.width,
+            height: size.height,
+            child: controller.buildPreview(),
+          ),
+        );
+      }
       return FittedBox(
         fit: BoxFit.cover,
         child: SizedBox(
-          width: controller.value.previewSize?.height ?? 1080,
-          height: controller.value.previewSize?.width ?? 1920,
+          width: size?.height ?? 1080,
+          height: size?.width ?? 1920,
           child: CameraPreview(controller),
         ),
       );
@@ -454,264 +300,6 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _topBar() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 20, 0),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () => Navigator.of(context).maybePop(),
-            icon: const Icon(Icons.arrow_back_rounded),
-            color: Colors.white,
-            iconSize: 24,
-          ),
-          Expanded(
-            child: Text(
-              tr(_headerTitle),
-              style: appType(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.8,
-              ),
-            ),
-          ),
-          SpeakCircleButton(
-            playing: _speech.playing,
-            onTap: () =>
-                _speech.toggle(locale: widget.locale, text: _spokenText),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _guidedTopBar() {
-    final product = _headerProduct;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 4, 16, 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          IconButton(
-            onPressed: () => Navigator.of(context).maybePop(),
-            icon: const Icon(Icons.arrow_back_rounded),
-            color: Colors.white,
-            iconSize: 24,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  tr(_headerTitle),
-                  style: appType(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.6,
-                    height: 1.2,
-                  ),
-                ),
-                if (product != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    tr(product),
-                    style: appType(
-                      color: Colors.white.withValues(alpha: 0.92),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      height: 1.2,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              tr('$_guideStepCount / $_guideStepCount'),
-              style: appType(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _guidedCheckPills() {
-    const rows = <(String, String, Color)>[
-      ('Light', 'OK', Color(0xFF3D9B5A)),
-      ('Distance', 'Move back', Color(0xFFE0A82E)),
-    ];
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-      child: Row(
-        children: [
-          for (var i = 0; i < rows.length; i++) ...[
-            if (i > 0) const SizedBox(width: 8),
-            Expanded(
-              child: _guidedStatusPill(
-                label: rows[i].$1,
-                status: rows[i].$2,
-                statusColor: rows[i].$3,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _guidedStatusPill({
-    required String label,
-    required String status,
-    required Color statusColor,
-  }) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0x990E1413),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0x33FFFFFF)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Column(
-          children: [
-            Text(
-              tr(label),
-              style: appType(
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 4),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: statusColor,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                child: Text(
-                  tr(status),
-                  style: appType(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Reminders of the things that spoil a shot.
-  Widget _checkPills() {
-    const checks = <(IconData, String)>[
-      (Icons.wb_sunny_outlined, 'Light'),
-      (Icons.straighten_rounded, 'Distance'),
-    ];
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 6,
-        children: [
-          for (final (icon, label) in checks)
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: const Color(0x8C0E1413),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0x4DFFFFFF)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, color: Colors.white, size: 14),
-                    const SizedBox(width: 5),
-                    Text(
-                      tr(label),
-                      style: appType(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _promptPill() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: const Color(0xFFF5C84C),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            child: Text(
-              tr(_prompt),
-            textAlign: TextAlign.center,
-            style: appType(
-              color: const Color(0xFF2A2109),
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              height: 1.3,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _hintBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: const Color(0xCC0E1413),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Text(
-            tr(_hint ?? _prompt),
-            textAlign: TextAlign.center,
-            style: appType(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              height: 1.3,
-            ),
           ),
         ),
       ),
@@ -752,3 +340,8 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   }
 
 }
+
+Uint8List _cropMessage(
+  (Uint8List, double, (double, double, double, double)) message,
+) =>
+    cropToPreviewRegion(message.$1, message.$2, message.$3);

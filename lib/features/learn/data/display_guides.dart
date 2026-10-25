@@ -31,7 +31,7 @@ const _fullDisplay = <GuideStep>[
   ),
   GuideStep(
     title: 'Straighten every edge',
-    subtitle: 'Corners square · borders even · no folds',
+    subtitle: 'Borders even · no folds',
     art: GuideArt.grid,
   ),
   GuideStep(
@@ -73,7 +73,6 @@ const _closeUp = <GuideStep>[
     title: 'Good example',
     subtitle: 'So close you can count the threads',
     showExample: true,
-    caption: 'The shadows in the weave are the raking light doing the work.',
   ),
 ];
 

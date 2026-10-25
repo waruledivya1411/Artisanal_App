@@ -31,7 +31,7 @@ class FoldedStackOverlay {
   /// A square, as big as fits comfortably in the frame. Fractions of the
   /// frame's width and height stretched it into a wide box on short screens.
   static Rect _sareeRect(Rect frame) {
-    final side = math.min(frame.width * 0.92, frame.height * 0.92);
+    final side = math.min(frame.width * 0.96, frame.height * 0.96);
     return Rect.fromCenter(center: frame.center, width: side, height: side);
   }
 

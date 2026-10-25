@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 
 import 'package:artisnal_app/core/l10n/app_text.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +38,7 @@ enum ShotFramePlacement {
   /// Centered box sized from [ShotOutline.widthFactor] and [aspectRatio].
   centered,
 
-  /// Tall frame inset from the screen edges (embroidery & border).
+  /// Fills the whole photo area, less a small margin.
   inset,
 }
 
@@ -51,10 +50,6 @@ class ShotOutline {
     required this.widthFactor,
     required this.aspectRatio,
     this.silhouette,
-    this.window,
-    this.windowLabel,
-    this.strip,
-    this.stripLabel,
     this.placement = ShotFramePlacement.centered,
     this.inset = const EdgeInsets.fromLTRB(14, 108, 14, 196),
     this.kind = ShotOverlayKind.standard,
@@ -68,19 +63,6 @@ class ShotOutline {
 
   final ShotSilhouette? silhouette;
 
-  /// A smaller solid box inside the frame, as fractions of it, for the part
-  /// of the piece that matters. Null when the whole frame is the target.
-  final Rect? window;
-
-  /// Short word shown inside [window], naming what goes there.
-  final String? windowLabel;
-
-  /// A tall band inside the frame, as fractions of it, for a part that runs
-  /// along an edge - the border of a sari.
-  final Rect? strip;
-
-  final String? stripLabel;
-
   final ShotFramePlacement placement;
 
   /// Margins for [ShotFramePlacement.inset].
@@ -89,21 +71,18 @@ class ShotOutline {
   final ShotOverlayKind kind;
 
   static const _byDisplay = <String, ShotOutline>{
-    'full_display': ShotOutline(widthFactor: 0.62, aspectRatio: 0.70),
-    'close-up_texture': ShotOutline(widthFactor: 0.72, aspectRatio: 1.00),
+    'full_display': ShotOutline(widthFactor: 0.80, aspectRatio: 0.70),
+    'close-up_texture': ShotOutline(
+      widthFactor: 0.72,
+      aspectRatio: 1.00,
+      placement: ShotFramePlacement.inset,
+    ),
     'draped_look': ShotOutline(widthFactor: 0.68, aspectRatio: 0.70),
     'embroidery_and_border': ShotOutline(
       widthFactor: 0.88,
       aspectRatio: 0.58,
       placement: ShotFramePlacement.inset,
-      // As large as the screen allows, with an equal 16px gap under the
-      // Light/Distance pills and above the prompt, so it sits centred.
-      inset: EdgeInsets.fromLTRB(14, 134, 14, 162),
       kind: ShotOverlayKind.embroideryBorder,
-      window: Rect.fromLTRB(0.07, 0.07, 0.62, 0.48),
-      windowLabel: 'Motif',
-      strip: Rect.fromLTRB(0.74, 0.05, 0.93, 0.95),
-      stripLabel: 'Border',
     ),
     'folded_stack': ShotOutline(widthFactor: 0.80, aspectRatio: 0.78),
     'hanging_display': ShotOutline(widthFactor: 0.55, aspectRatio: 0.55),
@@ -122,6 +101,7 @@ class ShotOutline {
       return const ShotOutline(
         widthFactor: 0.88,
         aspectRatio: 0.92,
+        placement: ShotFramePlacement.inset,
         kind: ShotOverlayKind.mekhalaFull,
       );
     }
@@ -165,11 +145,16 @@ class ShotOutline {
         kind: ShotOverlayKind.gamusaFull,
       );
     }
-    if (displayKey == 'draped_look' && product == 'Saree') {
+    // Saree and Mekhala sador share the dotted chair drawing, so the frame
+    // takes that drawing's shape.
+    if (displayKey == 'draped_look' &&
+        (product == 'Saree' || product == 'Mekhala sador')) {
       return const ShotOutline(
-        widthFactor: 0.78,
-        aspectRatio: 0.52,
-        placement: ShotFramePlacement.inset,
+        widthFactor: 0.94,
+        aspectRatio: ShotOutlineOverlay.drapedArtAspect,
+        // As wide as the screen allows; the drawing is nearly square, so
+        // the width is what limits it.
+        inset: EdgeInsets.symmetric(horizontal: 8),
         kind: ShotOverlayKind.sariDraped,
       );
     }
@@ -283,81 +268,68 @@ class ShotOutline {
     return forDisplay(displayKey);
   }
 
-  /// Outer dashed frame in preview coordinates.
-  ///
-  /// The box fills the space under the header and above the captions, so a
-  /// real piece on the floor can sit inside it. The catalog photos are not
-  /// used to decide how big that box is.
-  ///
-  /// When [clearTop] and [clearBottom] are given - where the pills end and the
-  /// bottom text begins - the box is centred on the screen, which is the
-  /// centre of the photo, and made as large as fits between them without
-  /// changing its shape. Drawing it higher just to clear the bottom text
-  /// would put the product high in the picture.
-  static Rect outerFrame(
-    Size size,
-    ShotOutline outline, {
-    double? clearTop,
-    double? clearBottom,
-  }) {
-    final shape = _shapeFrame(size, outline);
-    if (clearTop == null || clearBottom == null) return shape;
-    final centreY = size.height / 2;
-    final half = math.min(centreY - clearTop, clearBottom - centreY);
-    if (half <= 60) return shape;
-    final aspect = shape.width / shape.height;
-    var height = half * 2;
-    var width = height * aspect;
-    if (width > shape.width) {
-      width = shape.width;
-      height = width / aspect;
+  /// The part of the screen the saved photo covers: an upright 4:3 photo,
+  /// as wide as the screen and centred on it. The shot is cropped to this.
+  static Rect photoRect(Size screen) {
+    var width = screen.width;
+    var height = width * 4 / 3;
+    if (height > screen.height) {
+      height = screen.height;
+      width = height * 3 / 4;
     }
     return Rect.fromCenter(
-      center: Offset(size.width / 2, centreY),
+      center: screen.center(Offset.zero),
       width: width,
       height: height,
     );
   }
 
-  /// The box as laid out from the insets alone; gives its shape and its
-  /// widest allowed size.
-  static Rect _shapeFrame(Size size, ShotOutline outline) {
-    final inset = outline.inset;
-    final left = inset.left;
-    final top = inset.top;
-    final right = size.width - inset.right;
-    final bottom = size.height - inset.bottom;
-    final safe = Rect.fromLTRB(
-      left,
-      top,
-      right < left + 120 ? left + 120 : right,
-      bottom < top + 160 ? top + 160 : bottom,
-    );
-    if (outline.placement == ShotFramePlacement.inset) return safe;
-
-    var boxHeight = safe.height;
-    var boxWidth = boxHeight * outline.aspectRatio;
-    if (boxWidth > safe.width) {
-      boxWidth = safe.width;
-      boxHeight = boxWidth / outline.aspectRatio;
+  /// Outer dashed frame, in screen coordinates.
+  ///
+  /// The box is centred on the photo, as large as fits with a small margin.
+  /// An [ShotFramePlacement.inset] box fills the whole photo; a centred one
+  /// keeps its [aspectRatio]. When [clearTop] and [clearBottom] are given -
+  /// where the controls above and below end - the box shrinks about its
+  /// centre to stay clear of them.
+  static Rect outerFrame(
+    Size screen,
+    ShotOutline outline, {
+    double? clearTop,
+    double? clearBottom,
+  }) {
+    final area = photoRect(screen).deflate(_photoMargin);
+    var rect = area;
+    if (outline.placement != ShotFramePlacement.inset) {
+      var width = area.width;
+      var height = width / outline.aspectRatio;
+      if (height > area.height) {
+        height = area.height;
+        width = height * outline.aspectRatio;
+      }
+      rect = Rect.fromCenter(center: area.center, width: width, height: height);
     }
+    return fitBetween(rect, clearTop, clearBottom);
+  }
+
+  /// [rect] scaled down about its centre so it sits between [clearTop] and
+  /// [clearBottom], keeping its shape.
+  static Rect fitBetween(Rect rect, double? clearTop, double? clearBottom) {
+    if (clearTop == null || clearBottom == null) return rect;
+    final centre = rect.center;
+    final half = (centre.dy - clearTop) < (clearBottom - centre.dy)
+        ? centre.dy - clearTop
+        : clearBottom - centre.dy;
+    if (half <= 60 || half >= rect.height / 2) return rect;
+    final scale = half / (rect.height / 2);
     return Rect.fromCenter(
-      center: safe.center,
-      width: boxWidth,
-      height: boxHeight,
+      center: centre,
+      width: rect.width * scale,
+      height: rect.height * scale,
     );
   }
 
-  static Rect? innerWindow(Rect frame, ShotOutline outline) {
-    final fractions = outline.window;
-    if (fractions == null) return null;
-    return Rect.fromLTRB(
-      frame.left + frame.width * fractions.left,
-      frame.top + frame.height * fractions.top,
-      frame.left + frame.width * fractions.right,
-      frame.top + frame.height * fractions.bottom,
-    );
-  }
+  static const double _photoMargin = 8;
+
 }
 
 /// Draws the outline over a camera preview.
@@ -378,12 +350,70 @@ class ShotOutlineOverlay extends StatelessWidget {
   final double? clearTop;
   final double? clearBottom;
 
+  /// Dotted saree-on-a-chair drawing for the draped shot, light lines on a
+  /// clear background so it reads over the live camera.
+  static const drapedArt = 'assets/images/lessons/photography/draped_outline.png';
+  static const drapedArtAspect = 900 / 979;
+
+  /// Dotted sari laid flat - motifs on the body, the border down the right -
+  /// for the embroidery and border shot. Drawn the same way as [drapedArt].
+  static const embroideryArt =
+      'assets/images/lessons/photography/embroidery_outline.png';
+
+  /// The drawing used in place of a dashed box, for the shots that have one.
+  /// It carries its own dotted outline, so no box is drawn around it.
+  static String? artFor(ShotOverlayKind kind) => switch (kind) {
+        ShotOverlayKind.sariDraped => drapedArt,
+        ShotOverlayKind.embroideryBorder => embroideryArt,
+        _ => null,
+      };
+
+  /// The draped drawing has no box around it. It spans the photo's width and
+  /// 88% of its height, so the sari fills most of the photo.
+  static Rect drapedArtRect(Size screen, double? clearTop, double? clearBottom) {
+    final photo = ShotOutline.photoRect(screen);
+    return ShotOutline.fitBetween(
+      Rect.fromCenter(
+        center: photo.center,
+        width: photo.width - 8,
+        height: photo.height * 0.88,
+      ),
+      clearTop,
+      clearBottom,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final painted = CustomPaint(
+      painter: _OutlinePainter(outline, clearTop, clearBottom, locale),
+      size: Size.infinite,
+    );
+    final art = artFor(outline.kind);
+    if (art == null) return IgnorePointer(child: painted);
     return IgnorePointer(
-      child: CustomPaint(
-        painter: _OutlinePainter(outline, clearTop, clearBottom, locale),
-        size: Size.infinite,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final screen = constraints.biggest;
+          final rect = outline.kind == ShotOverlayKind.sariDraped
+              ? drapedArtRect(screen, clearTop, clearBottom)
+              : ShotOutline.outerFrame(
+                  screen,
+                  outline,
+                  clearTop: clearTop,
+                  clearBottom: clearBottom,
+                );
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              painted,
+              Positioned.fromRect(
+                rect: rect,
+                child: Image.asset(art, fit: BoxFit.fill),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -407,6 +437,10 @@ class _OutlinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // A shot drawn from an image has no box; ShotOutlineOverlay lays the
+    // image on.
+    if (ShotOutlineOverlay.artFor(outline.kind) != null) return;
+
     final rect = ShotOutline.outerFrame(
       size,
       outline,
@@ -438,12 +472,9 @@ class _OutlinePainter extends CustomPainter {
 
     switch (outline.kind) {
       case ShotOverlayKind.embroideryBorder:
-        final strip = outline.strip;
-        if (strip != null) {
-          _strip(canvas, _inside(rect, strip), outline.stripLabel);
-        }
-        final inner = ShotOutline.innerWindow(rect, outline);
-        if (inner != null) _window(canvas, inner, outline.windowLabel);
+      case ShotOverlayKind.sariDraped:
+        // Drawn from an image by ShotOutlineOverlay; never reached.
+        break;
       case ShotOverlayKind.foldedStack:
         _foldedStackGuide(canvas, rect);
       case ShotOverlayKind.hangingDisplay:
@@ -470,9 +501,6 @@ class _OutlinePainter extends CustomPainter {
         _gamusaFull(canvas, rect);
       case ShotOverlayKind.gamusaFolded:
         _gamusaFolded(canvas, rect);
-      case ShotOverlayKind.sariDraped:
-        _thirds(canvas, rect);
-        _sariDraped(canvas, rect);
       case ShotOverlayKind.jodHanging:
         _jodHanging(canvas, rect);
       case ShotOverlayKind.jodFolded:
@@ -505,8 +533,8 @@ class _OutlinePainter extends CustomPainter {
         );
 
     canvas.drawLine(
-      at(0.06, 0.06),
-      at(0.94, 0.06),
+      at(0.02, 0.035),
+      at(0.98, 0.035),
       Paint()
         ..color = const Color(0xE8FFFFFF)
         ..strokeWidth = 3.4
@@ -514,10 +542,10 @@ class _OutlinePainter extends CustomPainter {
     );
 
     final wide = Rect.fromLTRB(
-      at(0.06, 0.08).dx,
-      at(0.06, 0.08).dy,
-      at(0.64, 0.86).dx,
-      at(0.64, 0.86).dy,
+      at(0.03, 0.055).dx,
+      at(0.03, 0.055).dy,
+      at(0.66, 0.97).dx,
+      at(0.66, 0.97).dy,
     );
     canvas.drawRect(wide, fill);
     canvas.drawRect(wide, stroke);
@@ -547,10 +575,10 @@ class _OutlinePainter extends CustomPainter {
     );
 
     final narrow = Rect.fromLTRB(
-      at(0.72, 0.08).dx,
-      at(0.72, 0.08).dy,
-      at(0.92, 0.62).dx,
-      at(0.92, 0.62).dy,
+      at(0.72, 0.055).dx,
+      at(0.72, 0.055).dy,
+      at(0.97, 0.78).dx,
+      at(0.97, 0.78).dy,
     );
     canvas.drawRect(narrow, fill);
     canvas.drawRect(narrow, stroke);
@@ -593,10 +621,10 @@ class _OutlinePainter extends CustomPainter {
       ..strokeWidth = 1.5;
 
     final wide = Rect.fromLTRB(
-      frame.left + frame.width * 0.04,
-      frame.top + frame.height * 0.14,
-      frame.left + frame.width * 0.68,
-      frame.top + frame.height * 0.7,
+      frame.left + frame.width * 0.02,
+      frame.top + frame.height * 0.03,
+      frame.left + frame.width * 0.72,
+      frame.top + frame.height * 0.86,
     );
     canvas.drawRRect(
       RRect.fromRectAndRadius(wide, const Radius.circular(6)),
@@ -634,10 +662,10 @@ class _OutlinePainter extends CustomPainter {
     }
 
     final small = Rect.fromLTRB(
-      frame.left + frame.width * 0.6,
-      frame.top + frame.height * 0.36,
-      frame.right - frame.width * 0.05,
-      frame.top + frame.height * 0.66,
+      frame.left + frame.width * 0.56,
+      frame.top + frame.height * 0.42,
+      frame.right - frame.width * 0.02,
+      frame.top + frame.height * 0.88,
     );
     canvas.drawRRect(RRect.fromRectAndRadius(small, const Radius.circular(6)), fill);
     canvas.drawRRect(
@@ -668,7 +696,7 @@ class _OutlinePainter extends CustomPainter {
       final x = small.left + small.width * (0.1 + i * 0.15);
       canvas.drawLine(
         Offset(x, small.bottom),
-        Offset(x, small.bottom + frame.height * 0.1),
+        Offset(x, small.bottom + frame.height * 0.08),
         stroke,
       );
     }
@@ -695,76 +723,6 @@ class _OutlinePainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-  /// One sari on a chair: chair back, folded seat piece, pallu, and hem.
-  void _sariDraped(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    Offset at(double x, double y) => Offset(
-          frame.left + frame.width * x,
-          frame.top + frame.height * y,
-        );
-
-    final left = at(0.22, 0.16);
-    final peak = at(0.34, 0.05);
-    final right = at(0.46, 0.16);
-    canvas.drawPath(
-      Path()
-        ..moveTo(left.dx, left.dy)
-        ..lineTo(peak.dx, peak.dy)
-        ..lineTo(right.dx, right.dy),
-      stroke,
-    );
-    _centredLabel(canvas, 'Chair back', at(0.64, 0.11));
-
-    final folded = RRect.fromRectAndRadius(
-      Rect.fromLTWH(
-        frame.left + frame.width * 0.06,
-        frame.top + frame.height * 0.26,
-        frame.width * 0.40,
-        frame.height * 0.13,
-      ),
-      const Radius.circular(10),
-    );
-    canvas.drawRRect(folded, Paint()..color = const Color(0x22FFFFFF));
-    canvas.drawRRect(folded, stroke);
-    _centredLabel(canvas, 'Folded piece', folded.outerRect.center);
-
-    final dash = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.2
-      ..strokeCap = StrokeCap.round;
-    _dashedPath(
-      canvas,
-      Path()
-        ..moveTo(at(0.50, 0.08).dx, at(0.50, 0.08).dy)
-        ..lineTo(at(0.78, 0.96).dx, at(0.78, 0.96).dy),
-      dash.color,
-      dash.strokeWidth,
-    );
-    _dashedPath(
-      canvas,
-      Path()
-        ..moveTo(at(0.62, 0.08).dx, at(0.62, 0.08).dy)
-        ..lineTo(at(0.94, 0.96).dx, at(0.94, 0.96).dy),
-      dash.color,
-      dash.strokeWidth,
-    );
-    _centredLabel(canvas, 'Pallu', at(0.84, 0.42));
-
-    final hemY = frame.top + frame.height * 0.78;
-    canvas.drawLine(
-      Offset(frame.left + frame.width * 0.04, hemY),
-      Offset(frame.left + frame.width * 0.44, hemY),
-      stroke,
-    );
-    _centredLabel(canvas, 'Hem', Offset(frame.left + frame.width * 0.24, hemY + 16));
-  }
 
   /// One side of a sofa: left arm, back behind the pillow, seat underneath.
   /// The right side runs off the frame.
@@ -828,7 +786,7 @@ class _OutlinePainter extends CustomPainter {
     canvas.drawRRect(arm, stroke);
 
     final pillow = RRect.fromRectAndRadius(
-      Rect.fromLTRB(p(0.32, 0.22).dx, p(0.32, 0.22).dy, p(0.86, 0.74).dx, p(0.32, 0.74).dy),
+      Rect.fromLTRB(p(0.3, 0.14).dx, p(0.3, 0.14).dy, p(0.96, 0.8).dx, p(0.3, 0.8).dy),
       const Radius.circular(18),
     );
     canvas.drawRRect(pillow, solid);
@@ -861,16 +819,16 @@ class _OutlinePainter extends CustomPainter {
       ..strokeWidth = 1.5;
 
     final cloth = Rect.fromLTRB(
-      frame.left + frame.width * 0.26,
-      frame.top + frame.height * 0.1,
-      frame.right - frame.width * 0.26,
-      frame.top + frame.height * 0.82,
+      frame.left + frame.width * 0.06,
+      frame.top + frame.height * 0.04,
+      frame.right - frame.width * 0.06,
+      frame.top + frame.height * 0.92,
     );
     canvas.drawRect(cloth, fill);
     canvas.drawRect(cloth, stroke);
     canvas.drawLine(
-      Offset(frame.left + frame.width * 0.1, cloth.top),
-      Offset(frame.right - frame.width * 0.1, cloth.top),
+      Offset(frame.left + frame.width * 0.02, cloth.top),
+      Offset(frame.right - frame.width * 0.02, cloth.top),
       Paint()
         ..color = const Color(0xE8FFFFFF)
         ..strokeWidth = 3.6
@@ -948,10 +906,10 @@ class _OutlinePainter extends CustomPainter {
       ..strokeWidth = 1.5;
 
     final cloth = Rect.fromLTRB(
-      frame.left + frame.width * 0.08,
-      frame.top + frame.height * 0.2,
-      frame.right - frame.width * 0.08,
-      frame.top + frame.height * 0.68,
+      frame.left + frame.width * 0.03,
+      frame.top + frame.height * 0.04,
+      frame.right - frame.width * 0.03,
+      frame.top + frame.height * 0.9,
     );
     final radius = RRect.fromRectAndRadius(cloth, const Radius.circular(8));
     canvas.drawRRect(radius, fill);
@@ -1015,13 +973,9 @@ class _OutlinePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
+    final side = (frame.width < frame.height ? frame.width : frame.height) * 0.96;
     final cover = RRect.fromRectAndRadius(
-      Rect.fromLTRB(
-        frame.left + frame.width * 0.16,
-        frame.top + frame.height * 0.18,
-        frame.right - frame.width * 0.16,
-        frame.top + frame.height * 0.82,
-      ),
+      Rect.fromCenter(center: frame.center, width: side, height: side),
       const Radius.circular(22),
     );
     canvas.drawRRect(cover, fill);
@@ -1061,10 +1015,10 @@ class _OutlinePainter extends CustomPainter {
       ..strokeWidth = 1.5;
 
     final cloth = Rect.fromLTRB(
-      frame.left + frame.width * 0.28,
-      frame.top + frame.height * 0.1,
-      frame.right - frame.width * 0.28,
-      frame.top + frame.height * 0.9,
+      frame.left + frame.width * 0.06,
+      frame.top + frame.height * 0.05,
+      frame.right - frame.width * 0.06,
+      frame.top + frame.height * 0.97,
     );
     final rodY = cloth.top - frame.height * 0.018;
     final overhang = frame.width * 0.045;
@@ -1139,10 +1093,10 @@ class _OutlinePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
-    final rodY = frame.top + frame.height * 0.05;
+    final rodY = frame.top + frame.height * 0.025;
     canvas.drawLine(
-      Offset(frame.left + frame.width * 0.06, rodY),
-      Offset(frame.right - frame.width * 0.06, rodY),
+      Offset(frame.left + frame.width * 0.015, rodY),
+      Offset(frame.right - frame.width * 0.015, rodY),
       Paint()
         ..color = const Color(0xE8FFFFFF)
         ..strokeWidth = 3.2
@@ -1150,10 +1104,10 @@ class _OutlinePainter extends CustomPainter {
     );
 
     final cloth = Rect.fromLTRB(
-      frame.left + frame.width * 0.12,
-      rodY + frame.height * 0.03,
-      frame.right - frame.width * 0.12,
-      frame.top + frame.height * 0.84,
+      frame.left + frame.width * 0.04,
+      rodY + frame.height * 0.025,
+      frame.right - frame.width * 0.04,
+      frame.top + frame.height * 0.94,
     );
     canvas.drawRect(cloth, fill);
     canvas.drawRect(cloth, stroke);
@@ -1209,10 +1163,10 @@ class _OutlinePainter extends CustomPainter {
       ..strokeWidth = 1.5;
 
     final shawl = Rect.fromLTRB(
-      frame.left + frame.width * 0.06,
-      frame.top + frame.height * 0.16,
-      frame.right - frame.width * 0.06,
-      frame.top + frame.height * 0.7,
+      frame.left + frame.width * 0.03,
+      frame.top + frame.height * 0.04,
+      frame.right - frame.width * 0.03,
+      frame.top + frame.height * 0.9,
     );
     final radius = RRect.fromRectAndRadius(shawl, const Radius.circular(10));
     canvas.drawRRect(radius, fill);
@@ -1268,10 +1222,10 @@ class _OutlinePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
-    final rodY = frame.top + frame.height * 0.05;
+    final rodY = frame.top + frame.height * 0.025;
     canvas.drawLine(
-      Offset(frame.left + frame.width * 0.12, rodY),
-      Offset(frame.right - frame.width * 0.12, rodY),
+      Offset(frame.left + frame.width * 0.03, rodY),
+      Offset(frame.right - frame.width * 0.03, rodY),
       Paint()
         ..color = const Color(0xE8FFFFFF)
         ..strokeWidth = 3.2
@@ -1279,10 +1233,10 @@ class _OutlinePainter extends CustomPainter {
     );
 
     final cloth = Rect.fromLTRB(
-      frame.left + frame.width * 0.24,
-      rodY + frame.height * 0.03,
-      frame.right - frame.width * 0.24,
-      frame.top + frame.height * 0.84,
+      frame.left + frame.width * 0.08,
+      rodY + frame.height * 0.025,
+      frame.right - frame.width * 0.08,
+      frame.top + frame.height * 0.94,
     );
     canvas.drawRect(cloth, fill);
     canvas.drawRect(cloth, stroke);
@@ -1326,10 +1280,10 @@ class _OutlinePainter extends CustomPainter {
       ..strokeWidth = 1.5;
 
     final stole = Rect.fromLTRB(
-      frame.left + frame.width * 0.08,
-      frame.top + frame.height * 0.18,
-      frame.right - frame.width * 0.08,
-      frame.top + frame.height * 0.7,
+      frame.left + frame.width * 0.03,
+      frame.top + frame.height * 0.04,
+      frame.right - frame.width * 0.03,
+      frame.top + frame.height * 0.9,
     );
     final radius = RRect.fromRectAndRadius(stole, const Radius.circular(10));
     canvas.drawRRect(radius, fill);
@@ -1376,16 +1330,16 @@ class _OutlinePainter extends CustomPainter {
     final motif = Paint()..color = const Color(0xCCFFFFFF);
 
     final sador = Rect.fromLTRB(
-      frame.left + frame.width * 0.06,
-      frame.top + frame.height * 0.28,
-      frame.left + frame.width * 0.92,
-      frame.top + frame.height * 0.84,
+      frame.left + frame.width * 0.03,
+      frame.top + frame.height * 0.3,
+      frame.left + frame.width * 0.97,
+      frame.top + frame.height * 0.92,
     );
     final mekhela = Rect.fromLTRB(
-      frame.left + frame.width * 0.10,
-      frame.top + frame.height * 0.08,
-      frame.left + frame.width * 0.88,
-      frame.top + frame.height * 0.62,
+      frame.left + frame.width * 0.06,
+      frame.top + frame.height * 0.03,
+      frame.left + frame.width * 0.94,
+      frame.top + frame.height * 0.66,
     );
 
     canvas.drawRRect(
@@ -1417,7 +1371,7 @@ class _OutlinePainter extends CustomPainter {
       final x = sador.right - sador.width * (0.06 + i * 0.08);
       canvas.drawLine(
         Offset(x, sador.bottom),
-        Offset(x, sador.bottom + frame.height * 0.05),
+        Offset(x, sador.bottom + frame.height * 0.045),
         stroke,
       );
     }
@@ -1492,10 +1446,10 @@ class _OutlinePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
-    final rodY = frame.top + frame.height * 0.055;
+    final rodY = frame.top + frame.height * 0.035;
     canvas.drawLine(
-      Offset(frame.left + frame.width * 0.04, rodY),
-      Offset(frame.right - frame.width * 0.04, rodY),
+      Offset(frame.left + frame.width * 0.015, rodY),
+      Offset(frame.right - frame.width * 0.015, rodY),
       Paint()
         ..color = const Color(0xE8FFFFFF)
         ..strokeWidth = 3.2
@@ -1513,21 +1467,21 @@ class _OutlinePainter extends CustomPainter {
       canvas.drawLine(Offset(left, barY), Offset(right, barY), stroke);
     }
 
-    hanger(0.28, 0.12, 0.42);
-    hanger(0.68, 0.48, 0.88);
+    hanger(0.22, 0.03, 0.41);
+    hanger(0.72, 0.48, 0.97);
 
     final top = rodY + frame.height * 0.075;
     final mekhela = Rect.fromLTRB(
-      frame.left + frame.width * 0.15,
+      frame.left + frame.width * 0.04,
       top,
-      frame.left + frame.width * 0.39,
-      frame.top + frame.height * 0.62,
+      frame.left + frame.width * 0.41,
+      frame.top + frame.height * 0.78,
     );
     final sador = Rect.fromLTRB(
-      frame.left + frame.width * 0.50,
+      frame.left + frame.width * 0.49,
       top,
-      frame.left + frame.width * 0.86,
-      frame.top + frame.height * 0.84,
+      frame.left + frame.width * 0.96,
+      frame.top + frame.height * 0.94,
     );
     canvas.drawRect(mekhela, fill);
     canvas.drawRect(sador, fill);
@@ -1578,11 +1532,11 @@ class _OutlinePainter extends CustomPainter {
 
   /// Mekhala and sador laid side by side, borders at the bottom.
   void _mekhalaPair(Canvas canvas, Rect frame) {
-    final gap = frame.width * 0.035;
-    final top = frame.top + frame.height * 0.07;
-    final bottom = frame.bottom - frame.height * 0.1;
-    final left = frame.left + frame.width * 0.07;
-    final right = frame.right - frame.width * 0.07;
+    final gap = frame.width * 0.025;
+    final top = frame.top + frame.height * 0.03;
+    final bottom = frame.bottom - frame.height * 0.06;
+    final left = frame.left + frame.width * 0.03;
+    final right = frame.right - frame.width * 0.03;
     final mid = (left + right) / 2;
     final mekhela = Rect.fromLTRB(left, top, mid - gap, bottom);
     final sador = Rect.fromLTRB(mid + gap, top, right, bottom);
@@ -1614,50 +1568,6 @@ class _OutlinePainter extends CustomPainter {
   /// Top-down folded sari: one rectangle with a border strip.
   void _foldedStackGuide(Canvas canvas, Rect frame) {
     FoldedStackOverlay.paintContent(canvas, frame);
-  }
-
-  Rect _inside(Rect frame, Rect f) => Rect.fromLTRB(
-    frame.left + frame.width * f.left,
-    frame.top + frame.height * f.top,
-    frame.left + frame.width * f.right,
-    frame.top + frame.height * f.bottom,
-  );
-
-  /// The motif window, top left.
-  void _window(Canvas canvas, Rect box, String? label) {
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(box, const Radius.circular(8)),
-      Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3,
-    );
-    if (label != null) _centredLabel(canvas, label, box.center);
-  }
-
-  /// The border band down the right: faintly filled, with a few cross-ticks
-  /// so it reads as a woven strip rather than an empty box.
-  void _strip(Canvas canvas, Rect band, String? label) {
-    final rrect = RRect.fromRectAndRadius(band, const Radius.circular(6));
-    canvas.drawRRect(rrect, Paint()..color = const Color(0x26FFFFFF));
-    canvas.drawRRect(
-      rrect,
-      Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.5,
-    );
-    final tick = Paint()
-      ..color = const Color(0x66FFFFFF)
-      ..strokeWidth = 1.5;
-    for (var y = band.top + 18; y < band.bottom - 10; y += 18) {
-      canvas.drawLine(
-        Offset(band.left + 6, y),
-        Offset(band.right - 6, y),
-        tick,
-      );
-    }
-    if (label != null) _centredLabel(canvas, label, band.center, boxed: true);
   }
 
   void _centredLabel(
@@ -1912,16 +1822,16 @@ class _OutlinePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
     final cloth = Rect.fromLTRB(
-      frame.left + frame.width * 0.08,
-      frame.top + frame.height * 0.08,
-      frame.right - frame.width * 0.08,
-      frame.top + frame.height * 0.9,
+      frame.left + frame.width * 0.04,
+      frame.top + frame.height * 0.05,
+      frame.right - frame.width * 0.04,
+      frame.top + frame.height * 0.96,
     );
     canvas.drawRect(cloth, fill);
     canvas.drawRect(cloth, stroke);
     canvas.drawLine(
-      Offset(frame.left + frame.width * 0.03, cloth.top),
-      Offset(frame.right - frame.width * 0.03, cloth.top),
+      Offset(frame.left + frame.width * 0.015, cloth.top),
+      Offset(frame.right - frame.width * 0.015, cloth.top),
       Paint()
         ..color = const Color(0xE8FFFFFF)
         ..strokeWidth = 3.6
@@ -1974,10 +1884,10 @@ class _OutlinePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
     final cloth = Rect.fromLTRB(
-      frame.left + frame.width * 0.06,
-      frame.top + frame.height * 0.06,
-      frame.right - frame.width * 0.06,
-      frame.top + frame.height * 0.94,
+      frame.left + frame.width * 0.03,
+      frame.top + frame.height * 0.03,
+      frame.right - frame.width * 0.03,
+      frame.top + frame.height * 0.97,
     );
     for (var i = 1; i <= 4; i++) {
       final x = cloth.left + cloth.width * i / 5;
@@ -2036,8 +1946,6 @@ class _OutlinePainter extends CustomPainter {
       oldDelegate.outline.widthFactor != outline.widthFactor ||
       oldDelegate.outline.aspectRatio != outline.aspectRatio ||
       oldDelegate.outline.silhouette != outline.silhouette ||
-      oldDelegate.outline.window != outline.window ||
-      oldDelegate.outline.strip != outline.strip ||
       oldDelegate.outline.placement != outline.placement ||
       oldDelegate.outline.inset != outline.inset ||
       oldDelegate.outline.kind != outline.kind ||

@@ -296,7 +296,7 @@ const _as = <String, String>{
   'Lay the whole piece flat': 'গোটেই টুকুৰা পাতলকৈ পাতক',
   'Floor or table · plain sheet under it': 'মজিয়া বা মেজ · তলত সাদা কাপোৰ',
   'Straighten every edge': 'প্ৰতিটো কাষ পোন কৰক',
-  'Corners square · borders even · no folds': 'চুক সমকোণ · পাৰি সমান · ভাঁজ নাই',
+  'Borders even · no folds': 'পাৰি সমান · ভাঁজ নাই',
   'The whole piece in frame, laid flat': 'গোটেই টুকুৰা ফ্ৰেমত, পাতি থোৱা',
   'Show every edge. Keep it flat, not hanging.':
       'প্ৰতিটো কাষ দেখুৱাওক। পাতি থওক, ওলোমাব নালাগে।',
@@ -868,7 +868,7 @@ const _or = <String, String>{
   'Lay the whole piece flat': 'ସମସ୍ତ ଟୁକୁଡ଼ା ସମତଳରେ ପକାନ୍ତୁ',
   'Floor or table · plain sheet under it': 'ଚଟାଣ କିମ୍ବା ଟେବୁଲ · ତଳେ ସାଦା କପଡ଼ା',
   'Straighten every edge': 'ପ୍ରତି ଧାର ସିଧା କରନ୍ତୁ',
-  'Corners square · borders even · no folds': 'କୋଣ ସମକୋଣ · ପାରି ସମାନ · ଭଙ୍ଗା ନାହିଁ',
+  'Borders even · no folds': 'ପାରି ସମାନ · ଭଙ୍ଗା ନାହିଁ',
   'The whole piece in frame, laid flat': 'ସମସ୍ତ ଟୁକୁଡ଼ା ଫ୍ରେମରେ, ପକାଇ ରଖାଯାଇଛି',
   'Show every edge. Keep it flat, not hanging.':
       'ପ୍ରତି ଧାର ଦେଖାନ୍ତୁ। ପକାଇ ରଖନ୍ତୁ, ଝୁଲାନ୍ତୁ ନାହିଁ।',
@@ -1381,8 +1381,8 @@ const _te = <String, String>{
   'Lay the whole piece flat': 'మొత్తం ముక్కను చదునుగా పరచండి',
   'Floor or table · plain sheet under it': 'నేల లేదా బల్ల · కింద సాదా గుడ్డ',
   'Straighten every edge': 'ప్రతి అంచును నిటారుగా చేయండి',
-  'Corners square · borders even · no folds':
-      'మూలలు చదరం · అంచులు సమం · మడతలు లేవు',
+  'Borders even · no folds':
+      'అంచులు సమం · మడతలు లేవు',
   'The whole piece in frame, laid flat': 'మొత్తం ముక్క ఫ్రేమ్‌లో, చదునుగా',
   'Show every edge. Keep it flat, not hanging.':
       'ప్రతి అంచు చూపండి. చదునుగా ఉంచండి, వేలాడనివ్వకండి.',

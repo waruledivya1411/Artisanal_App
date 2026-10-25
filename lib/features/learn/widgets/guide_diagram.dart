@@ -152,7 +152,8 @@ class _GuidePainter extends CustomPainter {
         final flat = Rect.fromLTRB(27, 17, 73, 83);
         canvas.drawRect(flat, fill);
         canvas.drawRect(flat, accent);
-        // border down the side, pallu across the end
+        // border down both sides, pallu across the end
+        canvas.drawLine(const Offset(36, 17), const Offset(36, 83), faint);
         canvas.drawLine(const Offset(64, 17), const Offset(64, 83), faint);
         canvas.drawLine(const Offset(27, 72), const Offset(73, 72), faint);
 

@@ -5,7 +5,6 @@ import 'package:artisnal_app/core/speech/speech_player.dart';
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/displays.dart';
-import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
 import 'package:artisnal_app/features/learn/screens/display_guide_screen.dart';
 import 'package:artisnal_app/features/learn/screens/shoot_screen.dart';
 import 'package:artisnal_app/features/learn/screens/material_picker_screen.dart'
@@ -60,21 +59,21 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
   String get _spokenText =>
       '${tr('How will you show it?')} ${_displays.map((d) => tr(d.name)).join('. ')}.';
 
-  /// Tapping a display opens its guide; taking the shot there is what picks
-  /// it, so the artisan sees how to frame it before choosing.
+  /// Tapping a display only selects it; nothing moves on until Continue.
   void _select(DisplayOption display) {
     HapticFeedback.selectionClick();
     SelectedDisplay.instance.select(display.name);
     setState(() => _selected = display.name);
-    _openGuide(display);
   }
 
-  /// Continue goes on to the chosen display's guide. Done, once a display is
-  /// chosen, leaves the setup and keeps that choice on the Learn card.
-  void _finish() {
-    Navigator.of(context).popUntil(
-      (route) => route.settings.name != photographySetupRoute,
-    );
+  /// Continue goes on to the chosen display's guide, which ends at the
+  /// camera - it does not leave the setup.
+  void _continue() {
+    final name = _selected;
+    if (name == null) return;
+    for (final d in _displays) {
+      if (d.name == name) return _openGuide(d);
+    }
   }
 
   void _openGuide(DisplayOption display) {
@@ -238,14 +237,14 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
                       color: Colors.transparent,
                       borderRadius: BorderRadius.circular(18),
                       child: InkWell(
-                        onTap: picked ? _finish : null,
+                        onTap: picked ? _continue : null,
                         borderRadius: BorderRadius.circular(18),
                         child: SizedBox(
                           height: 56,
                           width: double.infinity,
                           child: Center(
                             child: Text(
-                              tr(picked ? 'Done' : 'Continue'),
+                              tr('Continue'),
                               style: appType(
                                 color: Colors.white,
                                 fontSize: 16,
