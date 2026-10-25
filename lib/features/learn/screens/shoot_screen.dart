@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:artisnal_app/features/learn/data/displays.dart';
+import 'package:artisnal_app/features/learn/data/materials.dart';
 import 'package:artisnal_app/features/learn/data/photo_edit.dart';
 import 'package:artisnal_app/features/learn/screens/photo_edit_screen.dart';
 import 'package:artisnal_app/features/learn/widgets/shot_outline.dart';
@@ -176,16 +177,14 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     return kIsWeb ? size.width / size.height : size.height / size.width;
   }
 
-  /// A faded reference photo laid over the live picture, for shots where the
-  /// artisan lines the piece up with the photo itself rather than a drawing.
-  /// Null for every other shot.
+  /// The good example photo for this display, faded over the live picture,
+  /// for products the artisan lines up against the photo itself rather than
+  /// a drawing. It follows the material picked, as the guide does. Null for
+  /// every other product.
   String? get _ghostPhoto {
-    if (widget.product == 'Mekhala sador' &&
-        (widget.display.key == 'full_display' ||
-            widget.display.key == 'hanging_display')) {
-      return 'assets/images/lessons/photography/mekhala_reference.jpg';
-    }
-    return null;
+    if (widget.product != 'Mekhala sador') return null;
+    final material = SelectedMaterial.instance.name ?? 'Cotton';
+    return widget.display.imageFor(material, product: widget.product);
   }
 
   /// Height of the black band above the photo, which holds only Back.
@@ -245,10 +244,10 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
                           if (_ghostPhoto case final ghost?)
                             IgnorePointer(
                               child: Opacity(
-                                opacity: 0.5,
+                                opacity: 0.65,
                                 child: Image.asset(
                                   ghost,
-                                  fit: BoxFit.fill,
+                                  fit: BoxFit.cover,
                                   errorBuilder: (context, error, stack) =>
                                       const SizedBox.shrink(),
                                 ),
