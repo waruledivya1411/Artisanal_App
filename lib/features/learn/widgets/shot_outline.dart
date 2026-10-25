@@ -2,7 +2,6 @@
 import 'package:artisnal_app/core/l10n/app_text.dart';
 import 'package:flutter/material.dart';
 
-import 'package:artisnal_app/features/learn/widgets/folded_stack_diagram.dart';
 
 /// A plain shape drawn inside the frame showing roughly how the piece should
 /// sit. Deliberately one outline with no labels: the artisan reads the shape,
@@ -12,6 +11,8 @@ enum ShotSilhouette { draped, foldedSari }
 /// Camera overlay drawn on top of the live preview.
 enum ShotOverlayKind {
   standard,
+  sariFull,
+  sariClose,
   embroideryBorder,
   foldedStack,
   hangingDisplay,
@@ -97,6 +98,23 @@ class ShotOutline {
   /// A draped piece gets the cloth-over-a-chair shape; everything else gets
   /// the plain box for its display.
   static ShotOutline forShot(String? product, String displayKey) {
+    if (displayKey == 'close-up_texture' &&
+        _sareeGuideProducts.contains(product)) {
+      return const ShotOutline(
+        widthFactor: 0.72,
+        aspectRatio: 0.75,
+        placement: ShotFramePlacement.inset,
+        kind: ShotOverlayKind.sariClose,
+      );
+    }
+    if (displayKey == 'full_display' && product == 'Saree') {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: 0.72,
+        placement: ShotFramePlacement.inset,
+        kind: ShotOverlayKind.sariFull,
+      );
+    }
     if (displayKey == 'full_display' && product == 'Mekhala sador') {
       return const ShotOutline(
         widthFactor: 0.88,
@@ -360,10 +378,37 @@ class ShotOutlineOverlay extends StatelessWidget {
   static const embroideryArt =
       'assets/images/lessons/photography/embroidery_outline.png';
 
+  /// Dotted sari laid flat, a border down each side, for the full display
+  /// shot. Drawn the same way as [drapedArt].
+  static const fullDisplayArt =
+      'assets/images/lessons/photography/full_display_outline.png';
+
+  /// Dotted sari hanging from a hanger, for the hanging shot. Drawn the same
+  /// way as [drapedArt], borders kept in gold.
+  static const hangingArt =
+      'assets/images/lessons/photography/hanging_outline.png';
+
+  /// Dotted folded sari seen from the front, border down the right, for the
+  /// folded stack shot. Drawn the same way as [drapedArt].
+  static const foldedArt =
+      'assets/images/lessons/photography/folded_outline.png';
+
+  /// The motifs of a close-up, light on a clear background, laid inside the
+  /// dashed box - the box itself is the texture to fill.
+  static const closeUpArt =
+      'assets/images/lessons/photography/closeup_outline.png';
+
+  /// A drawing laid inside the dashed box, for shots that keep their box.
+  static String? innerArtFor(ShotOverlayKind kind) =>
+      kind == ShotOverlayKind.sariClose ? closeUpArt : null;
+
   /// The drawing used in place of a dashed box, for the shots that have one.
   /// It carries its own dotted outline, so no box is drawn around it.
   static String? artFor(ShotOverlayKind kind) => switch (kind) {
         ShotOverlayKind.sariDraped => drapedArt,
+        ShotOverlayKind.sariFull => fullDisplayArt,
+        ShotOverlayKind.hangingDisplay => hangingArt,
+        ShotOverlayKind.foldedStack => foldedArt,
         ShotOverlayKind.embroideryBorder => embroideryArt,
         _ => null,
       };
@@ -383,26 +428,60 @@ class ShotOutlineOverlay extends StatelessWidget {
     );
   }
 
+  /// The hanging drawing is tall and narrow; it runs 94% of the photo's
+  /// height and is widened a little so the sari does not look thin.
+  static Rect hangingArtRect(Size screen, double? clearTop, double? clearBottom) {
+    final photo = ShotOutline.photoRect(screen);
+    final height = photo.height * 0.94;
+    return ShotOutline.fitBetween(
+      Rect.fromCenter(
+        center: photo.center,
+        width: (height * 0.58).clamp(0, photo.width - 8).toDouble(),
+        height: height,
+      ),
+      clearTop,
+      clearBottom,
+    );
+  }
+
+  /// The folded drawing is wide; it spans the photo's width and is made a
+  /// little taller than drawn so the sari fills more of the photo.
+  static Rect foldedArtRect(Size screen, double? clearTop, double? clearBottom) {
+    final photo = ShotOutline.photoRect(screen);
+    final width = photo.width - 8;
+    return ShotOutline.fitBetween(
+      Rect.fromCenter(center: photo.center, width: width, height: width / 1.25),
+      clearTop,
+      clearBottom,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final painted = CustomPaint(
       painter: _OutlinePainter(outline, clearTop, clearBottom, locale),
       size: Size.infinite,
     );
-    final art = artFor(outline.kind);
+    final art = artFor(outline.kind) ?? innerArtFor(outline.kind);
     if (art == null) return IgnorePointer(child: painted);
     return IgnorePointer(
       child: LayoutBuilder(
         builder: (context, constraints) {
           final screen = constraints.biggest;
-          final rect = outline.kind == ShotOverlayKind.sariDraped
-              ? drapedArtRect(screen, clearTop, clearBottom)
-              : ShotOutline.outerFrame(
-                  screen,
-                  outline,
-                  clearTop: clearTop,
-                  clearBottom: clearBottom,
-                );
+          final rect = switch (outline.kind) {
+            ShotOverlayKind.sariDraped =>
+              drapedArtRect(screen, clearTop, clearBottom),
+            ShotOverlayKind.hangingDisplay =>
+              hangingArtRect(screen, clearTop, clearBottom),
+            ShotOverlayKind.foldedStack =>
+              foldedArtRect(screen, clearTop, clearBottom),
+            _ => ShotOutline.outerFrame(
+                screen,
+                outline,
+                clearTop: clearTop,
+                clearBottom: clearBottom,
+              ),
+          };
           return Stack(
             fit: StackFit.expand,
             children: [
@@ -471,14 +550,13 @@ class _OutlinePainter extends CustomPainter {
     }
 
     switch (outline.kind) {
+      case ShotOverlayKind.sariFull:
+      case ShotOverlayKind.hangingDisplay:
+      case ShotOverlayKind.foldedStack:
       case ShotOverlayKind.embroideryBorder:
       case ShotOverlayKind.sariDraped:
         // Drawn from an image by ShotOutlineOverlay; never reached.
         break;
-      case ShotOverlayKind.foldedStack:
-        _foldedStackGuide(canvas, rect);
-      case ShotOverlayKind.hangingDisplay:
-        _hangingDisplayGuide(canvas, rect);
       case ShotOverlayKind.mekhalaFull:
         _mekhalaPair(canvas, rect);
       case ShotOverlayKind.mekhalaHanging:
@@ -509,6 +587,8 @@ class _OutlinePainter extends CustomPainter {
         _yardageHanging(canvas, rect);
       case ShotOverlayKind.yardageClose:
         _yardageClose(canvas, rect);
+      case ShotOverlayKind.sariClose:
+        // Motifs are an image laid on by ShotOutlineOverlay.
       case ShotOverlayKind.standard:
         break;
     }
@@ -1001,85 +1081,6 @@ class _OutlinePainter extends CustomPainter {
     );
   }
 
-  /// Straight cloth on a rod: left border, motifs, end band. Matches the hanging guide.
-  void _hangingDisplayGuide(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round;
-    final fill = Paint()..color = const Color(0x22FFFFFF);
-    final faint = Paint()
-      ..color = const Color(0x99FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    final cloth = Rect.fromLTRB(
-      frame.left + frame.width * 0.06,
-      frame.top + frame.height * 0.05,
-      frame.right - frame.width * 0.06,
-      frame.top + frame.height * 0.97,
-    );
-    final rodY = cloth.top - frame.height * 0.018;
-    final overhang = frame.width * 0.045;
-    canvas.drawLine(
-      Offset(cloth.left - overhang, rodY),
-      Offset(cloth.right + overhang, rodY),
-      Paint()
-        ..color = const Color(0xE8FFFFFF)
-        ..strokeWidth = 3.2
-        ..strokeCap = StrokeCap.round,
-    );
-    canvas.drawCircle(
-      Offset(cloth.center.dx, rodY),
-      4,
-      Paint()..color = const Color(0xE8FFFFFF),
-    );
-
-    canvas.drawRect(cloth, fill);
-    canvas.drawRect(cloth, stroke);
-
-    final borderRight = cloth.left + cloth.width * 0.22;
-    canvas.drawRect(
-      Rect.fromLTRB(cloth.left, cloth.top, borderRight, cloth.bottom),
-      Paint()..color = const Color(0x18FFFFFF),
-    );
-    canvas.drawLine(
-      Offset(borderRight, cloth.top),
-      Offset(borderRight, cloth.bottom),
-      stroke,
-    );
-    final strip = borderRight - cloth.left;
-    canvas.drawLine(
-      Offset(cloth.left + strip * 0.35, cloth.top),
-      Offset(cloth.left + strip * 0.35, cloth.bottom),
-      faint,
-    );
-    canvas.drawLine(
-      Offset(cloth.left + strip * 0.7, cloth.top),
-      Offset(cloth.left + strip * 0.7, cloth.bottom),
-      faint,
-    );
-
-    final bandTop = cloth.top + cloth.height * 0.74;
-    _diamonds(
-      canvas,
-      Rect.fromLTRB(borderRight, cloth.top + cloth.height * 0.06, cloth.right, bandTop),
-      Paint()..color = const Color(0xCCFFFFFF),
-    );
-    canvas.drawLine(Offset(cloth.left, bandTop), Offset(cloth.right, bandTop), faint);
-    canvas.drawLine(
-      Offset(cloth.left, cloth.top + cloth.height * 0.86),
-      Offset(cloth.right, cloth.top + cloth.height * 0.86),
-      faint,
-    );
-    canvas.drawLine(
-      Offset(cloth.center.dx, cloth.top),
-      Offset(cloth.center.dx, cloth.bottom),
-      faint,
-    );
-  }
-
   /// Shawl hanging under a rod: wider cloth, border on the right, tassels below.
   void _shawlFull(Canvas canvas, Rect frame) {
     final stroke = Paint()
@@ -1563,11 +1564,6 @@ class _OutlinePainter extends CustomPainter {
   void _bottomBand(Canvas canvas, Rect panel, double fraction, Paint stroke) {
     final y = panel.bottom - panel.height * fraction;
     canvas.drawLine(Offset(panel.left, y), Offset(panel.right, y), stroke);
-  }
-
-  /// Top-down folded sari: one rectangle with a border strip.
-  void _foldedStackGuide(Canvas canvas, Rect frame) {
-    FoldedStackOverlay.paintContent(canvas, frame);
   }
 
   void _centredLabel(

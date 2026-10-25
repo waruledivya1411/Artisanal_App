@@ -176,6 +176,18 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     return kIsWeb ? size.width / size.height : size.height / size.width;
   }
 
+  /// A faded reference photo laid over the live picture, for shots where the
+  /// artisan lines the piece up with the photo itself rather than a drawing.
+  /// Null for every other shot.
+  String? get _ghostPhoto {
+    if (widget.product == 'Mekhala sador' &&
+        (widget.display.key == 'full_display' ||
+            widget.display.key == 'hanging_display')) {
+      return 'assets/images/lessons/photography/mekhala_reference.jpg';
+    }
+    return null;
+  }
+
   /// Height of the black band above the photo, which holds only Back.
   static const double _topBand = 56;
 
@@ -230,10 +242,23 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
                         fit: StackFit.expand,
                         children: [
                           _preview(),
-                          ShotOutlineOverlay(
-                            outline: _outline,
-                            locale: widget.locale,
-                          ),
+                          if (_ghostPhoto case final ghost?)
+                            IgnorePointer(
+                              child: Opacity(
+                                opacity: 0.5,
+                                child: Image.asset(
+                                  ghost,
+                                  fit: BoxFit.fill,
+                                  errorBuilder: (context, error, stack) =>
+                                      const SizedBox.shrink(),
+                                ),
+                              ),
+                            )
+                          else
+                            ShotOutlineOverlay(
+                              outline: _outline,
+                              locale: widget.locale,
+                            ),
                         ],
                       ),
                     ),
