@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:artisnal_app/core/widgets/app_bottom_nav.dart';
-import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
+import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
 import 'package:artisnal_app/features/learn/screens/learn_home_screen.dart';
 import 'package:artisnal_app/features/me/screens/me_screen.dart';
 
@@ -56,18 +56,11 @@ class _MainTabScreenState extends State<MainTabScreen> {
             locale: widget.locale,
             selectedTab: _tab,
             onLearnTap: () => setState(() => _tab = AppNavTab.learn),
-            onPhotoTap: _openPhotographyLessons,
+            onPhotoTap: () =>
+                LearnTaskNavigation.openShoot(context, widget.locale),
             onMeTap: () => setState(() => _tab = AppNavTab.me),
           ),
         ],
-      ),
-    );
-  }
-
-  void _openPhotographyLessons() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => photographyTask(widget.locale),
       ),
     );
   }

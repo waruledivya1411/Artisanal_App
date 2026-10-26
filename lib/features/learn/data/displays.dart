@@ -18,12 +18,6 @@ class DisplayOption {
     const dir = 'assets/images/lessons/displays';
     final m = material.toLowerCase();
     if (_usesOwnPhoto(product, material)) {
-      // Cotton has no draped shot of its own.
-      if (product == 'Mekhala sador' &&
-          material == 'Cotton' &&
-          key == 'draped_look') {
-        return '$dir/${m}_$key.jpg';
-      }
       final slug = product!.toLowerCase().replaceAll(' ', '_');
       return '$dir/${slug}_${m}_$key.jpg';
     }
@@ -56,11 +50,11 @@ const _border = DisplayOption(
 const _folded = DisplayOption(name: 'Folded', key: 'folded_stack');
 const _hanging = DisplayOption(name: 'Hanging', key: 'hanging_display');
 const _sofaSeated = DisplayOption(
-  name: 'Sofa-Seated Display',
+  name: 'Sofa-Seated',
   key: 'sofa_seated_display',
 );
 const _flatLay = DisplayOption(
-  name: 'Flat-Lay Display',
+  name: 'Flat-Lay',
   key: 'flat_lay_display',
 );
 

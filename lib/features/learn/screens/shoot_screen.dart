@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -182,9 +184,33 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   /// a drawing. It follows the material picked, as the guide does. Null for
   /// every other product.
   String? get _ghostPhoto {
-    if (widget.product != 'Mekhala sador') return null;
+    if (!_ghostProducts.contains(widget.product)) return null;
     final material = SelectedMaterial.instance.name ?? 'Cotton';
     return widget.display.imageFor(material, product: widget.product);
+  }
+
+  static const _ghostProducts = {'Mekhala sador', 'Cushion covers'};
+
+  /// The reference photo for [_ghostPhoto]. A cushion photo is wider than
+  /// the 4:3 frame, so it is shown whole - cropping would cut the cushion
+  /// off - over a blurred copy of itself that fills the rest of the frame.
+  Widget _ghostImage(String asset) {
+    Widget image(BoxFit fit) => Image.asset(
+          asset,
+          fit: fit,
+          errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+        );
+    if (widget.product != 'Cushion covers') return image(BoxFit.cover);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ImageFiltered(
+          imageFilter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: image(BoxFit.cover),
+        ),
+        image(BoxFit.contain),
+      ],
+    );
   }
 
   /// Height of the black band above the photo, which holds only Back.
@@ -248,12 +274,7 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
                               IgnorePointer(
                                 child: Opacity(
                                   opacity: 0.5,
-                                  child: Image.asset(
-                                    ghost,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stack) =>
-                                        const SizedBox.shrink(),
-                                  ),
+                                  child: _ghostImage(ghost),
                                 ),
                               ),
                           ]

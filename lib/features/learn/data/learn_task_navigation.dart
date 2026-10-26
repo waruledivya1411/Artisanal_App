@@ -25,8 +25,7 @@ class LearnTaskNavigation {
   static Route<void>? _routeFor(String taskId, String locale) {
     return switch (taskId) {
       photographyTaskId => MaterialPageRoute<void>(
-          settings: const RouteSettings(name: photographySetupRoute),
-          builder: (_) => photographyEntry(locale),
+          builder: (_) => photographyTask(locale),
         ),
       setUpPageTaskId => MaterialPageRoute<void>(
           builder: (_) => setUpPageTask(locale),
@@ -47,8 +46,15 @@ class LearnTaskNavigation {
     };
   }
 
-  static void openPhotography(BuildContext context, String locale) {
-    open(context, photographyTaskId, locale);
+  /// The Photo button: straight into the shoot - product, material,
+  /// display, guide, then the camera. The photo lessons live under Learn.
+  static void openShoot(BuildContext context, String locale) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        settings: const RouteSettings(name: photographySetupRoute),
+        builder: (_) => photographyEntry(locale),
+      ),
+    );
   }
 
   static void popToLearnHome(NavigatorState navigator) {

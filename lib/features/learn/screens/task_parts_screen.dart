@@ -101,7 +101,7 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       MainTabScreen.selectTab?.call(AppNavTab.learn);
       if (!navigator.mounted) return;
-      LearnTaskNavigation.openPhotography(navigator.context, locale);
+      LearnTaskNavigation.openShoot(navigator.context, locale);
     });
   }
 

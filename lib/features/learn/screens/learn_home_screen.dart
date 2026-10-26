@@ -3,10 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/widgets/app_bottom_nav.dart';
-import 'package:artisnal_app/features/learn/data/displays.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
-import 'package:artisnal_app/features/learn/data/materials.dart';
-import 'package:artisnal_app/features/learn/data/products.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
 import 'package:artisnal_app/features/me/screens/me_screen.dart';
@@ -95,28 +92,15 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
 
   final _progress = LearnProgress.instance;
 
-  /// The setup pickers replace one another, so the push future completes
-  /// early; listen to the choices themselves to keep the card current.
-  late final List<Listenable> _sources = [
-    _progress,
-    SelectedProduct.instance,
-    SelectedMaterial.instance,
-    SelectedDisplay.instance,
-  ];
-
   @override
   void initState() {
     super.initState();
-    for (final source in _sources) {
-      source.addListener(_onProgress);
-    }
+    _progress.addListener(_onProgress);
   }
 
   @override
   void dispose() {
-    for (final source in _sources) {
-      source.removeListener(_onProgress);
-    }
+    _progress.removeListener(_onProgress);
     _speech.stop();
     super.dispose();
   }
@@ -125,45 +109,14 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
     if (mounted) setState(() {});
   }
 
-  String _photographyDetail() {
-    final picked = [
-      SelectedProduct.instance.name,
-      SelectedMaterial.instance.name,
-      SelectedDisplay.instance.name,
-    ].whereType<String>().map(tr).toList();
-    if (picked.isEmpty) return tr('Choose what to shoot');
-    return picked.join(' · ');
-  }
-
-  _Task _withProgress(_Task task) {
-    if (task.number != '01') return task;
-    return _Task(
-      number: task.number,
-      title: task.title,
-      detail: _photographyDetail(),
-      image: task.image,
-      active: task.active,
-    );
-  }
-
   void _open(Widget screen) {
     _speech.stop();
     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
   }
 
-  void _openPhotographySetup() {
-    _speech.stop();
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        settings: const RouteSettings(name: photographySetupRoute),
-        builder: (_) => photographyEntry(widget.locale),
-      ),
-    );
-  }
-
   VoidCallback? _openerFor(_Task task) {
     return switch (task.number) {
-      '01' => _openPhotographySetup,
+      '01' => () => _open(photographyTask(widget.locale)),
       '02' => () => _open(setUpPageTask(widget.locale)),
       '03' => () => _open(
         PhotoAccessScreen(
@@ -265,7 +218,7 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
                             childAspectRatio: 0.76,
                           ),
                       itemBuilder: (context, index) {
-                        final task = _withProgress(_tasks[index]);
+                        final task = _tasks[index];
                         return _TaskCard(task: task, onTap: _openerFor(task));
                       },
                     ),

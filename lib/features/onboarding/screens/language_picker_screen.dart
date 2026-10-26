@@ -199,19 +199,7 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: 12),
-                Center(
-                  child: Text(
-                    tr('You can change this later in Settings'),
-                    style: appType(
-                      color: LanguagePickerScreen.hint,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
-                      height: 1.2,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
                 DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(18),

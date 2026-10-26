@@ -126,12 +126,13 @@ void main() {
 
     await tester.ensureVisible(find.text('Photography'));
     await tester.pumpAndSettle();
+    // The Photography card holds the photo lessons.
     await tester.tap(find.text('Photography'));
     await tester.pumpAndSettle();
-    expect(find.text('What are you photographing?'), findsOneWidget);
+    expect(find.text('Hold steady'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
-    expect(find.text('What are you photographing?'), findsNothing);
+    expect(find.text('Hold steady'), findsNothing);
 
     await tester.ensureVisible(find.text('Set up your page'));
     await tester.pumpAndSettle();
@@ -311,15 +312,17 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
 
+    // The Photo button goes straight into the shoot.
     await tester.tap(find.text('Photo'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Hold steady'), findsOneWidget);
-    expect(find.text('Plain sheet'), findsOneWidget);
+    expect(find.text('What are you photographing?'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Photo'));
+    await tester.ensureVisible(find.text('Photography'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Photography'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Hold steady'));
     await tester.pumpAndSettle();
@@ -513,7 +516,7 @@ void main() {
     }
     expect(
       displaysFor('Cushion covers').map((d) => d.name),
-      ['Sofa-Seated Display', 'Flat-Lay Display'],
+      ['Sofa-Seated', 'Flat-Lay'],
     );
     expect(
       displaysFor('Jod kappur').map((d) => d.name),
