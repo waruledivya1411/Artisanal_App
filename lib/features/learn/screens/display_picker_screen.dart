@@ -7,6 +7,7 @@ import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/displays.dart';
 import 'package:artisnal_app/features/learn/screens/display_guide_screen.dart';
 import 'package:artisnal_app/features/learn/screens/shoot_screen.dart';
+import 'package:artisnal_app/features/learn/screens/shot_list_screen.dart';
 import 'package:artisnal_app/features/learn/screens/material_picker_screen.dart'
     show kPickerCardRatio, kPickerCaptionHeight;
 import 'package:artisnal_app/core/l10n/app_text.dart';
@@ -44,11 +45,12 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
 
   late final List<DisplayOption> _displays = displaysFor(widget.product);
 
-  late String? _selected = _displays.any(
-        (d) => d.name == SelectedDisplay.instance.name,
-      )
-      ? SelectedDisplay.instance.name
-      : null;
+  /// Every display ticked. The artisan can shoot as many as they like;
+  /// they are taken in the order they appear on the page.
+  late final Set<String> _selected = {
+    if (_displays.any((d) => d.name == SelectedDisplay.instance.name))
+      SelectedDisplay.instance.name!,
+  };
 
   @override
   void dispose() {
@@ -59,27 +61,43 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
   String get _spokenText =>
       '${tr('How will you show it?')} ${_displays.map((d) => tr(d.name)).join('. ')}.';
 
-  /// Tapping a display only selects it; nothing moves on until Continue.
-  void _select(DisplayOption display) {
+  /// Tapping a display ticks or unticks it; nothing moves on until Continue.
+  void _toggle(DisplayOption display) {
     HapticFeedback.selectionClick();
-    SelectedDisplay.instance.select(display.name);
-    setState(() => _selected = display.name);
+    setState(() {
+      if (!_selected.remove(display.name)) _selected.add(display.name);
+    });
   }
 
-  /// Continue goes on to the chosen display's guide, which ends at the
-  /// camera - it does not leave the setup.
+  /// One display goes straight to its guide. Several open a list of them,
+  /// so the artisan can take each in turn and see which are done.
   void _continue() {
-    final name = _selected;
-    if (name == null) return;
-    for (final d in _displays) {
-      if (d.name == name) return _openGuide(d);
+    final chosen = _displays.where((d) => _selected.contains(d.name)).toList();
+    if (chosen.isEmpty) return;
+    if (chosen.length == 1) {
+      _openGuide(chosen.single);
+      return;
     }
-  }
-
-  void _openGuide(DisplayOption display) {
     _speech.stop();
     Navigator.of(context).push(
       MaterialPageRoute<void>(
+        settings: RouteSettings(name: ModalRoute.of(context)?.settings.name),
+        builder: (_) => ShotListScreen(
+          displays: chosen,
+          material: widget.material,
+          product: widget.product,
+          onOpen: _openGuide,
+        ),
+      ),
+    );
+  }
+
+  /// Opens [display]'s guide; completes with true once its shot is kept.
+  Future<bool?> _openGuide(DisplayOption display) {
+    _speech.stop();
+    SelectedDisplay.instance.select(display.name);
+    return Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
         settings: RouteSettings(name: ModalRoute.of(context)?.settings.name),
         builder: (routeContext) => DisplayGuideScreen(
           locale: widget.locale,
@@ -92,13 +110,9 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
     );
   }
 
-  /// Last step of the setup. Every step is its own route so Back steps once,
-  /// which means finishing has to unwind all of them: they share a route name,
-  /// so pop until the first route that is not part of the setup.
+  /// Opens the camera from a guide. A kept shot closes the guide too, with
+  /// true, so the list of shots can mark it done.
   Future<void> _shoot(BuildContext guideContext, DisplayOption display) async {
-    SelectedDisplay.instance.select(display.name);
-    if (mounted) setState(() => _selected = display.name);
-
     final navigator = Navigator.of(guideContext);
     final kept = await navigator.push<bool>(
       MaterialPageRoute<bool>(
@@ -110,12 +124,12 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
         ),
       ),
     );
-    if (kept == true && navigator.canPop()) navigator.pop();
+    if (kept == true && navigator.canPop()) navigator.pop(true);
   }
 
   @override
   Widget build(BuildContext context) {
-    final picked = _selected != null;
+    final picked = _selected.isNotEmpty;
     final material = widget.material;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -153,15 +167,6 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
                           ),
                         ),
                       ),
-                      Text(
-                        tr(widget.taskLabel),
-                        style: appType(
-                          color: DisplayPickerScreen.teal,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
                       Align(
                         alignment: Alignment.centerRight,
                         child: SpeakCircleButton(
@@ -188,7 +193,7 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  tr('Tap one'),
+                  tr('Tap one or more'),
                   style: appType(
                     color: DisplayPickerScreen.muted,
                     fontSize: 16,
@@ -213,8 +218,8 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
                         display: display,
                         material: material,
                         product: widget.product,
-                        selected: display.name == _selected,
-                        onTap: () => _select(display),
+                        selected: _selected.contains(display.name),
+                        onTap: () => _toggle(display),
                       );
                     },
                   ),
@@ -387,9 +392,7 @@ class _Example extends StatelessWidget {
     if (name == null) return const _NoExample();
     return Image.asset(
       display.imageFor(name, product: product),
-      fit: product == 'Cushion covers' ||
-              product == 'Jod kappur' ||
-              product == 'Yardages'
+      fit: product == 'Cushion covers' || product == 'Jod kappur'
           ? BoxFit.contain
           : BoxFit.cover,
       alignment: Alignment.center,
@@ -406,11 +409,7 @@ class _NoExample extends StatelessWidget {
     return const ColoredBox(
       color: Color(0xFFEDF2EF),
       child: Center(
-        child: Icon(
-          Icons.image_outlined,
-          color: Color(0xFF9AABA8),
-          size: 26,
-        ),
+        child: Icon(Icons.image_outlined, color: Color(0xFF9AABA8), size: 26),
       ),
     );
   }

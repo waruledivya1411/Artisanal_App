@@ -14,6 +14,8 @@ class LoginScreen extends StatefulWidget {
   static const Color ink = Color(0xFF152322);
   static const Color muted = Color(0xFF4F5F5D);
 
+  static const Color fieldBorder = Color(0xFFE4EEEC);
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -21,6 +23,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _hidePassword = true;
 
   @override
   void dispose() {
@@ -46,9 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _openForgotPassword() {
     _passwordController.clear();
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => const ForgotPasswordScreen(),
-      ),
+      MaterialPageRoute<void>(builder: (_) => const ForgotPasswordScreen()),
     );
   }
 
@@ -63,111 +64,188 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       child: Scaffold(
         backgroundColor: LoginScreen.background,
+        // One fixed page, no scrolling: the keyboard slides over the
+        // bottom rather than pushing the layout up.
+        resizeToAvoidBottomInset: false,
         body: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
-            children: [
-              Text(
-                tr('Click & Social'),
-                style: appType(
-                  color: LoginScreen.teal,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.2,
-                ),
-              ),
-              const SizedBox(height: 32),
-              Text(
-                tr('Log in'),
-                style: appType(
-                  color: LoginScreen.ink,
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                  height: 1.1,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                tr('Use your email and password to open your lessons.'),
-                style: appType(
-                  color: LoginScreen.muted,
-                  fontSize: 15,
-                  height: 1.45,
-                ),
-              ),
-              const SizedBox(height: 28),
-              _AuthField(
-                controller: _emailController,
-                label: 'Email',
-                hint: 'you@example.com',
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-              ),
-              const SizedBox(height: 16),
-              _AuthField(
-                controller: _passwordController,
-                label: 'Password',
-                hint: 'Your password',
-                obscure: true,
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => _continue(),
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: _openForgotPassword,
-                  style: TextButton.styleFrom(
-                    foregroundColor: LoginScreen.teal,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 8,
-                    ),
-                  ),
-                  child: Text(
-                    tr('Forgot password?'),
-                    style: appType(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Spacer(flex: 3),
+                const _AppTitle(),
+                const Spacer(flex: 2),
+                Text(
+                  tr('Log in'),
+                  style: appType(
+                    color: LoginScreen.ink,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.3,
+                    height: 1.1,
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: kPrimaryButtonShadow,
+                const SizedBox(height: 4),
+                Text(
+                  tr('Use your email and password to open your lessons.'),
+                  style: appType(
+                    color: LoginScreen.muted,
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
                 ),
-                child: Material(
-                  color: LoginScreen.teal,
-                  borderRadius: BorderRadius.circular(18),
-                  child: InkWell(
-                    onTap: _continue,
-                    borderRadius: BorderRadius.circular(18),
-                    child: SizedBox(
-                      key: const ValueKey('login-submit'),
-                      height: 56,
-                      width: double.infinity,
-                      child: Center(
-                        child: Text(
-                          tr('Log in'),
-                          style: appType(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                const SizedBox(height: 16),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: LoginScreen.fieldBorder),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x0F000000),
+                        blurRadius: 24,
+                        offset: Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 18, 16, 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _AuthField(
+                          controller: _emailController,
+                          label: 'Email',
+                          hint: 'you@example.com',
+                          icon: Icons.mail_outline_rounded,
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                        ),
+                        const SizedBox(height: 14),
+                        _AuthField(
+                          controller: _passwordController,
+                          label: 'Password',
+                          hint: 'Your password',
+                          icon: Icons.lock_outline_rounded,
+                          obscure: _hidePassword,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => _continue(),
+                          trailing: IconButton(
+                            tooltip: tr(
+                              _hidePassword ? 'Show password' : 'Hide password',
+                            ),
+                            onPressed: () =>
+                                setState(() => _hidePassword = !_hidePassword),
+                            icon: Icon(
+                              _hidePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                            ),
+                            color: LoginScreen.muted,
                           ),
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: _openForgotPassword,
+                            style: TextButton.styleFrom(
+                              foregroundColor: LoginScreen.teal,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 10,
+                              ),
+                            ),
+                            child: Text(
+                              tr('Forgot password?'),
+                              style: appType(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: kPrimaryButtonShadow,
+                  ),
+                  child: Material(
+                    color: LoginScreen.teal,
+                    borderRadius: BorderRadius.circular(18),
+                    child: InkWell(
+                      onTap: _continue,
+                      borderRadius: BorderRadius.circular(18),
+                      child: SizedBox(
+                        key: const ValueKey('login-submit'),
+                        height: 56,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              tr('Log in'),
+                              style: appType(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.arrow_forward_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+                const Spacer(flex: 4),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The app's name, large, in its own teal - the page belongs to the app.
+class _AppTitle extends StatelessWidget {
+  const _AppTitle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          tr('Click & Social'),
+          textAlign: TextAlign.center,
+          style: appType(
+            color: LoginScreen.teal,
+            fontSize: 36,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.8,
+            height: 1.1,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          width: 44,
+          height: 4,
+          decoration: BoxDecoration(
+            color: LoginScreen.teal.withValues(alpha: 0.35),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -177,22 +255,30 @@ class _AuthField extends StatelessWidget {
     required this.controller,
     required this.label,
     required this.hint,
+    required this.icon,
     this.obscure = false,
     this.keyboardType,
     this.textInputAction,
     this.onSubmitted,
+    this.trailing,
   });
 
   final TextEditingController controller;
   final String label;
   final String hint;
+  final IconData icon;
   final bool obscure;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onSubmitted;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: LoginScreen.fieldBorder),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -219,23 +305,19 @@ class _AuthField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: tr(hint),
             hintStyle: appType(
-              color: LoginScreen.muted,
+              color: LoginScreen.muted.withValues(alpha: 0.7),
               fontWeight: FontWeight.w500,
             ),
+            prefixIcon: Icon(icon, color: LoginScreen.muted, size: 20),
+            suffixIcon: trailing,
             filled: true,
-            fillColor: Colors.white,
+            fillColor: LoginScreen.background,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
             ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFE4EEEC)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFE4EEEC)),
-            ),
+            border: border,
+            enabledBorder: border,
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: const BorderSide(color: LoginScreen.teal, width: 1.8),

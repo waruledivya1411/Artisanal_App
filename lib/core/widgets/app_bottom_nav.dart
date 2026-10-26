@@ -26,115 +26,65 @@ class AppBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
+    // Photo sits level with Learn and Me, styled like them, so the bar
+    // shows where the artisan is rather than drawing the eye to the camera.
     return SizedBox(
-      height: 92 + bottomInset,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 12,
-            bottom: 0,
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0x14000000),
-                    blurRadius: 18,
-                    offset: Offset(0, -4),
+      height: 80 + bottomInset,
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x14000000),
+              blurRadius: 18,
+              offset: Offset(0, -4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.only(top: 16, bottom: bottomInset),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onLearnTap,
+                  child: _NavItem(
+                    locale: locale,
+                    image: 'assets/images/icons/book.png',
+                    label: 'Learn',
+                    selected: selectedTab == AppNavTab.learn,
                   ),
-                ],
-              ),
-              child: Padding(
-                padding: EdgeInsets.only(top: 16, bottom: bottomInset),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: onLearnTap,
-                        child: _NavItem(
-                          locale: locale,
-                          image: 'assets/images/icons/book.png',
-                          label: 'Learn',
-                          selected: selectedTab == AppNavTab.learn,
-                        ),
-                      ),
-                    ),
-                    const Expanded(child: SizedBox()),
-                    Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: onMeTap,
-                        child: _NavItem(
-                          locale: locale,
-                          image: 'assets/images/icons/user.png',
-                          label: 'Me',
-                          selected: selectedTab == AppNavTab.me,
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ),
-            ),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: GestureDetector(
-                onTap: onPhotoTap,
-                behavior: HitTestBehavior.opaque,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x591B7574),
-                            blurRadius: 16,
-                            offset: Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: teal,
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: const Icon(
-                          Icons.photo_camera_outlined,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      tr('Photo'),
-                      style: appType(
-                        color: muted,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onPhotoTap,
+                  child: _NavItem(
+                    locale: locale,
+                    icon: Icons.photo_camera_outlined,
+                    label: 'Photo',
+                  ),
                 ),
               ),
-            ),
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onMeTap,
+                  child: _NavItem(
+                    locale: locale,
+                    image: 'assets/images/icons/user.png',
+                    label: 'Me',
+                    selected: selectedTab == AppNavTab.me,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -143,13 +93,17 @@ class AppBottomNav extends StatelessWidget {
 class _NavItem extends StatelessWidget {
   const _NavItem({
     required this.locale,
-    required this.image,
     required this.label,
+    this.image,
+    this.icon,
     this.selected = false,
   });
 
   final String locale;
-  final String image;
+
+  /// The tab's picture: an image file, or a plain icon for Photo.
+  final String? image;
+  final IconData? icon;
   final String label;
   final bool selected;
 
@@ -159,7 +113,10 @@ class _NavItem extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SharpImage(image, width: 24, height: 24, fit: BoxFit.contain),
+        if (image case final file?)
+          SharpImage(file, width: 24, height: 24, fit: BoxFit.contain)
+        else
+          Icon(icon, color: color, size: 24),
         const SizedBox(height: 8),
         Text(
           tr(label),

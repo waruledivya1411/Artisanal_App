@@ -124,15 +124,6 @@ class _MaterialPickerScreenState extends State<MaterialPickerScreen> {
                           ),
                         ),
                       ),
-                      Text(
-                        tr(widget.taskLabel),
-                        style: appType(
-                          color: MaterialPickerScreen.teal,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
                       Align(
                         alignment: Alignment.centerRight,
                         child: SpeakCircleButton(

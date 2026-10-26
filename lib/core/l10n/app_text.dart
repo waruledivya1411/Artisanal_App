@@ -57,6 +57,13 @@ String? _templated(String text, Map<String, String> table) {
       'product': fit.group(1)!,
     });
   }
+  final shots = RegExp(r'^(\d+) of (\d+) done$').firstMatch(text);
+  if (shots != null) {
+    return fill('{done} of {total} done', {
+      'done': shots.group(1)!,
+      'total': shots.group(2)!,
+    });
+  }
   final nextTask = RegExp(r'^Next task: (.+)$').firstMatch(text);
   if (nextTask != null) {
     return fill('Next task: {task}', {'task': nextTask.group(1)!});
@@ -225,6 +232,11 @@ const _as = <String, String>{
   'Flat-Lay': 'পাতি থোৱা',
   'How will you show it?': 'ইয়াক কেনেকৈ দেখুৱাব?',
   'Tap one': 'এটা টিপক',
+  'Tap one or more': 'এটা বা অধিক টিপক',
+  'Your shots': 'আপোনাৰ ছবিসমূহ',
+  'Remaining': 'বাকী থকা',
+  'Choose one, then tap Next': 'এটা বাছক, তাৰ পিছত পৰৱৰ্তী টিপক',
+  '{done} of {total} done': '{total} টাৰ ভিতৰত {done} টা হ’ল',
   'What are you photographing?': 'আপুনি কিৰ ফটো তুলিছে?',
   'What is it made of?': 'ই কিহেৰে বনোৱা?',
   'Take the shot': 'ফটো তোলক',
@@ -820,6 +832,11 @@ const _or = <String, String>{
   'Flat-Lay': 'ସମତଳରେ ପକାଇବା',
   'How will you show it?': 'ଏହାକୁ କିପରି ଦେଖାଇବେ?',
   'Tap one': 'ଗୋଟିଏ ଟ୍ୟାପ୍ କରନ୍ତୁ',
+  'Tap one or more': 'ଗୋଟିଏ ବା ଅଧିକ ଟ୍ୟାପ୍ କରନ୍ତୁ',
+  'Your shots': 'ଆପଣଙ୍କ ଫଟୋ',
+  'Remaining': 'ବାକି ଅଛି',
+  'Choose one, then tap Next': 'ଗୋଟିଏ ବାଛନ୍ତୁ, ତା’ପରେ ପରବର୍ତ୍ତୀ ଟ୍ୟାପ୍ କରନ୍ତୁ',
+  '{done} of {total} done': '{total} ମଧ୍ୟରୁ {done} ହୋଇଗଲା',
   'What are you photographing?': 'ଆପଣ କ’ଣର ଫଟୋ ଉଠାଉଛନ୍ତି?',
   'What is it made of?': 'ଏହା କ’ଣରେ ତିଆରି?',
   'Take the shot': 'ଫଟୋ ଉଠାନ୍ତୁ',
@@ -1329,6 +1346,11 @@ const _te = <String, String>{
   'Flat-Lay': 'చదునుగా పరచడం',
   'How will you show it?': 'దీన్ని ఎలా చూపిస్తారు?',
   'Tap one': 'ఒకదాన్ని నొక్కండి',
+  'Tap one or more': 'ఒకటి లేదా అంతకంటే ఎక్కువ నొక్కండి',
+  'Your shots': 'మీ ఫోటోలు',
+  'Remaining': 'మిగిలినవి',
+  'Choose one, then tap Next': 'ఒకదాన్ని ఎంచుకుని, తర్వాత నొక్కండి',
+  '{done} of {total} done': '{total}లో {done} అయింది',
   'What are you photographing?': 'మీరు దేని ఫోటో తీస్తున్నారు?',
   'What is it made of?': 'ఇది దేనితో చేశారు?',
   'Take the shot': 'ఫోటో తీయండి',

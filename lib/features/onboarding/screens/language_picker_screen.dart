@@ -156,8 +156,6 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                       ),
                       tooltip: tr('Back'),
                     ),
-                    const SizedBox(width: 8),
-                    const _TranslateBadge(),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -243,27 +241,6 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _TranslateBadge extends StatelessWidget {
-  const _TranslateBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 48,
-      height: 48,
-      decoration: const BoxDecoration(
-        color: LanguagePickerScreen.selectedFill,
-        shape: BoxShape.circle,
-      ),
-      child: const Icon(
-        Icons.translate,
-        color: LanguagePickerScreen.teal,
-        size: 24,
       ),
     );
   }

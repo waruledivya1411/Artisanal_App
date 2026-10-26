@@ -167,9 +167,9 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
               fit: BoxFit.scaleDown,
               child: Text(
                 AppLang.code == 'en'
-                    ? tr(widget.display.name)
-                        .toUpperCase()
-                        .replaceAll(' AND ', ' & ')
+                    ? tr(
+                        widget.display.name,
+                      ).toUpperCase().replaceAll(' AND ', ' & ')
                     : tr(widget.display.name),
                 style: appType(
                   color: DisplayGuideScreen.teal,
@@ -284,9 +284,9 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
                   color: const Color(0xFFF4F1EA),
                   child: Image.asset(
                     widget.display.imageFor(material, product: widget.product),
-                    fit: widget.product == 'Cushion covers' ||
-                            widget.product == 'Jod kappur' ||
-                            widget.product == 'Yardages'
+                    fit:
+                        widget.product == 'Cushion covers' ||
+                            widget.product == 'Jod kappur'
                         ? BoxFit.contain
                         : BoxFit.cover,
                     alignment: Alignment.center,
