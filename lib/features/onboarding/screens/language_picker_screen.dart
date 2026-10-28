@@ -5,9 +5,23 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
 import 'package:artisnal_app/features/onboarding/screens/welcome_shoot_screen.dart';
+import 'package:artisnal_app/features/shell/main_tab_screen.dart';
 
 class LanguagePickerScreen extends StatefulWidget {
-  const LanguagePickerScreen({super.key});
+  const LanguagePickerScreen({super.key, this.changing = false});
+
+  /// Opened from Learn to switch language, rather than during onboarding:
+  /// it starts on the current language and Continue goes back to Learn.
+  final bool changing;
+
+  /// The language's own name for [locale], as shown on its card.
+  static String nativeName(String locale) {
+    final code = locale.toLowerCase().split('-').first;
+    for (final language in _LanguagePickerScreenState._languages) {
+      if (language.id == code) return language.native;
+    }
+    return 'English';
+  }
 
   static const Color background = Color(0xFFF6F7F4);
   static const Color teal = Color(0xFF1B7574);
@@ -113,10 +127,41 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
 
   String _selectedId = 'as';
 
+  /// The language in use when the page opened, put back if the artisan
+  /// leaves a change without pressing Continue.
+  String _original = AppLang.current;
+  bool _confirmed = false;
+
   @override
   void initState() {
     super.initState();
-    AppLang.current = 'as-IN';
+    _original = AppLang.current;
+    if (widget.changing) {
+      _selectedId = AppLang.code;
+    } else {
+      AppLang.current = 'as-IN';
+    }
+  }
+
+  void _continue() {
+    final language = _languages.firstWhere((item) => item.id == _selectedId);
+    AppLang.current = language.locale;
+    _confirmed = true;
+    if (widget.changing) {
+      // Rebuild the app from Learn so every screen picks up the language.
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(
+          builder: (_) => MainTabScreen(locale: language.locale),
+        ),
+        (_) => false,
+      );
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => WelcomeShootScreen(locale: language.locale),
+      ),
+    );
   }
 
   void _choose(_LanguageOption language) {
@@ -134,110 +179,107 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
         systemNavigationBarColor: LanguagePickerScreen.background,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
-      child: Scaffold(
-        backgroundColor: LanguagePickerScreen.background,
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.of(context).maybePop(),
-                      icon: const Icon(Icons.arrow_back_rounded),
-                      color: LanguagePickerScreen.ink,
-                      iconSize: 24,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(
-                        minWidth: 40,
-                        minHeight: 40,
+      child: PopScope(
+        onPopInvokedWithResult: (didPop, _) {
+          // Leaving a change without Continue keeps the language as it was.
+          if (didPop && widget.changing && !_confirmed) {
+            AppLang.current = _original;
+          }
+        },
+        child: Scaffold(
+          backgroundColor: LanguagePickerScreen.background,
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.of(context).maybePop(),
+                        icon: const Icon(Icons.arrow_back_rounded),
+                        color: LanguagePickerScreen.ink,
+                        iconSize: 24,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 40,
+                          minHeight: 40,
+                        ),
+                        tooltip: tr('Back'),
                       ),
-                      tooltip: tr('Back'),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    tr('Choose your language'),
+                    style: appType(
+                      color: LanguagePickerScreen.ink,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      height: 1.15,
+                      letterSpacing: -0.4,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  tr('Choose your language'),
-                  style: appType(
-                    color: LanguagePickerScreen.ink,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    height: 1.15,
-                    letterSpacing: -0.4,
                   ),
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  tr('Tap your language.'),
-                  style: appType(
-                    color: LanguagePickerScreen.muted,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
-                    height: 1.35,
+                  const SizedBox(height: 14),
+                  Text(
+                    tr('Tap your language.'),
+                    style: appType(
+                      color: LanguagePickerScreen.muted,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      height: 1.35,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 18),
-                Expanded(
-                  child: ListView.separated(
-                    padding: EdgeInsets.zero,
-                    itemCount: _languages.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final language = _languages[index];
-                      final selected = language.id == _selectedId;
-                      return _LanguageCard(
-                        language: language,
-                        selected: selected,
-                        onSelect: () => _choose(language),
-                        onSpeak: () => _choose(language),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: kPrimaryButtonShadow,
-                  ),
-                  child: Material(
-                    color: LanguagePickerScreen.teal,
-                    borderRadius: BorderRadius.circular(18),
-                    child: InkWell(
-                      onTap: () {
-                        final language = _languages.firstWhere(
-                          (item) => item.id == _selectedId,
-                        );
-                        AppLang.current = language.locale;
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) =>
-                                WelcomeShootScreen(locale: language.locale),
-                          ),
+                  const SizedBox(height: 18),
+                  Expanded(
+                    child: ListView.separated(
+                      padding: EdgeInsets.zero,
+                      itemCount: _languages.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final language = _languages[index];
+                        final selected = language.id == _selectedId;
+                        return _LanguageCard(
+                          language: language,
+                          selected: selected,
+                          onSelect: () => _choose(language),
+                          onSpeak: () => _choose(language),
                         );
                       },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(18),
-                      child: SizedBox(
-                        height: 56,
-                        width: double.infinity,
-                        child: Center(
-                          child: Text(
-                            tr('Continue'),
-                            style: appType(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                      boxShadow: kPrimaryButtonShadow,
+                    ),
+                    child: Material(
+                      color: LanguagePickerScreen.teal,
+                      borderRadius: BorderRadius.circular(18),
+                      child: InkWell(
+                        onTap: _continue,
+                        borderRadius: BorderRadius.circular(18),
+                        child: SizedBox(
+                          height: 56,
+                          width: double.infinity,
+                          child: Center(
+                            child: Text(
+                              tr('Continue'),
+                              style: appType(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -341,4 +383,3 @@ class _SpeakButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const SizedBox.shrink();
 }
-

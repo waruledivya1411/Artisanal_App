@@ -7,6 +7,7 @@ import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
 import 'package:artisnal_app/features/me/screens/me_screen.dart';
+import 'package:artisnal_app/features/onboarding/screens/language_picker_screen.dart';
 import 'package:artisnal_app/features/learn/screens/photo_access_screen.dart';
 import 'package:artisnal_app/features/learn/screens/choose_content_type_screen.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
@@ -159,6 +160,8 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
                         locale: widget.locale,
                         text: tr(LearnHomeScreen.spoken),
                       ),
+                      onLanguage: () =>
+                          _open(const LanguagePickerScreen(changing: true)),
                     ),
                     const SizedBox(height: 18),
                     Text(
@@ -244,23 +247,75 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.onSpeak});
+  const _Header({required this.onSpeak, required this.onLanguage});
 
   final VoidCallback onSpeak;
+  final VoidCallback onLanguage;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
-          tr('Click & Social'),
-          style: appType(
-            color: LearnHomeScreen.teal,
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
+        Expanded(
+          child: Text(
+            tr('Click & Social'),
+            overflow: TextOverflow.ellipsis,
+            style: appType(
+              color: LearnHomeScreen.teal,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
+        _LanguageButton(onTap: onLanguage),
       ],
+    );
+  }
+}
+
+/// The language in use, by its own name; tapping it opens the language page
+/// to change it.
+class _LanguageButton extends StatelessWidget {
+  const _LanguageButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      shape: const StadiumBorder(side: BorderSide(color: Color(0xFFC1DAD9))),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const StadiumBorder(),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 7, 8, 7),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.translate_rounded,
+                color: LearnHomeScreen.teal,
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                LanguagePickerScreen.nativeName(AppLang.current),
+                style: appType(
+                  color: LearnHomeScreen.teal,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Icon(
+                Icons.expand_more_rounded,
+                color: LearnHomeScreen.teal,
+                size: 18,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
