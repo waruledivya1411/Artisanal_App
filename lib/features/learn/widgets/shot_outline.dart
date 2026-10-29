@@ -14,6 +14,7 @@ enum ShotOverlayKind {
   sariFull,
   sariClose,
   embroideryBorder,
+  mekhalaBorder,
   foldedStack,
   hangingDisplay,
   mekhalaFull,
@@ -113,6 +114,13 @@ class ShotOutline {
         aspectRatio: 0.72,
         placement: ShotFramePlacement.inset,
         kind: ShotOverlayKind.sariFull,
+      );
+    }
+    if (displayKey == 'embroidery_and_border' && product == 'Mekhala sador') {
+      return const ShotOutline(
+        widthFactor: 0.88,
+        aspectRatio: ShotOutlineOverlay.mekhalaBorderArtAspect,
+        kind: ShotOverlayKind.mekhalaBorder,
       );
     }
     if (displayKey == 'full_display' && product == 'Mekhala sador') {
@@ -400,6 +408,18 @@ class ShotOutlineOverlay extends StatelessWidget {
       'assets/images/lessons/photography/mekhala_full_outline.png';
   static const mekhalaFullArtAspect = 1000 / 1088;
 
+  /// Dotted mekhela corner: plain body, paisley borders down the side and
+  /// across the foot, for the Mekhala sador embroidery and border shot.
+  static const mekhalaBorderArt =
+      'assets/images/lessons/photography/mekhala_border_outline.png';
+  static const mekhalaBorderArtAspect = 900 / 1220;
+
+  /// Dotted mekhela and sador folded together, paisley borders and tassels,
+  /// for the Mekhala sador folded stack shot.
+  static const mekhalaFoldedArt =
+      'assets/images/lessons/photography/mekhala_folded_outline.png';
+  static const mekhalaFoldedArtAspect = 1000 / 710;
+
   /// The motifs of a close-up, light on a clear background, laid inside the
   /// dashed box - the box itself is the texture to fill.
   static const closeUpArt =
@@ -418,6 +438,8 @@ class ShotOutlineOverlay extends StatelessWidget {
         ShotOverlayKind.foldedStack => foldedArt,
         ShotOverlayKind.mekhalaFull => mekhalaFullArt,
         ShotOverlayKind.embroideryBorder => embroideryArt,
+        ShotOverlayKind.mekhalaBorder => mekhalaBorderArt,
+        ShotOverlayKind.mekhalaFolded => mekhalaFoldedArt,
         _ => null,
       };
 
@@ -454,11 +476,16 @@ class ShotOutlineOverlay extends StatelessWidget {
 
   /// The folded drawing is wide; it spans the photo's width and is made a
   /// little taller than drawn so the sari fills more of the photo.
-  static Rect foldedArtRect(Size screen, double? clearTop, double? clearBottom) {
+  static Rect foldedArtRect(
+    Size screen,
+    double? clearTop,
+    double? clearBottom, {
+    double aspect = 1.25,
+  }) {
     final photo = ShotOutline.photoRect(screen);
     final width = photo.width - 8;
     return ShotOutline.fitBetween(
-      Rect.fromCenter(center: photo.center, width: width, height: width / 1.25),
+      Rect.fromCenter(center: photo.center, width: width, height: width / aspect),
       clearTop,
       clearBottom,
     );
@@ -483,6 +510,12 @@ class ShotOutlineOverlay extends StatelessWidget {
               hangingArtRect(screen, clearTop, clearBottom),
             ShotOverlayKind.foldedStack =>
               foldedArtRect(screen, clearTop, clearBottom),
+            ShotOverlayKind.mekhalaFolded => foldedArtRect(
+                screen,
+                clearTop,
+                clearBottom,
+                aspect: mekhalaFoldedArtAspect,
+              ),
             _ => ShotOutline.outerFrame(
                 screen,
                 outline,
@@ -562,14 +595,14 @@ class _OutlinePainter extends CustomPainter {
       case ShotOverlayKind.hangingDisplay:
       case ShotOverlayKind.foldedStack:
       case ShotOverlayKind.mekhalaFull:
+      case ShotOverlayKind.mekhalaFolded:
+      case ShotOverlayKind.mekhalaBorder:
       case ShotOverlayKind.embroideryBorder:
       case ShotOverlayKind.sariDraped:
         // Drawn from an image by ShotOutlineOverlay; never reached.
         break;
       case ShotOverlayKind.mekhalaHanging:
         _mekhalaHanging(canvas, rect);
-      case ShotOverlayKind.mekhalaFolded:
-        _mekhalaFolded(canvas, rect);
       case ShotOverlayKind.stoleFull:
         _stoleFull(canvas, rect);
       case ShotOverlayKind.stoleFolded:
@@ -1255,101 +1288,6 @@ class _OutlinePainter extends CustomPainter {
     }
   }
 
-  /// Top-down stack: mekhela on top with a side border, sador below with a
-  /// bottom border and tassels.
-  void _mekhalaFolded(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round;
-    final fill = Paint()..color = const Color(0x22FFFFFF);
-    final faint = Paint()
-      ..color = const Color(0x99FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-    final motif = Paint()..color = const Color(0xCCFFFFFF);
-
-    final sador = Rect.fromLTRB(
-      frame.left + frame.width * 0.03,
-      frame.top + frame.height * 0.3,
-      frame.left + frame.width * 0.97,
-      frame.top + frame.height * 0.92,
-    );
-    final mekhela = Rect.fromLTRB(
-      frame.left + frame.width * 0.06,
-      frame.top + frame.height * 0.03,
-      frame.left + frame.width * 0.94,
-      frame.top + frame.height * 0.66,
-    );
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(sador, const Radius.circular(10)),
-      fill,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(sador, const Radius.circular(10)),
-      stroke,
-    );
-    final bandY = sador.top + sador.height * 0.78;
-    _diamonds(
-      canvas,
-      Rect.fromLTRB(
-        sador.left + sador.width * 0.08,
-        mekhela.bottom + 8,
-        sador.right - sador.width * 0.12,
-        bandY - 6,
-      ),
-      motif,
-    );
-    canvas.drawLine(Offset(sador.left, bandY), Offset(sador.right, bandY), stroke);
-    canvas.drawLine(
-      Offset(sador.left, sador.top + sador.height * 0.8),
-      Offset(sador.right, sador.top + sador.height * 0.8),
-      faint,
-    );
-    for (var i = 0; i < 4; i++) {
-      final x = sador.right - sador.width * (0.06 + i * 0.08);
-      canvas.drawLine(
-        Offset(x, sador.bottom),
-        Offset(x, sador.bottom + frame.height * 0.045),
-        stroke,
-      );
-    }
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(mekhela, const Radius.circular(10)),
-      Paint()..color = const Color(0x331B1B1B),
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(mekhela, const Radius.circular(10)),
-      fill,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(mekhela, const Radius.circular(10)),
-      stroke,
-    );
-    final borderX = mekhela.left + mekhela.width * 0.72;
-    _diamonds(
-      canvas,
-      Rect.fromLTRB(mekhela.left, mekhela.top, borderX, mekhela.bottom),
-      motif,
-    );
-    canvas.drawLine(Offset(borderX, mekhela.top), Offset(borderX, mekhela.bottom), stroke);
-    canvas.drawLine(
-      Offset(mekhela.left + mekhela.width * 0.84, mekhela.top),
-      Offset(mekhela.left + mekhela.width * 0.84, mekhela.bottom),
-      faint,
-    );
-
-    _centredLabel(canvas, 'Mekhela', mekhela.center - Offset(mekhela.width * 0.12, 0));
-    _centredLabel(
-      canvas,
-      'Sador',
-      Offset(sador.center.dx, (mekhela.bottom + bandY) / 2),
-    );
-  }
-
   void _diamonds(Canvas canvas, Rect body, Paint motif) {
     for (final spot in const [
       [0.28, 0.32],
@@ -1469,45 +1407,6 @@ class _OutlinePainter extends CustomPainter {
         stroke,
       );
     }
-  }
-
-  void _centredLabel(
-    Canvas canvas,
-    String text,
-    Offset centre, {
-    bool boxed = false,
-  }) {
-    final painter = TextPainter(
-      text: TextSpan(
-        text: tr(text),
-        style: appType(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.w800,
-          height: 1,
-        ).copyWith(
-          shadows: const [Shadow(color: Color(0xCC000000), blurRadius: 3)],
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    final topLeft = centre - Offset(painter.width / 2, painter.height / 2);
-    if (boxed) {
-      // Sits over the ticks, so give it a backing to stay legible.
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromLTWH(
-            topLeft.dx - 4,
-            topLeft.dy - 3,
-            painter.width + 8,
-            painter.height + 6,
-          ),
-          const Radius.circular(4),
-        ),
-        Paint()..color = const Color(0xB3000000),
-      );
-    }
-    painter.paint(canvas, topLeft);
   }
 
   /// Rule of thirds, white and faint, inside the frame only.

@@ -52,7 +52,7 @@ const photographyMaterials = <MaterialOption>[
 const _materialsByProduct = <String, Set<String>>{
   'Saree': {'Cotton'},
   'Mekhala sador': {'Mulberry'},
-  'Gamusa': {'Cotton', 'Mulberry', 'Tussar'},
+  'Gamusa': {'Cotton'},
   'Stole': {'Cotton', 'Eri'},
   'Shawl': {'Cotton', 'Eri'},
   'Cushion covers': {'Cotton', 'Mulberry', 'Tussar', 'Muga', 'Eri'},

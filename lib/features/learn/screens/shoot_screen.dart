@@ -201,12 +201,15 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   /// every other product.
   String? get _ghostPhoto {
     if (!_ghostProducts.contains(widget.product)) return null;
-    // Draped and full display have their own dotted drawings, for Mekhala
-    // sador as for a saree.
-    if (widget.display.key == 'draped_look' ||
-        widget.display.key == 'full_display') {
-      return null;
-    }
+    // These displays have their own dotted drawings, for Mekhala sador as
+    // for a saree.
+    const drawn = {
+      'draped_look',
+      'full_display',
+      'folded_stack',
+      'embroidery_and_border',
+    };
+    if (drawn.contains(widget.display.key)) return null;
     final material = SelectedMaterial.instance.name ?? 'Cotton';
     return widget.display.imageFor(material, product: widget.product);
   }
