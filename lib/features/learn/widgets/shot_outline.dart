@@ -377,7 +377,7 @@ class ShotOutlineOverlay extends StatelessWidget {
   /// Dotted sari laid flat - motifs on the body, the border down the right -
   /// for the embroidery and border shot. Drawn the same way as [drapedArt].
   static const embroideryArt =
-      'assets/images/lessons/photography/embroidery_outline.png';
+      'assets/images/lessons/photography/embroidery_outline_v2.png';
 
   /// Dotted sari laid flat, a border down each side, for the full display
   /// shot. Drawn the same way as [drapedArt].
