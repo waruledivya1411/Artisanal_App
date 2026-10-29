@@ -28,8 +28,10 @@ class AppBottomNav extends StatelessWidget {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
     // Photo sits level with Learn and Me, styled like them, so the bar
     // shows where the artisan is rather than drawing the eye to the camera.
-    return SizedBox(
-      height: 80 + bottomInset,
+    // At least 80 high; Telugu script and large text make the labels
+    // taller, and the bar grows to fit them rather than cutting them off.
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: 80 + bottomInset),
       child: DecoratedBox(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -43,7 +45,7 @@ class AppBottomNav extends StatelessWidget {
           ],
         ),
         child: Padding(
-          padding: EdgeInsets.only(top: 16, bottom: bottomInset),
+          padding: EdgeInsets.only(top: 16, bottom: 12 + bottomInset),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

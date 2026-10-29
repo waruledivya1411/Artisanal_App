@@ -395,13 +395,17 @@ class _CreateMenuBody extends StatelessWidget {
         children: [
           Icon(icon, size: phoneW * 0.08, color: IgCreateIllustration._ink),
           SizedBox(width: phoneW * 0.04),
-          Text(
+          Flexible(
+            child: Text(
             tr(label),
+            maxLines: 1,
+            overflow: TextOverflow.clip,
             style: appType(
               color: IgCreateIllustration._ink,
               fontSize: phoneW * 0.065,
               fontWeight: FontWeight.w800,
             ),
+          ),
           ),
           if (highlighted) ...[
             const Spacer(),

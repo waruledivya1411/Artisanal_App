@@ -158,28 +158,28 @@ class _ChooseContentTypeScreenState extends State<ChooseContentTypeScreen> {
                   ),
                 ),
                 const SizedBox(height: 18),
-                Text(
-                  tr('What do you want to make?'),
-                  style: appType(
-                    color: ChooseContentTypeScreen.ink,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    height: 1.15,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  tr('Do Post first, then Story, then Reel. Tap Continue for each one.'),
-                  style: appType(
-                    color: ChooseContentTypeScreen.muted,
-                    fontSize: 16,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 20),
                 Expanded(
                   child: ListView(
                     children: [
+                      Text(
+                        tr('What do you want to make?'),
+                        style: appType(
+                          color: ChooseContentTypeScreen.ink,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          height: 1.15,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        tr('Do Post first, then Story, then Reel. Tap Continue for each one.'),
+                        style: appType(
+                          color: ChooseContentTypeScreen.muted,
+                          fontSize: 16,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       _TypeCard(
                         title: 'Post',
                         detail: 'Photo on your page',
@@ -329,13 +329,16 @@ class _TypeCard extends StatelessWidget {
                             size: 22,
                           ),
                           const SizedBox(width: 8),
-                          Text(
+                          Flexible(
+                            child: Text(
                             tr(title),
+                            overflow: TextOverflow.ellipsis,
                             style: appType(
                               color: ChooseContentTypeScreen.ink,
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
                             ),
+                          ),
                           ),
                         ],
                       ),

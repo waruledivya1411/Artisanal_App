@@ -6,7 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:artisnal_app/core/speech/speech_player.dart';
 
 import 'package:artisnal_app/core/theme/button_shadow.dart';
-import 'package:artisnal_app/core/widgets/sharp_image.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/widgets/ig_profile_preview.dart';
@@ -173,7 +172,7 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
-                            const IgProfilePreview(
+                            IgProfilePreview(
                               variant: IgProfileVariant.business,
                             ),
                             SizedBox(height: 12),
@@ -206,13 +205,17 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
                                   size: 18,
                                 ),
                                 const SizedBox(width: 8),
-                                Text(
+                                Flexible(
+                                  child: Text(
                                   tr('Open Instagram'),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
                                   style: appType(
                                     color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
                                   ),
+                                ),
                                 ),
                               ],
                             ),

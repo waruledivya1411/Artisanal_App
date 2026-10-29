@@ -177,16 +177,20 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
                     const SizedBox(height: 18),
                     Row(
                       children: [
-                        Text(
-                          tr('$tasksDone OF $tasksTotal TASKS DONE'),
-                          style: appType(
-                            color: LearnHomeScreen.muted,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.6,
+                        // Takes the room up to the percentage, wrapping if
+                        // a translation runs longer.
+                        Expanded(
+                          child: Text(
+                            tr('$tasksDone OF $tasksTotal TASKS DONE'),
+                            style: appType(
+                              color: LearnHomeScreen.muted,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.6,
+                            ),
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 12),
                         Text(
                           tr('${(progressValue * 100).round()}%'),
                           style: appType(

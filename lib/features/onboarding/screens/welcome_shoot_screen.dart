@@ -5,6 +5,7 @@ import 'package:artisnal_app/core/speech/speech_player.dart';
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/features/onboarding/screens/welcome_share_screen.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
+import 'package:artisnal_app/core/widgets/fit_or_scroll.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class WelcomeShootScreen extends StatefulWidget {
@@ -65,7 +66,9 @@ class _WelcomeShootScreenState extends State<WelcomeShootScreen> {
                   imageWidth = imageHeight * 328 / 400;
                 }
 
-                return Column(
+                return FitOrScroll(
+                  height: constraints.maxHeight,
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     IconButton(
@@ -83,11 +86,15 @@ class _WelcomeShootScreenState extends State<WelcomeShootScreen> {
                     const SizedBox(height: 16),
                     Align(
                       alignment: Alignment.topCenter,
-                      child: SharpImage(
-                        'assets/images/onboarding/shoot_art.png',
+                      child: SizedBox(
                         width: imageWidth,
                         height: imageHeight,
-                        fit: BoxFit.contain,
+                        child: SharpImage(
+                          'assets/images/onboarding/shoot_art.png',
+                          width: imageWidth,
+                          height: imageHeight,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -166,6 +173,7 @@ class _WelcomeShootScreenState extends State<WelcomeShootScreen> {
                       ),
                     ),
                   ],
+                ),
                 );
               },
             ),

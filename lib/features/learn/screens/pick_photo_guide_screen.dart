@@ -72,8 +72,6 @@ class _PickPhotoGuideScreenState extends State<PickPhotoGuideScreen> {
 
   bool get _isReel => widget.kind == CreateContentKind.reel;
 
-  bool get _isStory => widget.kind == CreateContentKind.story;
-
   String get _headerTitle {
     return switch (widget.kind) {
       CreateContentKind.reel => 'New reel',

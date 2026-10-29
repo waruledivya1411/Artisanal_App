@@ -57,19 +57,33 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  /// Set while the camera is being opened, so a resume that arrives during
+  /// it - the permission prompt on a phone causes one - does not open it
+  /// a second time.
+  bool _starting = false;
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final controller = _controller;
-    if (controller == null || !controller.value.isInitialized) return;
-    if (state == AppLifecycleState.inactive) {
+    // Give the camera up while the app is out of view and take it back on
+    // return. A browser tab only loses focus on `inactive` - a download
+    // prompt, a click elsewhere - so there it is kept until the tab hides.
+    final release = kIsWeb
+        ? state == AppLifecycleState.hidden ||
+              state == AppLifecycleState.paused
+        : state == AppLifecycleState.inactive;
+    if (release) {
+      final controller = _controller;
+      if (controller == null) return;
+      setState(() => _controller = null);
       controller.dispose();
-      _controller = null;
-    } else if (state == AppLifecycleState.resumed) {
+    } else if (state == AppLifecycleState.resumed && _controller == null) {
       _startCamera();
     }
   }
 
   Future<void> _startCamera() async {
+    if (_starting) return;
+    _starting = true;
     try {
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
@@ -100,6 +114,8 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
               'The camera could not be opened. Allow camera access, then try again.',
             ));
       }
+    } finally {
+      _starting = false;
     }
   }
 
@@ -185,6 +201,8 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   /// every other product.
   String? get _ghostPhoto {
     if (!_ghostProducts.contains(widget.product)) return null;
+    // Draped has its own dotted drawing, for Mekhala sador as for a saree.
+    if (widget.display.key == 'draped_look') return null;
     final material = SelectedMaterial.instance.name ?? 'Cotton';
     return widget.display.imageFor(material, product: widget.product);
   }

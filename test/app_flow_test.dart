@@ -332,10 +332,8 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
 
-    final photography = find.text('Photography');
-    await tester.ensureVisible(photography);
-    await tester.pumpAndSettle();
-    await tester.tap(photography);
+    // The shoot opens from the Photo button.
+    await tester.tap(find.text('Photo'));
     await tester.pumpAndSettle();
     expect(find.text('What are you photographing?'), findsOneWidget);
     // Photo cards build a row at a time, so walk down the grid.
@@ -444,10 +442,12 @@ void main() {
 
     await tester.ensureVisible(find.text('Folded'));
     await tester.pumpAndSettle();
+    // Tapping a display only selects it; Continue opens its guide.
     await tester.tap(find.text('Folded'));
     await tester.pumpAndSettle();
-
-    // Tapping a display opens its shooting guide.
+    expect(find.text('One folded sari in the box'), findsNothing);
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
     expect(find.text('One folded sari in the box'), findsOneWidget);
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
@@ -476,15 +476,19 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('How will you show it?'), findsOneWidget);
 
-    await tester.tap(find.text('Done'));
+    // Back steps out of the shoot one question at a time, to the home screen.
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
-
-    // Setup is the whole of Photography now, so Done lands back on the home
-    // screen with the three choices on the card.
-    expect(find.text('How will you show it?'), findsNothing);
-    await tester.ensureVisible(find.text('Photography'));
+    expect(find.text('What is it made of?'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
-    expect(find.text('Saree · Muga · Folded'), findsOneWidget);
+    expect(find.text('What are you photographing?'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('What are you photographing?'), findsNothing);
+    // Home is scrolled down to the task cards from earlier in this walk.
+    expect(find.text('Photography'), findsOneWidget);
+    expect(find.text('Learn'), findsOneWidget);
   });
 
   test('each product offers the displays that suit it', () {

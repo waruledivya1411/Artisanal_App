@@ -87,11 +87,11 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
         _EditTool.white => 'White — slide from cool to warm',
       };
 
-  Future<void> _finish({required bool applyEdits}) async {
+  Future<void> _finish() async {
     if (_saving) return;
     setState(() => _saving = true);
     try {
-      final bytes = !applyEdits || _edits.isIdentity
+      final bytes = _edits.isIdentity
           ? widget.imageBytes
           : await compute(
               _bakeMessage,
@@ -207,7 +207,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                   width: double.infinity,
                   height: 52,
                   child: FilledButton.icon(
-                    onPressed: _saving ? null : () => _finish(applyEdits: true),
+                    onPressed: _saving ? null : _finish,
                     style: FilledButton.styleFrom(
                       backgroundColor: PhotoEditScreen.teal,
                       foregroundColor: Colors.white,
@@ -228,22 +228,11 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                           )
                         : const Icon(Icons.check_rounded, size: 22),
                     label: Text(
-                      tr('Done'),
+                      tr('Save'),
                       style: appType(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
-                    ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: _saving ? null : () => _finish(applyEdits: false),
-                  child: Text(
-                    tr('Skip'),
-                    style: appType(
-                      color: Colors.white70,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),

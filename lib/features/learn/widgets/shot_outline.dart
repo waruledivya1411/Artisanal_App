@@ -370,8 +370,9 @@ class ShotOutlineOverlay extends StatelessWidget {
 
   /// Dotted saree-on-a-chair drawing for the draped shot, light lines on a
   /// clear background so it reads over the live camera.
-  static const drapedArt = 'assets/images/lessons/photography/draped_outline.png';
-  static const drapedArtAspect = 900 / 979;
+  static const drapedArt =
+      'assets/images/lessons/photography/draped_outline_v2.png';
+  static const drapedArtAspect = 900 / 837;
 
   /// Dotted sari laid flat - motifs on the body, the border down the right -
   /// for the embroidery and border shot. Drawn the same way as [drapedArt].
@@ -381,17 +382,17 @@ class ShotOutlineOverlay extends StatelessWidget {
   /// Dotted sari laid flat, a border down each side, for the full display
   /// shot. Drawn the same way as [drapedArt].
   static const fullDisplayArt =
-      'assets/images/lessons/photography/full_display_outline.png';
+      'assets/images/lessons/photography/full_display_outline_v2.png';
 
   /// Dotted sari hanging from a hanger, for the hanging shot. Drawn the same
   /// way as [drapedArt], borders kept in gold.
   static const hangingArt =
-      'assets/images/lessons/photography/hanging_outline.png';
+      'assets/images/lessons/photography/hanging_outline_v2.png';
 
   /// Dotted folded sari seen from the front, border down the right, for the
   /// folded stack shot. Drawn the same way as [drapedArt].
   static const foldedArt =
-      'assets/images/lessons/photography/folded_outline.png';
+      'assets/images/lessons/photography/folded_outline_v2.png';
 
   /// The motifs of a close-up, light on a clear background, laid inside the
   /// dashed box - the box itself is the texture to fill.
@@ -414,14 +415,14 @@ class ShotOutlineOverlay extends StatelessWidget {
       };
 
   /// The draped drawing has no box around it. It spans the photo's width and
-  /// 88% of its height, so the sari fills most of the photo.
+  /// 80% of its height, so the sari fills most of the photo.
   static Rect drapedArtRect(Size screen, double? clearTop, double? clearBottom) {
     final photo = ShotOutline.photoRect(screen);
     return ShotOutline.fitBetween(
       Rect.fromCenter(
         center: photo.center,
         width: photo.width - 8,
-        height: photo.height * 0.88,
+        height: photo.height * 0.8,
       ),
       clearTop,
       clearBottom,

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/features/auth/screens/forgot_password_screen.dart';
 import 'package:artisnal_app/features/onboarding/screens/language_picker_screen.dart';
+import 'package:artisnal_app/core/widgets/fit_or_scroll.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -68,147 +69,155 @@ class _LoginScreenState extends State<LoginScreen> {
         // bottom rather than pushing the layout up.
         resizeToAvoidBottomInset: false,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Spacer(flex: 3),
-                const _AppTitle(),
-                const Spacer(flex: 2),
-                Text(
-                  tr('Log in'),
-                  style: appType(
-                    color: LoginScreen.ink,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.3,
-                    height: 1.1,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  tr('Use your email and password to open your lessons.'),
-                  style: appType(
-                    color: LoginScreen.muted,
-                    fontSize: 14,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: LoginScreen.fieldBorder),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x0F000000),
-                        blurRadius: 24,
-                        offset: Offset(0, 10),
+          child: LayoutBuilder(
+            builder: (context, constraints) => FitOrScroll(
+              height: constraints.maxHeight,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Spacer(flex: 3),
+                    const _AppTitle(),
+                    const Spacer(flex: 2),
+                    Text(
+                      tr('Log in'),
+                      style: appType(
+                        color: LoginScreen.ink,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.3,
+                        height: 1.1,
                       ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 18, 16, 4),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _AuthField(
-                          controller: _emailController,
-                          label: 'Email',
-                          hint: 'you@example.com',
-                          icon: Icons.mail_outline_rounded,
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                        ),
-                        const SizedBox(height: 14),
-                        _AuthField(
-                          controller: _passwordController,
-                          label: 'Password',
-                          hint: 'Your password',
-                          icon: Icons.lock_outline_rounded,
-                          obscure: _hidePassword,
-                          textInputAction: TextInputAction.done,
-                          onSubmitted: (_) => _continue(),
-                          trailing: IconButton(
-                            tooltip: tr(
-                              _hidePassword ? 'Show password' : 'Hide password',
-                            ),
-                            onPressed: () =>
-                                setState(() => _hidePassword = !_hidePassword),
-                            icon: Icon(
-                              _hidePassword
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                            ),
-                            color: LoginScreen.muted,
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: _openForgotPassword,
-                            style: TextButton.styleFrom(
-                              foregroundColor: LoginScreen.teal,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                                vertical: 10,
-                              ),
-                            ),
-                            child: Text(
-                              tr('Forgot password?'),
-                              style: appType(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: kPrimaryButtonShadow,
-                  ),
-                  child: Material(
-                    color: LoginScreen.teal,
-                    borderRadius: BorderRadius.circular(18),
-                    child: InkWell(
-                      onTap: _continue,
-                      borderRadius: BorderRadius.circular(18),
-                      child: SizedBox(
-                        key: const ValueKey('login-submit'),
-                        height: 56,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                    const SizedBox(height: 4),
+                    Text(
+                      tr('Use your email and password to open your lessons.'),
+                      style: appType(
+                        color: LoginScreen.muted,
+                        fontSize: 14,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: LoginScreen.fieldBorder),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x0F000000),
+                            blurRadius: 24,
+                            offset: Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 18, 16, 4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              tr('Log in'),
-                              style: appType(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
+                            _AuthField(
+                              controller: _emailController,
+                              label: 'Email',
+                              hint: 'you@example.com',
+                              icon: Icons.mail_outline_rounded,
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
+                            ),
+                            const SizedBox(height: 14),
+                            _AuthField(
+                              controller: _passwordController,
+                              label: 'Password',
+                              hint: 'Your password',
+                              icon: Icons.lock_outline_rounded,
+                              obscure: _hidePassword,
+                              textInputAction: TextInputAction.done,
+                              onSubmitted: (_) => _continue(),
+                              trailing: IconButton(
+                                tooltip: tr(
+                                  _hidePassword
+                                      ? 'Show password'
+                                      : 'Hide password',
+                                ),
+                                onPressed: () => setState(
+                                  () => _hidePassword = !_hidePassword,
+                                ),
+                                icon: Icon(
+                                  _hidePassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                ),
+                                color: LoginScreen.muted,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            const Icon(
-                              Icons.arrow_forward_rounded,
-                              color: Colors.white,
-                              size: 20,
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: _openForgotPassword,
+                                style: TextButton.styleFrom(
+                                  foregroundColor: LoginScreen.teal,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical: 10,
+                                  ),
+                                ),
+                                child: Text(
+                                  tr('Forgot password?'),
+                                  style: appType(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 20),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: kPrimaryButtonShadow,
+                      ),
+                      child: Material(
+                        color: LoginScreen.teal,
+                        borderRadius: BorderRadius.circular(18),
+                        child: InkWell(
+                          onTap: _continue,
+                          borderRadius: BorderRadius.circular(18),
+                          child: SizedBox(
+                            key: const ValueKey('login-submit'),
+                            height: 56,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  tr('Log in'),
+                                  style: appType(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Spacer(flex: 4),
+                  ],
                 ),
-                const Spacer(flex: 4),
-              ],
+              ),
             ),
           ),
         ),

@@ -151,7 +151,8 @@ class _BadgeTile extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
+            Flexible(
+              child: Text(
               tr(title),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -162,6 +163,7 @@ class _BadgeTile extends StatelessWidget {
                 fontWeight: FontWeight.w700,
                 height: 1.2,
               ),
+            ),
             ),
           ],
         ),

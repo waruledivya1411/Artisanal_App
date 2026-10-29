@@ -296,56 +296,78 @@ class _NumberTile extends StatelessWidget {
                   child: Icon(icon, color: iconColor, size: 18),
                 ),
                 const Spacer(),
+                // Translated, "BEST" is a long word; it shrinks to fit.
                 if (best)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF6E7C8),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      tr('BEST'),
-                      style: appType(
-                        color: const Color(0xFF8A5A12),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.4,
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF6E7C8),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          tr('BEST'),
+                          style: appType(
+                            color: const Color(0xFF8A5A12),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
                       ),
                     ),
                   ),
               ],
             ),
-            const Spacer(),
-            Text(
-              value,
-              style: appType(
-                color: NumbersMeanScreen.ink,
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                height: 1,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              tr(name),
-              style: appType(
-                color: NumbersMeanScreen.ink,
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              tr(detail),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: appType(
-                color: NumbersMeanScreen.muted,
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
+            // The figures sit at the foot of the tile and shrink when the
+            // tile is short - a small phone or large text.
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.bottomLeft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        value,
+                        style: appType(
+                          color: NumbersMeanScreen.ink,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          height: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        tr(name),
+                        style: appType(
+                          color: NumbersMeanScreen.ink,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        tr(detail),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: appType(
+                          color: NumbersMeanScreen.muted,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],

@@ -6,6 +6,7 @@ import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
 import 'package:artisnal_app/features/shell/main_tab_screen.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
+import 'package:artisnal_app/core/widgets/fit_or_scroll.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class WelcomeShareScreen extends StatefulWidget {
@@ -66,7 +67,9 @@ class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
                   imageWidth = imageHeight * 328 / 400;
                 }
 
-                return Column(
+                return FitOrScroll(
+                  height: constraints.maxHeight,
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     IconButton(
@@ -84,11 +87,15 @@ class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
                     const SizedBox(height: 16),
                     Align(
                       alignment: Alignment.topCenter,
-                      child: SharpImage(
-                        'assets/images/onboarding/share_art.png',
+                      child: SizedBox(
                         width: imageWidth,
                         height: imageHeight,
-                        fit: BoxFit.contain,
+                        child: SharpImage(
+                          'assets/images/onboarding/share_art.png',
+                          width: imageWidth,
+                          height: imageHeight,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -161,6 +168,7 @@ class _WelcomeShareScreenState extends State<WelcomeShareScreen> {
                       ),
                     ),
                   ],
+                ),
                 );
               },
             ),

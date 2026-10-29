@@ -20,17 +20,21 @@ class MainTabScreen extends StatefulWidget {
 class _MainTabScreenState extends State<MainTabScreen> {
   AppNavTab _tab = AppNavTab.learn;
 
+  void _selectTab(AppNavTab tab) {
+    if (mounted) setState(() => _tab = tab);
+  }
+
   @override
   void initState() {
     super.initState();
-    MainTabScreen.selectTab = (tab) {
-      if (mounted) setState(() => _tab = tab);
-    };
+    MainTabScreen.selectTab = _selectTab;
   }
 
   @override
   void dispose() {
-    if (MainTabScreen.selectTab != null) MainTabScreen.selectTab = null;
+    // A new home (after a language change) is built before this one goes,
+    // so only clear the hook if it is still this screen's.
+    if (MainTabScreen.selectTab == _selectTab) MainTabScreen.selectTab = null;
     super.dispose();
   }
 
