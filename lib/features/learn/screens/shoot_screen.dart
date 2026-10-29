@@ -201,20 +201,13 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
   /// every other product.
   String? get _ghostPhoto {
     if (!_ghostProducts.contains(widget.product)) return null;
-    // These displays have their own dotted drawings, for Mekhala sador as
-    // for a saree.
-    const drawn = {
-      'draped_look',
-      'full_display',
-      'folded_stack',
-      'embroidery_and_border',
-    };
-    if (drawn.contains(widget.display.key)) return null;
     final material = SelectedMaterial.instance.name ?? 'Cotton';
     return widget.display.imageFor(material, product: widget.product);
   }
 
-  static const _ghostProducts = {'Mekhala sador', 'Cushion covers'};
+  /// Cushion covers are lined up against their photo; every other product
+  /// has a dotted drawing for each display.
+  static const _ghostProducts = {'Cushion covers'};
 
   /// The reference photo for [_ghostPhoto]. A cushion photo is wider than
   /// the 4:3 frame, so it is shown whole - cropping would cut the cushion

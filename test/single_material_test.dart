@@ -25,7 +25,7 @@ void main() {
   });
 
   testWidgets('a product with several materials still asks', (t) async {
-    await pickProduct(t, 'Stole');
+    await pickProduct(t, 'Cushion covers');
     expect(find.text('What is it made of?'), findsOneWidget);
   });
 }

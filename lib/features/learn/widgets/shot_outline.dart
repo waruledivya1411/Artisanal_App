@@ -270,8 +270,8 @@ class ShotOutline {
     if (displayKey == 'hanging_display' && product == 'Mekhala sador') {
       return const ShotOutline(
         widthFactor: 0.88,
-        aspectRatio: 0.58,
-        placement: ShotFramePlacement.inset,
+        // The shape of the dotted drawing, so it is not stretched.
+        aspectRatio: ShotOutlineOverlay.mekhalaHangingArtAspect,
         kind: ShotOverlayKind.mekhalaHanging,
       );
     }
@@ -420,6 +420,12 @@ class ShotOutlineOverlay extends StatelessWidget {
       'assets/images/lessons/photography/mekhala_folded_outline.png';
   static const mekhalaFoldedArtAspect = 1000 / 710;
 
+  /// Dotted mekhela and sador on hangers from one rod, for the Mekhala
+  /// sador hanging shot.
+  static const mekhalaHangingArt =
+      'assets/images/lessons/photography/mekhala_hanging_outline.png';
+  static const mekhalaHangingArtAspect = 1000 / 1083;
+
   /// The motifs of a close-up, light on a clear background, laid inside the
   /// dashed box - the box itself is the texture to fill.
   static const closeUpArt =
@@ -440,6 +446,7 @@ class ShotOutlineOverlay extends StatelessWidget {
         ShotOverlayKind.embroideryBorder => embroideryArt,
         ShotOverlayKind.mekhalaBorder => mekhalaBorderArt,
         ShotOverlayKind.mekhalaFolded => mekhalaFoldedArt,
+        ShotOverlayKind.mekhalaHanging => mekhalaHangingArt,
         _ => null,
       };
 
@@ -596,13 +603,12 @@ class _OutlinePainter extends CustomPainter {
       case ShotOverlayKind.foldedStack:
       case ShotOverlayKind.mekhalaFull:
       case ShotOverlayKind.mekhalaFolded:
+      case ShotOverlayKind.mekhalaHanging:
       case ShotOverlayKind.mekhalaBorder:
       case ShotOverlayKind.embroideryBorder:
       case ShotOverlayKind.sariDraped:
         // Drawn from an image by ShotOutlineOverlay; never reached.
         break;
-      case ShotOverlayKind.mekhalaHanging:
-        _mekhalaHanging(canvas, rect);
       case ShotOverlayKind.stoleFull:
         _stoleFull(canvas, rect);
       case ShotOverlayKind.stoleFolded:
@@ -1307,104 +1313,6 @@ class _OutlinePainter extends CustomPainter {
           ..lineTo(c.dx - 3.2, c.dy)
           ..close(),
         motif,
-      );
-    }
-  }
-
-  /// Two hangers on a rod: shorter mekhela on the left, longer sador on the right.
-  void _mekhalaHanging(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    final fill = Paint()..color = const Color(0x22FFFFFF);
-    final faint = Paint()
-      ..color = const Color(0x99FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    final rodY = frame.top + frame.height * 0.035;
-    canvas.drawLine(
-      Offset(frame.left + frame.width * 0.015, rodY),
-      Offset(frame.right - frame.width * 0.015, rodY),
-      Paint()
-        ..color = const Color(0xE8FFFFFF)
-        ..strokeWidth = 3.2
-        ..strokeCap = StrokeCap.round,
-    );
-
-    void hanger(double cxFrac, double leftFrac, double rightFrac) {
-      final cx = frame.left + frame.width * cxFrac;
-      final left = frame.left + frame.width * leftFrac;
-      final right = frame.left + frame.width * rightFrac;
-      final barY = rodY + frame.height * 0.065;
-      canvas.drawLine(Offset(cx, rodY), Offset(cx, rodY + frame.height * 0.022), stroke);
-      canvas.drawLine(Offset(left, barY), Offset(cx, rodY + frame.height * 0.018), stroke);
-      canvas.drawLine(Offset(right, barY), Offset(cx, rodY + frame.height * 0.018), stroke);
-      canvas.drawLine(Offset(left, barY), Offset(right, barY), stroke);
-    }
-
-    hanger(0.22, 0.03, 0.41);
-    hanger(0.72, 0.48, 0.97);
-
-    final top = rodY + frame.height * 0.075;
-    final mekhela = Rect.fromLTRB(
-      frame.left + frame.width * 0.04,
-      top,
-      frame.left + frame.width * 0.41,
-      frame.top + frame.height * 0.78,
-    );
-    final sador = Rect.fromLTRB(
-      frame.left + frame.width * 0.49,
-      top,
-      frame.left + frame.width * 0.96,
-      frame.top + frame.height * 0.94,
-    );
-    canvas.drawRect(mekhela, fill);
-    canvas.drawRect(sador, fill);
-    canvas.drawRect(mekhela, stroke);
-    canvas.drawRect(sador, stroke);
-
-    for (final fraction in [0.55, 0.68, 0.80, 0.92]) {
-      final y = mekhela.top + mekhela.height * fraction;
-      canvas.drawLine(Offset(mekhela.left, y), Offset(mekhela.right, y), faint);
-    }
-
-    final leftBorder = sador.left + sador.width * 0.16;
-    final rightBorder = sador.right - sador.width * 0.16;
-    canvas.drawLine(Offset(leftBorder, sador.top), Offset(leftBorder, sador.bottom), faint);
-    canvas.drawLine(Offset(rightBorder, sador.top), Offset(rightBorder, sador.bottom), faint);
-    final motif = Paint()..color = const Color(0xCCFFFFFF);
-    for (final spot in const [
-      [0.35, 0.22],
-      [0.62, 0.34],
-      [0.42, 0.48],
-      [0.70, 0.58],
-    ]) {
-      final c = Offset(
-        sador.left + sador.width * spot[0],
-        sador.top + sador.height * spot[1],
-      );
-      canvas.drawPath(
-        Path()
-          ..moveTo(c.dx, c.dy - 5)
-          ..lineTo(c.dx + 4, c.dy)
-          ..lineTo(c.dx, c.dy + 5)
-          ..lineTo(c.dx - 4, c.dy)
-          ..close(),
-        motif,
-      );
-    }
-    final bandY = sador.top + sador.height * 0.78;
-    canvas.drawLine(Offset(sador.left, bandY), Offset(sador.right, bandY), stroke);
-    for (var i = 0; i < 5; i++) {
-      final x = sador.left + sador.width * (0.18 + i * 0.16);
-      canvas.drawLine(
-        Offset(x, sador.bottom),
-        Offset(x, sador.bottom + frame.height * 0.045),
-        stroke,
       );
     }
   }
