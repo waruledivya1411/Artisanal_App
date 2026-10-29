@@ -50,6 +50,8 @@ const photographyMaterials = <MaterialOption>[
 /// Yarns each product is actually woven in. Anything not listed here is
 /// offered in every material.
 const _materialsByProduct = <String, Set<String>>{
+  'Saree': {'Cotton'},
+  'Mekhala sador': {'Mulberry'},
   'Gamusa': {'Cotton', 'Mulberry', 'Tussar'},
   'Stole': {'Cotton', 'Eri'},
   'Shawl': {'Cotton', 'Eri'},

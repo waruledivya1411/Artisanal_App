@@ -370,49 +370,9 @@ void main() {
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
 
+    // A saree is woven in cotton only, so there is no material to choose:
+    // it goes straight to the displays.
     expect(find.text('What are you photographing?'), findsNothing);
-    expect(find.text('What is it made of?'), findsOneWidget);
-
-    // Back steps to the previous question, it does not leave the setup.
-    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
-    await tester.pumpAndSettle();
-    expect(find.text('What are you photographing?'), findsOneWidget);
-    expect(find.text('Hello, Divya Warule'), findsNothing);
-
-    await tester.tap(find.text('Continue'));
-    await tester.pumpAndSettle();
-    expect(find.text('What is it made of?'), findsOneWidget);
-    // The grid builds a row at a time, so walk down it.
-    final materialGrid = find.descendant(
-      of: find.byType(GridView),
-      matching: find.byType(Scrollable),
-    );
-    expect(find.text('Cotton'), findsOneWidget);
-    expect(find.text('Mulberry'), findsOneWidget);
-
-    await tester.scrollUntilVisible(
-      find.text('Tussar'),
-      200,
-      scrollable: materialGrid,
-    );
-    expect(find.text('Tussar'), findsOneWidget);
-    expect(find.text('Muga'), findsOneWidget);
-
-    await tester.ensureVisible(find.text('Muga'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Muga'));
-    await tester.pumpAndSettle();
-
-    await tester.scrollUntilVisible(
-      find.text('Eri'),
-      200,
-      scrollable: materialGrid,
-    );
-    expect(find.text('Eri'), findsOneWidget);
-
-    await tester.tap(find.text('Continue'));
-    await tester.pumpAndSettle();
-
     expect(find.text('What is it made of?'), findsNothing);
     expect(find.text('How will you show it?'), findsOneWidget);
 
@@ -477,9 +437,6 @@ void main() {
     expect(find.text('How will you show it?'), findsOneWidget);
 
     // Back steps out of the shoot one question at a time, to the home screen.
-    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
-    await tester.pumpAndSettle();
-    expect(find.text('What is it made of?'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
     expect(find.text('What are you photographing?'), findsOneWidget);

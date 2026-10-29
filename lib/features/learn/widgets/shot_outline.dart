@@ -118,8 +118,8 @@ class ShotOutline {
     if (displayKey == 'full_display' && product == 'Mekhala sador') {
       return const ShotOutline(
         widthFactor: 0.88,
-        aspectRatio: 0.92,
-        placement: ShotFramePlacement.inset,
+        // The shape of the dotted drawing, so it is not stretched.
+        aspectRatio: ShotOutlineOverlay.mekhalaFullArtAspect,
         kind: ShotOverlayKind.mekhalaFull,
       );
     }
@@ -394,6 +394,12 @@ class ShotOutlineOverlay extends StatelessWidget {
   static const foldedArt =
       'assets/images/lessons/photography/folded_outline_v2.png';
 
+  /// Dotted mekhela and sador laid side by side, borders and tassels at the
+  /// foot, for the Mekhala sador full display shot.
+  static const mekhalaFullArt =
+      'assets/images/lessons/photography/mekhala_full_outline.png';
+  static const mekhalaFullArtAspect = 1000 / 1088;
+
   /// The motifs of a close-up, light on a clear background, laid inside the
   /// dashed box - the box itself is the texture to fill.
   static const closeUpArt =
@@ -410,6 +416,7 @@ class ShotOutlineOverlay extends StatelessWidget {
         ShotOverlayKind.sariFull => fullDisplayArt,
         ShotOverlayKind.hangingDisplay => hangingArt,
         ShotOverlayKind.foldedStack => foldedArt,
+        ShotOverlayKind.mekhalaFull => mekhalaFullArt,
         ShotOverlayKind.embroideryBorder => embroideryArt,
         _ => null,
       };
@@ -554,12 +561,11 @@ class _OutlinePainter extends CustomPainter {
       case ShotOverlayKind.sariFull:
       case ShotOverlayKind.hangingDisplay:
       case ShotOverlayKind.foldedStack:
+      case ShotOverlayKind.mekhalaFull:
       case ShotOverlayKind.embroideryBorder:
       case ShotOverlayKind.sariDraped:
         // Drawn from an image by ShotOutlineOverlay; never reached.
         break;
-      case ShotOverlayKind.mekhalaFull:
-        _mekhalaPair(canvas, rect);
       case ShotOverlayKind.mekhalaHanging:
         _mekhalaHanging(canvas, rect);
       case ShotOverlayKind.mekhalaFolded:
@@ -1463,41 +1469,6 @@ class _OutlinePainter extends CustomPainter {
         stroke,
       );
     }
-  }
-
-  /// Mekhala and sador laid side by side, borders at the bottom.
-  void _mekhalaPair(Canvas canvas, Rect frame) {
-    final gap = frame.width * 0.025;
-    final top = frame.top + frame.height * 0.03;
-    final bottom = frame.bottom - frame.height * 0.06;
-    final left = frame.left + frame.width * 0.03;
-    final right = frame.right - frame.width * 0.03;
-    final mid = (left + right) / 2;
-    final mekhela = Rect.fromLTRB(left, top, mid - gap, bottom);
-    final sador = Rect.fromLTRB(mid + gap, top, right, bottom);
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4;
-    canvas.drawRect(mekhela, Paint()..color = const Color(0x22FFFFFF));
-    canvas.drawRect(sador, Paint()..color = const Color(0x22FFFFFF));
-    canvas.drawRect(mekhela, stroke);
-    canvas.drawRect(sador, stroke);
-    _bottomBand(canvas, mekhela, 0.16, stroke);
-    _bottomBand(canvas, sador, 0.22, stroke);
-    for (var i = 0; i < 6; i++) {
-      final x = sador.left + sador.width * (0.18 + i * 0.12);
-      canvas.drawLine(
-        Offset(x, sador.bottom),
-        Offset(x, sador.bottom + frame.height * 0.045),
-        stroke,
-      );
-    }
-  }
-
-  void _bottomBand(Canvas canvas, Rect panel, double fraction, Paint stroke) {
-    final y = panel.bottom - panel.height * fraction;
-    canvas.drawLine(Offset(panel.left, y), Offset(panel.right, y), stroke);
   }
 
   void _centredLabel(

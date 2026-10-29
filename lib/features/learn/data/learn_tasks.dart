@@ -26,7 +26,16 @@ ProductPickerScreen photographyEntry(String locale) {
   return ProductPickerScreen(
     locale: locale,
     taskLabel: 'TASK 1 OF 5',
-    onPicked: (_) => photographyMaterialPicker(locale),
+    onPicked: (_) {
+      // A product woven in one yarn only has nothing to choose, so its
+      // material is set and the shoot goes straight to the displays.
+      final materials = materialsFor(SelectedProduct.instance.name);
+      if (materials.length == 1) {
+        SelectedMaterial.instance.select(materials.single.name);
+        return photographyDisplayPicker(locale);
+      }
+      return photographyMaterialPicker(locale);
+    },
   );
 }
 
