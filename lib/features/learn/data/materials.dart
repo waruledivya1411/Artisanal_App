@@ -55,7 +55,7 @@ const _materialsByProduct = <String, Set<String>>{
   'Gamusa': {'Cotton'},
   'Stole': {'Eri'},
   'Shawl': {'Eri'},
-  'Cushion covers': {'Cotton', 'Mulberry', 'Tussar', 'Muga', 'Eri'},
+  'Cushion covers': {'Mulberry'},
   'Jod kappur': {'Cotton'},
   'Yardages': {'Cotton'},
 };

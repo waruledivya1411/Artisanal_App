@@ -134,16 +134,16 @@ class ShotOutline {
     if (displayKey == 'full_display' && product == 'Shawl') {
       return const ShotOutline(
         widthFactor: 0.72,
-        aspectRatio: 0.62,
-        placement: ShotFramePlacement.inset,
+        // Hangs from a rod: the shape of the dotted drawing.
+        aspectRatio: ShotOutlineOverlay.rodHangingArtAspect,
         kind: ShotOverlayKind.shawlFull,
       );
     }
     if (displayKey == 'full_display' && product == 'Stole') {
       return const ShotOutline(
         widthFactor: 0.62,
-        aspectRatio: 0.58,
-        placement: ShotFramePlacement.inset,
+        // Hangs from a rod: the shape of the dotted drawing.
+        aspectRatio: ShotOutlineOverlay.rodHangingArtAspect,
         kind: ShotOverlayKind.stoleFull,
       );
     }
@@ -166,8 +166,8 @@ class ShotOutline {
     if (displayKey == 'full_display' && product == 'Gamusa') {
       return const ShotOutline(
         widthFactor: 0.62,
-        aspectRatio: 0.58,
-        placement: ShotFramePlacement.inset,
+        // Hangs from a rod: the shape of the dotted drawing.
+        aspectRatio: ShotOutlineOverlay.rodHangingArtAspect,
         kind: ShotOverlayKind.gamusaFull,
       );
     }
@@ -426,6 +426,13 @@ class ShotOutlineOverlay extends StatelessWidget {
       'assets/images/lessons/photography/mekhala_hanging_outline.png';
   static const mekhalaHangingArtAspect = 1000 / 1083;
 
+  /// Dotted stole on a rod, borders down the sides, a woven band and
+  /// tassels at the foot. Stole, shawl and gamusa all hang this way for
+  /// their full display shot.
+  static const rodHangingArt =
+      'assets/images/lessons/photography/stole_hanging_outline.png';
+  static const rodHangingArtAspect = 900 / 1163;
+
   /// The motifs of a close-up, light on a clear background, laid inside the
   /// dashed box - the box itself is the texture to fill.
   static const closeUpArt =
@@ -447,6 +454,9 @@ class ShotOutlineOverlay extends StatelessWidget {
         ShotOverlayKind.mekhalaBorder => mekhalaBorderArt,
         ShotOverlayKind.mekhalaFolded => mekhalaFoldedArt,
         ShotOverlayKind.mekhalaHanging => mekhalaHangingArt,
+        ShotOverlayKind.stoleFull ||
+        ShotOverlayKind.shawlFull ||
+        ShotOverlayKind.gamusaFull => rodHangingArt,
         _ => null,
       };
 
@@ -604,25 +614,22 @@ class _OutlinePainter extends CustomPainter {
       case ShotOverlayKind.mekhalaFull:
       case ShotOverlayKind.mekhalaFolded:
       case ShotOverlayKind.mekhalaHanging:
+      case ShotOverlayKind.stoleFull:
+      case ShotOverlayKind.shawlFull:
+      case ShotOverlayKind.gamusaFull:
       case ShotOverlayKind.mekhalaBorder:
       case ShotOverlayKind.embroideryBorder:
       case ShotOverlayKind.sariDraped:
         // Drawn from an image by ShotOutlineOverlay; never reached.
         break;
-      case ShotOverlayKind.stoleFull:
-        _stoleFull(canvas, rect);
       case ShotOverlayKind.stoleFolded:
         _stoleFolded(canvas, rect);
-      case ShotOverlayKind.shawlFull:
-        _shawlFull(canvas, rect);
       case ShotOverlayKind.shawlFolded:
         _shawlFolded(canvas, rect);
       case ShotOverlayKind.cushionSofa:
         _cushionSofa(canvas, rect);
       case ShotOverlayKind.cushionFlat:
         _cushionFlat(canvas, rect);
-      case ShotOverlayKind.gamusaFull:
-        _gamusaFull(canvas, rect);
       case ShotOverlayKind.gamusaFolded:
         _gamusaFolded(canvas, rect);
       case ShotOverlayKind.jodHanging:
@@ -864,93 +871,6 @@ class _OutlinePainter extends CustomPainter {
     );
   }
 
-  /// Gamusa on a rod: side borders, wide end band, tassels along the hem.
-  void _gamusaFull(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round;
-    final fill = Paint()..color = const Color(0x22FFFFFF);
-    final faint = Paint()
-      ..color = const Color(0x99FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    final cloth = Rect.fromLTRB(
-      frame.left + frame.width * 0.06,
-      frame.top + frame.height * 0.04,
-      frame.right - frame.width * 0.06,
-      frame.top + frame.height * 0.92,
-    );
-    canvas.drawRect(cloth, fill);
-    canvas.drawRect(cloth, stroke);
-    canvas.drawLine(
-      Offset(frame.left + frame.width * 0.02, cloth.top),
-      Offset(frame.right - frame.width * 0.02, cloth.top),
-      Paint()
-        ..color = const Color(0xE8FFFFFF)
-        ..strokeWidth = 3.6
-        ..strokeCap = StrokeCap.round,
-    );
-    canvas.drawLine(
-      Offset(cloth.left + cloth.width * 0.1, cloth.top),
-      Offset(cloth.left + cloth.width * 0.1, cloth.bottom),
-      faint,
-    );
-    canvas.drawLine(
-      Offset(cloth.left + cloth.width * 0.2, cloth.top),
-      Offset(cloth.left + cloth.width * 0.2, cloth.bottom),
-      stroke,
-    );
-    canvas.drawLine(
-      Offset(cloth.right - cloth.width * 0.2, cloth.top),
-      Offset(cloth.right - cloth.width * 0.2, cloth.bottom),
-      stroke,
-    );
-    canvas.drawLine(
-      Offset(cloth.right - cloth.width * 0.1, cloth.top),
-      Offset(cloth.right - cloth.width * 0.1, cloth.bottom),
-      faint,
-    );
-    final bandTop = cloth.top + cloth.height * 0.58;
-    final bandBottom = cloth.top + cloth.height * 0.86;
-    canvas.drawRect(
-      Rect.fromLTRB(cloth.left, bandTop, cloth.right, bandBottom),
-      Paint()..color = const Color(0x18FFFFFF),
-    );
-    canvas.drawLine(Offset(cloth.left, bandTop), Offset(cloth.right, bandTop), stroke);
-    canvas.drawLine(
-      Offset(cloth.left, cloth.top + cloth.height * 0.66),
-      Offset(cloth.right, cloth.top + cloth.height * 0.66),
-      faint,
-    );
-    canvas.drawLine(
-      Offset(cloth.left, cloth.top + cloth.height * 0.78),
-      Offset(cloth.right, cloth.top + cloth.height * 0.78),
-      faint,
-    );
-    canvas.drawLine(Offset(cloth.left, bandBottom), Offset(cloth.right, bandBottom), stroke);
-    _diamonds(
-      canvas,
-      Rect.fromLTRB(
-        cloth.left + cloth.width * 0.22,
-        bandTop,
-        cloth.right - cloth.width * 0.22,
-        bandBottom,
-      ),
-      Paint()..color = const Color(0xCCFFFFFF),
-    );
-    for (var i = 0; i < 7; i++) {
-      final x = cloth.left + cloth.width * (0.08 + i * 0.14);
-      canvas.drawLine(
-        Offset(x, cloth.bottom),
-        Offset(x, cloth.bottom + frame.height * 0.06),
-        stroke,
-      );
-    }
-  }
-
   /// Folded gamusa: end border across, side border on the right, tassels in front.
   void _gamusaFolded(Canvas canvas, Rect frame) {
     final stroke = Paint()
@@ -1060,75 +980,6 @@ class _OutlinePainter extends CustomPainter {
     );
   }
 
-  /// Shawl hanging under a rod: wider cloth, border on the right, tassels below.
-  void _shawlFull(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round;
-    final fill = Paint()..color = const Color(0x22FFFFFF);
-    final faint = Paint()
-      ..color = const Color(0x99FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    final rodY = frame.top + frame.height * 0.025;
-    canvas.drawLine(
-      Offset(frame.left + frame.width * 0.015, rodY),
-      Offset(frame.right - frame.width * 0.015, rodY),
-      Paint()
-        ..color = const Color(0xE8FFFFFF)
-        ..strokeWidth = 3.2
-        ..strokeCap = StrokeCap.round,
-    );
-
-    final cloth = Rect.fromLTRB(
-      frame.left + frame.width * 0.04,
-      rodY + frame.height * 0.025,
-      frame.right - frame.width * 0.04,
-      frame.top + frame.height * 0.94,
-    );
-    canvas.drawRect(cloth, fill);
-    canvas.drawRect(cloth, stroke);
-    canvas.drawLine(
-      Offset(cloth.left + cloth.width * 0.1, cloth.top),
-      Offset(cloth.left + cloth.width * 0.1, cloth.bottom),
-      faint,
-    );
-    final borderX = cloth.left + cloth.width * 0.74;
-    canvas.drawRect(
-      Rect.fromLTRB(borderX, cloth.top, cloth.right, cloth.bottom),
-      Paint()..color = const Color(0x18FFFFFF),
-    );
-    canvas.drawLine(Offset(borderX, cloth.top), Offset(borderX, cloth.bottom), stroke);
-    canvas.drawLine(
-      Offset(cloth.left + cloth.width * 0.86, cloth.top),
-      Offset(cloth.left + cloth.width * 0.86, cloth.bottom),
-      faint,
-    );
-    _diamonds(
-      canvas,
-      Rect.fromLTRB(cloth.left, cloth.top, borderX, cloth.top + cloth.height * 0.6),
-      Paint()..color = const Color(0xCCFFFFFF),
-    );
-    final bandY = cloth.top + cloth.height * 0.68;
-    canvas.drawLine(Offset(cloth.left, bandY), Offset(cloth.right, bandY), stroke);
-    canvas.drawLine(
-      Offset(cloth.left, cloth.top + cloth.height * 0.82),
-      Offset(cloth.right, cloth.top + cloth.height * 0.82),
-      faint,
-    );
-    for (var i = 0; i < 7; i++) {
-      final x = cloth.left + cloth.width * (0.08 + i * 0.14);
-      canvas.drawLine(
-        Offset(x, cloth.bottom),
-        Offset(x, cloth.bottom + frame.height * 0.045),
-        stroke,
-      );
-    }
-  }
-
   /// One folded shawl: border down the right, band and tassels along the front.
   void _shawlFolded(Canvas canvas, Rect frame) {
     final stroke = Paint()
@@ -1184,63 +1035,6 @@ class _OutlinePainter extends CustomPainter {
       canvas.drawLine(
         Offset(x, shawl.bottom),
         Offset(x, shawl.bottom + frame.height * 0.06),
-        stroke,
-      );
-    }
-  }
-
-  /// Stole hanging under a rod, with side borders and tassels along the hem.
-  void _stoleFull(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round;
-    final fill = Paint()..color = const Color(0x22FFFFFF);
-    final faint = Paint()
-      ..color = const Color(0x99FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    final rodY = frame.top + frame.height * 0.025;
-    canvas.drawLine(
-      Offset(frame.left + frame.width * 0.03, rodY),
-      Offset(frame.right - frame.width * 0.03, rodY),
-      Paint()
-        ..color = const Color(0xE8FFFFFF)
-        ..strokeWidth = 3.2
-        ..strokeCap = StrokeCap.round,
-    );
-
-    final cloth = Rect.fromLTRB(
-      frame.left + frame.width * 0.08,
-      rodY + frame.height * 0.025,
-      frame.right - frame.width * 0.08,
-      frame.top + frame.height * 0.94,
-    );
-    canvas.drawRect(cloth, fill);
-    canvas.drawRect(cloth, stroke);
-    final leftBorder = cloth.left + cloth.width * 0.16;
-    final rightBorder = cloth.right - cloth.width * 0.16;
-    canvas.drawLine(Offset(leftBorder, cloth.top), Offset(leftBorder, cloth.bottom), faint);
-    canvas.drawLine(Offset(rightBorder, cloth.top), Offset(rightBorder, cloth.bottom), faint);
-    _diamonds(
-      canvas,
-      Rect.fromLTRB(leftBorder, cloth.top, rightBorder, cloth.top + cloth.height * 0.62),
-      Paint()..color = const Color(0xCCFFFFFF),
-    );
-    final bandY = cloth.top + cloth.height * 0.7;
-    canvas.drawLine(Offset(cloth.left, bandY), Offset(cloth.right, bandY), stroke);
-    canvas.drawLine(
-      Offset(cloth.left, cloth.top + cloth.height * 0.82),
-      Offset(cloth.right, cloth.top + cloth.height * 0.82),
-      faint,
-    );
-    for (var i = 0; i < 6; i++) {
-      final x = cloth.left + cloth.width * (0.12 + i * 0.15);
-      canvas.drawLine(
-        Offset(x, cloth.bottom),
-        Offset(x, cloth.bottom + frame.height * 0.045),
         stroke,
       );
     }

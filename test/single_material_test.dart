@@ -23,9 +23,4 @@ void main() {
     expect(find.text('How will you show it?'), findsOneWidget);
     expect(SelectedMaterial.instance.name, 'Cotton');
   });
-
-  testWidgets('a product with several materials still asks', (t) async {
-    await pickProduct(t, 'Cushion covers');
-    expect(find.text('What is it made of?'), findsOneWidget);
-  });
 }
