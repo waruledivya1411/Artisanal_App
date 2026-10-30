@@ -150,16 +150,16 @@ class ShotOutline {
     if (displayKey == 'flat_lay_display') {
       return const ShotOutline(
         widthFactor: 0.86,
-        aspectRatio: 0.92,
-        placement: ShotFramePlacement.inset,
+        // The shape of the dotted drawing, so it is not stretched.
+        aspectRatio: ShotOutlineOverlay.cushionFlatArtAspect,
         kind: ShotOverlayKind.cushionFlat,
       );
     }
     if (displayKey == 'sofa_seated_display') {
       return const ShotOutline(
         widthFactor: 0.86,
-        aspectRatio: 0.92,
-        placement: ShotFramePlacement.inset,
+        // The shape of the dotted drawing, so it is not stretched.
+        aspectRatio: ShotOutlineOverlay.cushionSofaArtAspect,
         kind: ShotOverlayKind.cushionSofa,
       );
     }
@@ -194,8 +194,8 @@ class ShotOutline {
     if (displayKey == 'folded_stack' && product == 'Gamusa') {
       return const ShotOutline(
         widthFactor: 0.88,
-        aspectRatio: 0.58,
-        placement: ShotFramePlacement.inset,
+        // The shape of the dotted folded drawing, full width.
+        aspectRatio: ShotOutlineOverlay.foldedTasselArtAspect,
         kind: ShotOverlayKind.gamusaFolded,
       );
     }
@@ -210,16 +210,16 @@ class ShotOutline {
     if (displayKey == 'folded_stack' && product == 'Shawl') {
       return const ShotOutline(
         widthFactor: 0.88,
-        aspectRatio: 0.58,
-        placement: ShotFramePlacement.inset,
+        // The shape of the dotted folded drawing, full width.
+        aspectRatio: ShotOutlineOverlay.foldedTasselArtAspect,
         kind: ShotOverlayKind.shawlFolded,
       );
     }
     if (displayKey == 'folded_stack' && product == 'Stole') {
       return const ShotOutline(
         widthFactor: 0.88,
-        aspectRatio: 0.58,
-        placement: ShotFramePlacement.inset,
+        // The shape of the dotted folded drawing, full width.
+        aspectRatio: ShotOutlineOverlay.foldedTasselArtAspect,
         kind: ShotOverlayKind.stoleFolded,
       );
     }
@@ -433,6 +433,24 @@ class ShotOutlineOverlay extends StatelessWidget {
       'assets/images/lessons/photography/stole_hanging_outline.png';
   static const rodHangingArtAspect = 900 / 1163;
 
+  /// Dotted folded stole: a woven band across, a border down the side and
+  /// tassels along the front. Stole, shawl and gamusa all fold this way.
+  static const foldedTasselArt =
+      'assets/images/lessons/photography/stole_folded_outline.png';
+  static const foldedTasselArtAspect = 1000 / 641;
+
+  /// A cushion with an embroidered edge sitting in the corner of a sofa,
+  /// for the cushion cover sofa-seated shot.
+  static const cushionSofaArt =
+      'assets/images/lessons/photography/cushion_sofa_outline.png';
+  static const cushionSofaArtAspect = 1000 / 914;
+
+  /// A cushion laid flat, seen from above, with an embroidered edge, for
+  /// the cushion cover flat-lay shot.
+  static const cushionFlatArt =
+      'assets/images/lessons/photography/cushion_flat_outline.png';
+  static const cushionFlatArtAspect = 1000 / 892;
+
   /// The motifs of a close-up, light on a clear background, laid inside the
   /// dashed box - the box itself is the texture to fill.
   static const closeUpArt =
@@ -457,6 +475,11 @@ class ShotOutlineOverlay extends StatelessWidget {
         ShotOverlayKind.stoleFull ||
         ShotOverlayKind.shawlFull ||
         ShotOverlayKind.gamusaFull => rodHangingArt,
+        ShotOverlayKind.stoleFolded ||
+        ShotOverlayKind.shawlFolded ||
+        ShotOverlayKind.gamusaFolded => foldedTasselArt,
+        ShotOverlayKind.cushionSofa => cushionSofaArt,
+        ShotOverlayKind.cushionFlat => cushionFlatArt,
         _ => null,
       };
 
@@ -617,21 +640,16 @@ class _OutlinePainter extends CustomPainter {
       case ShotOverlayKind.stoleFull:
       case ShotOverlayKind.shawlFull:
       case ShotOverlayKind.gamusaFull:
+      case ShotOverlayKind.stoleFolded:
+      case ShotOverlayKind.shawlFolded:
+      case ShotOverlayKind.gamusaFolded:
+      case ShotOverlayKind.cushionSofa:
+      case ShotOverlayKind.cushionFlat:
       case ShotOverlayKind.mekhalaBorder:
       case ShotOverlayKind.embroideryBorder:
       case ShotOverlayKind.sariDraped:
         // Drawn from an image by ShotOutlineOverlay; never reached.
         break;
-      case ShotOverlayKind.stoleFolded:
-        _stoleFolded(canvas, rect);
-      case ShotOverlayKind.shawlFolded:
-        _shawlFolded(canvas, rect);
-      case ShotOverlayKind.cushionSofa:
-        _cushionSofa(canvas, rect);
-      case ShotOverlayKind.cushionFlat:
-        _cushionFlat(canvas, rect);
-      case ShotOverlayKind.gamusaFolded:
-        _gamusaFolded(canvas, rect);
       case ShotOverlayKind.jodHanging:
         _jodHanging(canvas, rect);
       case ShotOverlayKind.jodFolded:
@@ -789,327 +807,6 @@ class _OutlinePainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-
-  /// One side of a sofa: left arm, back behind the pillow, seat underneath.
-  /// The right side runs off the frame.
-  void _cushionSofa(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    final fill = Paint()..color = const Color(0x22FFFFFF);
-    final solid = Paint()..color = const Color(0x55101414);
-    final faint = Paint()
-      ..color = const Color(0x99FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    Offset p(double x, double y) => Offset(
-          frame.left + frame.width * x,
-          frame.top + frame.height * y,
-        );
-
-    final back = Path()
-      ..moveTo(p(0.22, 0.50).dx, p(0.22, 0.50).dy)
-      ..lineTo(p(0.22, 0.16).dx, p(0.22, 0.16).dy)
-      ..quadraticBezierTo(
-        p(0.22, 0.06).dx,
-        p(0.22, 0.06).dy,
-        p(0.32, 0.06).dx,
-        p(0.32, 0.06).dy,
-      )
-      ..lineTo(p(1, 0.06).dx, p(1, 0.06).dy)
-      ..lineTo(p(1, 0.50).dx, p(1, 0.50).dy)
-      ..close();
-    canvas.drawPath(back, solid);
-    canvas.drawPath(back, fill);
-    canvas.drawPath(back, stroke);
-
-    final seat = Path()
-      ..moveTo(p(0.26, 0.62).dx, p(0.26, 0.62).dy)
-      ..lineTo(p(1, 0.62).dx, p(1, 0.62).dy)
-      ..lineTo(p(1, 0.94).dx, p(1, 0.94).dy)
-      ..lineTo(p(0.16, 0.94).dx, p(0.16, 0.94).dy)
-      ..quadraticBezierTo(
-        p(0.16, 0.72).dx,
-        p(0.16, 0.72).dy,
-        p(0.26, 0.62).dx,
-        p(0.26, 0.62).dy,
-      )
-      ..close();
-    canvas.drawPath(seat, solid);
-    canvas.drawPath(seat, fill);
-    canvas.drawPath(seat, stroke);
-
-    final arm = RRect.fromRectAndRadius(
-      Rect.fromLTRB(p(0.04, 0.36).dx, p(0.04, 0.36).dy, p(0.28, 0.90).dx, p(0.28, 0.90).dy),
-      const Radius.circular(14),
-    );
-    canvas.drawRRect(arm, solid);
-    canvas.drawRRect(arm, fill);
-    canvas.drawRRect(arm, stroke);
-
-    final pillow = RRect.fromRectAndRadius(
-      Rect.fromLTRB(p(0.3, 0.14).dx, p(0.3, 0.14).dy, p(0.96, 0.8).dx, p(0.3, 0.8).dy),
-      const Radius.circular(18),
-    );
-    canvas.drawRRect(pillow, solid);
-    canvas.drawRRect(pillow, fill);
-    canvas.drawRRect(pillow, stroke);
-    final face = pillow.outerRect.deflate(pillow.outerRect.width * 0.12);
-    canvas.drawLine(
-      Offset(face.left, face.top + face.height * 0.32),
-      Offset(face.right, face.top + face.height * 0.32),
-      faint,
-    );
-    canvas.drawLine(
-      Offset(face.left, face.top + face.height * 0.46),
-      Offset(face.right, face.top + face.height * 0.46),
-      stroke,
-    );
-  }
-
-  /// Folded gamusa: end border across, side border on the right, tassels in front.
-  void _gamusaFolded(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round;
-    final fill = Paint()..color = const Color(0x22FFFFFF);
-    final faint = Paint()
-      ..color = const Color(0x99FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    final cloth = Rect.fromLTRB(
-      frame.left + frame.width * 0.03,
-      frame.top + frame.height * 0.04,
-      frame.right - frame.width * 0.03,
-      frame.top + frame.height * 0.9,
-    );
-    final radius = RRect.fromRectAndRadius(cloth, const Radius.circular(8));
-    canvas.drawRRect(radius, fill);
-    canvas.drawRRect(radius, stroke);
-
-    final split = cloth.left + cloth.width * 0.74;
-    final bandTop = cloth.top + cloth.height * 0.38;
-    final bandBottom = cloth.top + cloth.height * 0.7;
-    canvas.drawRect(
-      Rect.fromLTRB(cloth.left, bandTop, split, bandBottom),
-      Paint()..color = const Color(0x18FFFFFF),
-    );
-    canvas.drawLine(Offset(cloth.left, bandTop), Offset(split, bandTop), stroke);
-    canvas.drawLine(
-      Offset(cloth.left, cloth.top + cloth.height * 0.48),
-      Offset(split, cloth.top + cloth.height * 0.48),
-      faint,
-    );
-    canvas.drawLine(
-      Offset(cloth.left, cloth.top + cloth.height * 0.6),
-      Offset(split, cloth.top + cloth.height * 0.6),
-      faint,
-    );
-    canvas.drawLine(Offset(cloth.left, bandBottom), Offset(split, bandBottom), stroke);
-    _diamonds(
-      canvas,
-      Rect.fromLTRB(cloth.left + cloth.width * 0.08, bandTop, split, bandBottom),
-      Paint()..color = const Color(0xCCFFFFFF),
-    );
-    canvas.drawRect(
-      Rect.fromLTRB(split, cloth.top, cloth.right, cloth.bottom),
-      Paint()..color = const Color(0x18FFFFFF),
-    );
-    canvas.drawLine(Offset(split, cloth.top), Offset(split, cloth.bottom), stroke);
-    canvas.drawLine(
-      Offset(cloth.left + cloth.width * 0.86, cloth.top),
-      Offset(cloth.left + cloth.width * 0.86, cloth.bottom),
-      faint,
-    );
-    for (var i = 0; i < 8; i++) {
-      final x = cloth.left + cloth.width * (0.08 + i * 0.11);
-      canvas.drawLine(
-        Offset(x, cloth.bottom),
-        Offset(x, cloth.bottom + frame.height * 0.06),
-        stroke,
-      );
-    }
-  }
-
-  /// Plump square cushion from above, piping on every side, motif in the middle.
-  void _cushionFlat(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    final fill = Paint()..color = const Color(0x22FFFFFF);
-    final faint = Paint()
-      ..color = const Color(0x99FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    final side = (frame.width < frame.height ? frame.width : frame.height) * 0.96;
-    final cover = RRect.fromRectAndRadius(
-      Rect.fromCenter(center: frame.center, width: side, height: side),
-      const Radius.circular(22),
-    );
-    canvas.drawRRect(cover, fill);
-    canvas.drawRRect(cover, stroke);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        cover.outerRect.deflate(cover.outerRect.width * 0.1),
-        const Radius.circular(16),
-      ),
-      faint,
-    );
-
-    final face = cover.outerRect.deflate(cover.outerRect.width * 0.28);
-    final c = face.center;
-    canvas.drawPath(
-      Path()
-        ..moveTo(c.dx, c.dy - face.height * 0.28)
-        ..lineTo(c.dx + face.width * 0.22, c.dy)
-        ..lineTo(c.dx, c.dy + face.height * 0.28)
-        ..lineTo(c.dx - face.width * 0.22, c.dy)
-        ..close(),
-      Paint()..color = const Color(0xCCFFFFFF),
-    );
-  }
-
-  /// One folded shawl: border down the right, band and tassels along the front.
-  void _shawlFolded(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round;
-    final fill = Paint()..color = const Color(0x22FFFFFF);
-    final faint = Paint()
-      ..color = const Color(0x99FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    final shawl = Rect.fromLTRB(
-      frame.left + frame.width * 0.03,
-      frame.top + frame.height * 0.04,
-      frame.right - frame.width * 0.03,
-      frame.top + frame.height * 0.9,
-    );
-    final radius = RRect.fromRectAndRadius(shawl, const Radius.circular(10));
-    canvas.drawRRect(radius, fill);
-    canvas.drawRRect(radius, stroke);
-    canvas.drawLine(
-      Offset(shawl.left + shawl.width * 0.08, shawl.top),
-      Offset(shawl.left + shawl.width * 0.08, shawl.bottom),
-      faint,
-    );
-    final borderX = shawl.left + shawl.width * 0.76;
-    canvas.drawRect(
-      Rect.fromLTRB(borderX, shawl.top, shawl.right, shawl.bottom),
-      Paint()..color = const Color(0x18FFFFFF),
-    );
-    canvas.drawLine(Offset(borderX, shawl.top), Offset(borderX, shawl.bottom), stroke);
-    canvas.drawLine(
-      Offset(shawl.left + shawl.width * 0.88, shawl.top),
-      Offset(shawl.left + shawl.width * 0.88, shawl.bottom),
-      faint,
-    );
-    final bandY = shawl.top + shawl.height * 0.62;
-    _diamonds(
-      canvas,
-      Rect.fromLTRB(shawl.left, shawl.top, borderX, bandY),
-      Paint()..color = const Color(0xCCFFFFFF),
-    );
-    canvas.drawLine(Offset(shawl.left, bandY), Offset(shawl.right, bandY), stroke);
-    canvas.drawLine(
-      Offset(shawl.left, shawl.top + shawl.height * 0.8),
-      Offset(shawl.right, shawl.top + shawl.height * 0.8),
-      faint,
-    );
-    for (var i = 0; i < 8; i++) {
-      final x = shawl.left + shawl.width * (0.08 + i * 0.11);
-      canvas.drawLine(
-        Offset(x, shawl.bottom),
-        Offset(x, shawl.bottom + frame.height * 0.06),
-        stroke,
-      );
-    }
-  }
-
-  /// One folded stole: side borders, a band, tassels along the front edge.
-  void _stoleFolded(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round;
-    final fill = Paint()..color = const Color(0x22FFFFFF);
-    final faint = Paint()
-      ..color = const Color(0x99FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    final stole = Rect.fromLTRB(
-      frame.left + frame.width * 0.03,
-      frame.top + frame.height * 0.04,
-      frame.right - frame.width * 0.03,
-      frame.top + frame.height * 0.9,
-    );
-    final radius = RRect.fromRectAndRadius(stole, const Radius.circular(10));
-    canvas.drawRRect(radius, fill);
-    canvas.drawRRect(radius, stroke);
-    final leftBorder = stole.left + stole.width * 0.1;
-    final rightBorder = stole.right - stole.width * 0.1;
-    canvas.drawLine(Offset(leftBorder, stole.top), Offset(leftBorder, stole.bottom), faint);
-    canvas.drawLine(Offset(rightBorder, stole.top), Offset(rightBorder, stole.bottom), faint);
-    final bandY = stole.top + stole.height * 0.62;
-    _diamonds(
-      canvas,
-      Rect.fromLTRB(leftBorder, stole.top, rightBorder, bandY),
-      Paint()..color = const Color(0xCCFFFFFF),
-    );
-    canvas.drawLine(Offset(stole.left, bandY), Offset(stole.right, bandY), stroke);
-    canvas.drawLine(
-      Offset(stole.left, stole.top + stole.height * 0.8),
-      Offset(stole.right, stole.top + stole.height * 0.8),
-      faint,
-    );
-    for (var i = 0; i < 7; i++) {
-      final x = stole.left + stole.width * (0.1 + i * 0.13);
-      canvas.drawLine(
-        Offset(x, stole.bottom),
-        Offset(x, stole.bottom + frame.height * 0.06),
-        stroke,
-      );
-    }
-  }
-
-  void _diamonds(Canvas canvas, Rect body, Paint motif) {
-    for (final spot in const [
-      [0.28, 0.32],
-      [0.58, 0.28],
-      [0.42, 0.62],
-      [0.72, 0.7],
-    ]) {
-      final c = Offset(
-        body.left + body.width * spot[0],
-        body.top + body.height * spot[1],
-      );
-      canvas.drawPath(
-        Path()
-          ..moveTo(c.dx, c.dy - 4)
-          ..lineTo(c.dx + 3.2, c.dy)
-          ..lineTo(c.dx, c.dy + 4)
-          ..lineTo(c.dx - 3.2, c.dy)
-          ..close(),
-        motif,
-      );
-    }
-  }
 
   /// Rule of thirds, white and faint, inside the frame only.
   void _thirds(Canvas canvas, Rect r) {

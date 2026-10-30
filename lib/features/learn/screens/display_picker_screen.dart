@@ -8,9 +8,17 @@ import 'package:artisnal_app/features/learn/data/displays.dart';
 import 'package:artisnal_app/features/learn/screens/display_guide_screen.dart';
 import 'package:artisnal_app/features/learn/screens/shoot_screen.dart';
 import 'package:artisnal_app/features/learn/screens/shot_list_screen.dart';
-import 'package:artisnal_app/features/learn/screens/material_picker_screen.dart'
-    show kPickerCardRatio, kPickerCaptionHeight;
+import 'package:artisnal_app/features/learn/widgets/whole_photo.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
+
+/// Every picker card is this shape, so all the photo frames match. It leaves
+/// the photo area at roughly 3:4 on a phone, the shape most of the photos
+/// already are, so they fill their frame with the least cropped away.
+const double kPickerCardRatio = 0.648;
+
+/// Fixed room for the caption, so a name that wraps to two lines does not
+/// shrink its photo and leave that card's frame a different size.
+const double kPickerCaptionHeight = 34;
 
 class DisplayPickerScreen extends StatefulWidget {
   const DisplayPickerScreen({
@@ -46,11 +54,10 @@ class _DisplayPickerScreenState extends State<DisplayPickerScreen> {
   late final List<DisplayOption> _displays = displaysFor(widget.product);
 
   /// Every display ticked. The artisan can shoot as many as they like;
-  /// they are taken in the order they appear on the page.
-  late final Set<String> _selected = {
-    if (_displays.any((d) => d.name == SelectedDisplay.instance.name))
-      SelectedDisplay.instance.name!,
-  };
+  /// they are taken in the order they appear on the page. Each shoot starts
+  /// with none ticked, so a display from an earlier shoot is not added
+  /// without the artisan noticing.
+  final Set<String> _selected = {};
 
   @override
   void dispose() {
@@ -390,11 +397,17 @@ class _Example extends StatelessWidget {
   Widget build(BuildContext context) {
     final name = material;
     if (name == null) return const _NoExample();
+    final asset = display.imageFor(name, product: product);
+    // These photos are wider than the card: shown whole, not cropped.
+    if (wholePhotoProducts.contains(product)) {
+      return WholePhoto(
+        asset,
+        errorBuilder: (context, error, stack) => const _NoExample(),
+      );
+    }
     return Image.asset(
-      display.imageFor(name, product: product),
-      fit: product == 'Cushion covers' || product == 'Jod kappur'
-          ? BoxFit.contain
-          : BoxFit.cover,
+      asset,
+      fit: BoxFit.cover,
       alignment: Alignment.center,
       errorBuilder: (context, error, stack) => const _NoExample(),
     );

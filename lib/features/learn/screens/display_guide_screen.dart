@@ -7,6 +7,7 @@ import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/display_guides.dart';
 import 'package:artisnal_app/features/learn/data/displays.dart';
 import 'package:artisnal_app/features/learn/widgets/guide_diagram.dart';
+import 'package:artisnal_app/features/learn/widgets/whole_photo.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
 
 /// Walks the artisan through setting up one shot, ending on a worked example.
@@ -282,14 +283,8 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
                 )
               : ColoredBox(
                   color: const Color(0xFFF4F1EA),
-                  child: Image.asset(
+                  child: _examplePhoto(
                     widget.display.imageFor(material, product: widget.product),
-                    fit:
-                        widget.product == 'Cushion covers' ||
-                            widget.product == 'Jod kappur'
-                        ? BoxFit.contain
-                        : BoxFit.cover,
-                    alignment: Alignment.center,
                     errorBuilder: (context, error, stack) => const ColoredBox(
                       color: DisplayGuideScreen.track,
                       child: Center(
@@ -304,6 +299,23 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
                 ),
         ),
       ),
+    );
+  }
+
+  /// The good example photo: shown whole for products whose photos are
+  /// wider than the frame, filling it for the rest.
+  Widget _examplePhoto(
+    String asset, {
+    required ImageErrorWidgetBuilder errorBuilder,
+  }) {
+    if (wholePhotoProducts.contains(widget.product)) {
+      return WholePhoto(asset, errorBuilder: errorBuilder);
+    }
+    return Image.asset(
+      asset,
+      fit: BoxFit.cover,
+      alignment: Alignment.center,
+      errorBuilder: errorBuilder,
     );
   }
 

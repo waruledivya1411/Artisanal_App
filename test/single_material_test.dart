@@ -17,7 +17,7 @@ void main() {
     await t.pumpAndSettle();
   }
 
-  testWidgets('a cotton-only product skips the material page', (t) async {
+  testWidgets('a product goes straight to its displays', (t) async {
     await pickProduct(t, 'Saree');
     expect(find.text('What is it made of?'), findsNothing);
     expect(find.text('How will you show it?'), findsOneWidget);

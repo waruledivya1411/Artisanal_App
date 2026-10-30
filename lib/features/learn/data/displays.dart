@@ -17,23 +17,11 @@ class DisplayOption {
   String imageFor(String material, {String? product}) {
     const dir = 'assets/images/lessons/displays';
     final m = material.toLowerCase();
-    if (_usesOwnPhoto(product, material)) {
-      final slug = product!.toLowerCase().replaceAll(' ', '_');
+    if (product != null && productsWithOwnPhotos.contains(product)) {
+      final slug = product.toLowerCase().replaceAll(' ', '_');
       return '$dir/${slug}_${m}_$key.jpg';
     }
     return '$dir/${m}_$key.jpg';
-  }
-
-  /// Mekhala sador has its own Cotton, Mulberry, Eri, and Muga shots.
-  bool _usesOwnPhoto(String? product, String material) {
-    if (product != null && productsWithOwnPhotos.contains(product)) {
-      return true;
-    }
-    return product == 'Mekhala sador' &&
-        (material == 'Cotton' ||
-            material == 'Mulberry' ||
-            material == 'Eri' ||
-            material == 'Muga');
   }
 }
 
@@ -76,6 +64,7 @@ const _drapedProducts = {'Saree', 'Mekhala sador'};
 /// Products that have their own example photos for every display they offer.
 /// Everything else falls back to the sari set.
 const productsWithOwnPhotos = {
+  'Mekhala sador',
   'Gamusa',
   'Shawl',
   'Stole',

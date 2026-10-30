@@ -1,12 +1,9 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:artisnal_app/features/learn/data/displays.dart';
-import 'package:artisnal_app/features/learn/data/materials.dart';
 import 'package:artisnal_app/features/learn/data/photo_edit.dart';
 import 'package:artisnal_app/features/learn/screens/photo_edit_screen.dart';
 import 'package:artisnal_app/features/learn/widgets/shot_outline.dart';
@@ -195,42 +192,6 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
     return kIsWeb ? size.width / size.height : size.height / size.width;
   }
 
-  /// The good example photo for this display, faded over the live picture,
-  /// for products the artisan lines up against the photo itself rather than
-  /// a drawing. It follows the material picked, as the guide does. Null for
-  /// every other product.
-  String? get _ghostPhoto {
-    if (!_ghostProducts.contains(widget.product)) return null;
-    final material = SelectedMaterial.instance.name ?? 'Cotton';
-    return widget.display.imageFor(material, product: widget.product);
-  }
-
-  /// Cushion covers are lined up against their photo; every other product
-  /// has a dotted drawing for each display.
-  static const _ghostProducts = {'Cushion covers'};
-
-  /// The reference photo for [_ghostPhoto]. A cushion photo is wider than
-  /// the 4:3 frame, so it is shown whole - cropping would cut the cushion
-  /// off - over a blurred copy of itself that fills the rest of the frame.
-  Widget _ghostImage(String asset) {
-    Widget image(BoxFit fit) => Image.asset(
-          asset,
-          fit: fit,
-          errorBuilder: (context, error, stack) => const SizedBox.shrink(),
-        );
-    if (widget.product != 'Cushion covers') return image(BoxFit.cover);
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        ImageFiltered(
-          imageFilter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: image(BoxFit.cover),
-        ),
-        image(BoxFit.contain),
-      ],
-    );
-  }
-
   /// Height of the black band above the photo, which holds only Back.
   static const double _topBand = 56;
 
@@ -285,22 +246,10 @@ class _ShootScreenState extends State<ShootScreen> with WidgetsBindingObserver {
                         fit: StackFit.expand,
                         children: [
                           _preview(),
-                          // Only over the live picture - not while the camera
-                          // is still opening or could not open.
-                          if (_ghostPhoto case final ghost?) ...[
-                            if (_controller?.value.isInitialized ?? false)
-                              IgnorePointer(
-                                child: Opacity(
-                                  opacity: 0.5,
-                                  child: _ghostImage(ghost),
-                                ),
-                              ),
-                          ]
-                          else
-                            ShotOutlineOverlay(
-                              outline: _outline,
-                              locale: widget.locale,
-                            ),
+                          ShotOutlineOverlay(
+                            outline: _outline,
+                            locale: widget.locale,
+                          ),
                         ],
                       ),
                     ),

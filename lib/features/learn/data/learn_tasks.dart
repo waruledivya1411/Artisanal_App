@@ -4,7 +4,6 @@ import 'package:artisnal_app/features/learn/screens/check_part_screen.dart';
 import 'package:artisnal_app/features/learn/screens/display_picker_screen.dart';
 import 'package:artisnal_app/features/learn/screens/find_numbers_screen.dart';
 import 'package:artisnal_app/features/learn/screens/learn_part_screen.dart';
-import 'package:artisnal_app/features/learn/screens/material_picker_screen.dart';
 import 'package:artisnal_app/features/learn/data/materials.dart';
 import 'package:artisnal_app/features/learn/data/products.dart';
 import 'package:artisnal_app/features/learn/screens/numbers_mean_screen.dart';
@@ -27,24 +26,13 @@ ProductPickerScreen photographyEntry(String locale) {
     locale: locale,
     taskLabel: 'TASK 1 OF 5',
     onPicked: (_) {
-      // A product woven in one yarn only has nothing to choose, so its
+      // Each product is woven in one yarn, so there is nothing to ask: its
       // material is set and the shoot goes straight to the displays.
-      final materials = materialsFor(SelectedProduct.instance.name);
-      if (materials.length == 1) {
-        SelectedMaterial.instance.select(materials.single.name);
-        return photographyDisplayPicker(locale);
-      }
-      return photographyMaterialPicker(locale);
+      SelectedMaterial.instance.select(
+        materialFor(SelectedProduct.instance.name),
+      );
+      return photographyDisplayPicker(locale);
     },
-  );
-}
-
-MaterialPickerScreen photographyMaterialPicker(String locale) {
-  return MaterialPickerScreen(
-    locale: locale,
-    taskLabel: 'TASK 1 OF 5',
-    product: SelectedProduct.instance.name,
-    onPicked: (_) => photographyDisplayPicker(locale),
   );
 }
 
