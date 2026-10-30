@@ -650,8 +650,8 @@ const _as = <String, String>{
   'Save': 'সাঁচক',
   'Cancel': 'বাতিল',
   'Share': 'শ্বেয়াৰ',
-  'Cut — slide to crop in from the edges':
-      'কাটক — কাষৰ পৰা কাটিবলৈ স্লাইড কৰক',
+  'Cut — drag the corners or edges to crop':
+      'কাটক — কাটিবলৈ চুক বা কাষ টানক',
   'Turn — slide, or tap Turn again':
       'ঘূৰাওক — স্লাইড কৰক, বা পুনৰ ঘূৰাওক টিপক',
   'Bright — slide to lighten or darken':
@@ -1186,7 +1186,7 @@ const _or = <String, String>{
   'Save': 'ସାଇତନ୍ତୁ',
   'Cancel': 'ବାତିଲ୍',
   'Share': 'ସେୟାର',
-  'Cut — slide to crop in from the edges': 'କାଟନ୍ତୁ — ଧାରରୁ କାଟିବାକୁ ସ୍ଲାଇଡ୍ କରନ୍ତୁ',
+  'Cut — drag the corners or edges to crop': 'କାଟନ୍ତୁ — କାଟିବାକୁ କୋଣ ବା ଧାର ଟାଣନ୍ତୁ',
   'Turn — slide, or tap Turn again': 'ବୁଲାନ୍ତୁ — ସ୍ଲାଇଡ୍ କରନ୍ତୁ, କିମ୍ବା ପୁଣି ବୁଲାନ୍ତୁ ଟ୍ୟାପ୍ କରନ୍ତୁ',
   'Bright — slide to lighten or darken': 'ଉଜ୍ଜ୍ୱଳ — ଫିକା କିମ୍ବା ଗାଢ଼ କରିବାକୁ ସ୍ଲାଇଡ୍ କରନ୍ତୁ',
   'White — slide from cool to warm': 'ଧଳା — ଥଣ୍ଡାରୁ ଗରମକୁ ସ୍ଲାଇଡ୍ କରନ୍ତୁ',
@@ -1703,7 +1703,7 @@ const _te = <String, String>{
   'Save': 'సేవ్ చేయండి',
   'Cancel': 'రద్దు',
   'Share': 'షేర్',
-  'Cut — slide to crop in from the edges': 'కత్తిరించండి — అంచుల నుంచి కత్తిరించేందుకు జరపండి',
+  'Cut — drag the corners or edges to crop': 'కత్తిరించండి — కత్తిరించేందుకు మూలలు లేదా అంచులు లాగండి',
   'Turn — slide, or tap Turn again': 'తిప్పండి — జరపండి, లేదా మళ్లీ తిప్పండి నొక్కండి',
   'Bright — slide to lighten or darken': 'వెలుగు — వెలిగించడానికి లేదా మసక చేయడానికి జరపండి',
   'White — slide from cool to warm': 'తెలుపు — చల్లదనం నుంచి వెచ్చదనానికి జరపండి',

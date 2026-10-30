@@ -5,6 +5,7 @@ import 'package:gal/gal.dart';
 
 import 'package:artisnal_app/core/gallery/save_photo.dart';
 import 'package:artisnal_app/features/learn/data/photo_edit.dart';
+import 'package:artisnal_app/features/learn/widgets/crop_box.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
 
 enum PhotoEditOutcome { cancelled, saved, downloaded }
@@ -27,11 +28,31 @@ class PhotoEditScreen extends StatefulWidget {
 
 class _PhotoEditScreenState extends State<PhotoEditScreen> {
   _EditTool _tool = _EditTool.bright;
-  double _crop = 0;
+  Rect _crop = PhotoEdits.fullFrame;
   int _quarterTurns = 0;
   double _brightness = 0;
   double _white = 0;
   bool _saving = false;
+
+  /// Width over height of the photo as taken; known once it is decoded.
+  double? _photoAspect;
+
+  @override
+  void initState() {
+    super.initState();
+    decodeImageFromList(widget.imageBytes).then((image) {
+      final aspect = image.width / image.height;
+      image.dispose();
+      if (mounted) setState(() => _photoAspect = aspect);
+    });
+  }
+
+  /// The photo's shape after turning.
+  double? get _shownAspect {
+    final aspect = _photoAspect;
+    if (aspect == null) return null;
+    return _quarterTurns.isOdd ? 1 / aspect : aspect;
+  }
 
   PhotoEdits get _edits => PhotoEdits(
         crop: _crop,
@@ -42,7 +63,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
 
   void _reset() {
     setState(() {
-      _crop = 0;
+      _crop = PhotoEdits.fullFrame;
       _quarterTurns = 0;
       _brightness = 0;
       _white = 0;
@@ -53,13 +74,14 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     setState(() {
       if (tool == _EditTool.turn && _tool == _EditTool.turn) {
         _quarterTurns = (_quarterTurns + 1) % 4;
+        _crop = PhotoEdits.fullFrame;
       }
       _tool = tool;
     });
   }
 
   double get _sliderValue => switch (_tool) {
-        _EditTool.cut => (_crop / 0.35).clamp(0, 1),
+        _EditTool.cut => 0,
         _EditTool.turn => (_quarterTurns % 4) / 3,
         _EditTool.bright => ((_brightness + 0.35) / 0.8).clamp(0, 1),
         _EditTool.white => ((_white + 1) / 2).clamp(0, 1),
@@ -69,9 +91,11 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     setState(() {
       switch (_tool) {
         case _EditTool.cut:
-          _crop = value * 0.35;
+          break;
         case _EditTool.turn:
-          _quarterTurns = (value * 3).round() % 4;
+          final turns = (value * 3).round() % 4;
+          if (turns != _quarterTurns) _crop = PhotoEdits.fullFrame;
+          _quarterTurns = turns;
         case _EditTool.bright:
           _brightness = value * 0.8 - 0.35;
         case _EditTool.white:
@@ -81,7 +105,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   }
 
   String get _sliderHint => switch (_tool) {
-        _EditTool.cut => 'Cut — slide to crop in from the edges',
+        _EditTool.cut => 'Cut — drag the corners or edges to crop',
         _EditTool.turn => 'Turn — slide, or tap Turn again',
         _EditTool.bright => 'Bright — slide to lighten or darken',
         _EditTool.white => 'White — slide from cool to warm',
@@ -97,7 +121,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
               _bakeMessage,
               (
                 widget.imageBytes,
-                _crop,
+                (_crop.left, _crop.top, _crop.right, _crop.bottom),
                 _quarterTurns,
                 _brightness,
                 _white,
@@ -150,6 +174,9 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                 const SizedBox(height: 8),
                 Expanded(child: _previewCard()),
                 const SizedBox(height: 16),
+                if (_tool == _EditTool.cut)
+                  const SizedBox(height: 48)
+                else
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     trackHeight: 4,
@@ -284,7 +311,19 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   }
 
   Widget _previewCard() {
-    final scale = 1 / (1 - _crop * 2).clamp(0.3, 1.0);
+    final aspect = _shownAspect;
+    // The photo, turned and toned, filling whatever box it is given.
+    final photo = ColorFiltered(
+      colorFilter: ColorFilter.matrix(_colorMatrix(_brightness, _white)),
+      child: RotatedBox(
+        quarterTurns: _quarterTurns,
+        child: Image.memory(
+          widget.imageBytes,
+          fit: BoxFit.fill,
+          gaplessPlayback: true,
+        ),
+      ),
+    );
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -292,29 +331,20 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: ColoredBox(
-            color: const Color(0xFFF4F1EA),
-            child: ColorFiltered(
-              colorFilter: ColorFilter.matrix(
-                _colorMatrix(_brightness, _white),
-              ),
-              child: ClipRect(
-                child: Transform.scale(
-                  scale: scale,
-                  child: RotatedBox(
-                    quarterTurns: _quarterTurns,
-                    child: Image.memory(
-                      widget.imageBytes,
-                      fit: BoxFit.contain,
-                      gaplessPlayback: true,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+        child: ColoredBox(
+          color: const Color(0xFFF4F1EA),
+          child: aspect == null
+              ? const SizedBox.expand()
+              : _tool == _EditTool.cut
+              ? CropBox(
+                  photo: photo,
+                  photoAspect: aspect,
+                  crop: _crop,
+                  onChanged: _saving
+                      ? (_) {}
+                      : (crop) => setState(() => _crop = crop),
+                )
+              : CroppedPhoto(photo: photo, photoAspect: aspect, crop: _crop),
         ),
       ),
     );
@@ -375,11 +405,14 @@ List<double> _colorMatrix(double brightness, double white) {
   ];
 }
 
-Uint8List _bakeMessage((Uint8List, double, int, double, double) message) {
+Uint8List _bakeMessage(
+  (Uint8List, (double, double, double, double), int, double, double) message,
+) {
+  final (left, top, right, bottom) = message.$2;
   return bakePhotoEdits(
     message.$1,
     PhotoEdits(
-      crop: message.$2,
+      crop: Rect.fromLTRB(left, top, right, bottom),
       quarterTurns: message.$3,
       brightness: message.$4,
       white: message.$5,

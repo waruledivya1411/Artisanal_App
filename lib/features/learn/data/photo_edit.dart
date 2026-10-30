@@ -1,18 +1,29 @@
 import 'dart:typed_data';
+import 'dart:ui' show Rect;
 
 import 'package:image/image.dart' as img;
 
 /// Adjustments applied on the edit screen, then baked into the saved photo.
 class PhotoEdits {
   const PhotoEdits({
-    this.crop = 0,
+    this.crop = fullFrame,
     this.quarterTurns = 0,
     this.brightness = 0,
     this.white = 0,
   });
 
-  /// Share cropped off each edge, 0 to about 0.35.
-  final double crop;
+  /// The whole photo, uncropped.
+  static const fullFrame = Rect.fromLTRB(0, 0, 1, 1);
+
+  /// The part of the photo kept, as fractions of it after turning: 0,0 is
+  /// the top left and 1,1 the bottom right.
+  final Rect crop;
+
+  bool get isCropped =>
+      crop.left > 0.005 ||
+      crop.top > 0.005 ||
+      crop.right < 0.995 ||
+      crop.bottom < 0.995;
 
   final int quarterTurns;
 
@@ -23,7 +34,7 @@ class PhotoEdits {
   final double white;
 
   bool get isIdentity =>
-      crop < 0.01 &&
+      !isCropped &&
       quarterTurns % 4 == 0 &&
       brightness.abs() < 0.01 &&
       white.abs() < 0.01;
@@ -47,13 +58,14 @@ Uint8List bakePhotoEdits(Uint8List bytes, PhotoEdits edits) {
     out = img.copyRotate(out, angle: turns * 90);
   }
 
-  if (edits.crop >= 0.01) {
-    final dx = (out.width * edits.crop).round();
-    final dy = (out.height * edits.crop).round();
-    final width = out.width - dx * 2;
-    final height = out.height - dy * 2;
+  if (edits.isCropped) {
+    final c = edits.crop;
+    final x = (out.width * c.left).round().clamp(0, out.width - 1);
+    final y = (out.height * c.top).round().clamp(0, out.height - 1);
+    final width = (out.width * c.width).round().clamp(1, out.width - x);
+    final height = (out.height * c.height).round().clamp(1, out.height - y);
     if (width > 8 && height > 8) {
-      out = img.copyCrop(out, x: dx, y: dy, width: width, height: height);
+      out = img.copyCrop(out, x: x, y: y, width: width, height: height);
     }
   }
 
