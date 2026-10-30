@@ -14,14 +14,22 @@ class LearnPartScreen extends StatefulWidget {
     required this.locale,
     required this.partLabel,
     required this.title,
-    required this.image,
+    this.image,
+    this.picture,
+    this.line,
     this.nextBuilder,
-  });
+  }) : assert(image != null || picture != null);
 
   final String locale;
   final String partLabel;
   final String title;
-  final String image;
+  final String? image;
+
+  /// Drawn lesson, used when the step is a diagram rather than a photo.
+  final Widget? picture;
+
+  /// One spoken line under the title, the idea the picture is teaching.
+  final String? line;
   final WidgetBuilder? nextBuilder;
 
   static const Color background = Color(0xFFF6F7F4);
@@ -42,6 +50,12 @@ class _LearnPartScreenState extends State<LearnPartScreen> {
   void dispose() {
     _speech.stop();
     super.dispose();
+  }
+
+  String get _spoken {
+    final line = widget.line;
+    if (line == null) return '${tr(widget.title)}.';
+    return '${tr(widget.title)}. ${tr(line)}';
   }
 
   void _next() {
@@ -114,7 +128,7 @@ class _LearnPartScreenState extends State<LearnPartScreen> {
                           playing: _speech.playing,
                           onTap: () => _speech.toggle(
                             locale: widget.locale,
-                            text: '${tr(widget.title)}.',
+                            text: _spoken,
                           ),
                         ),
                       ),
@@ -166,18 +180,19 @@ class _LearnPartScreenState extends State<LearnPartScreen> {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(24),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: SharpImage(
-                                  widget.image,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
+                              child: widget.picture ??
+                                  Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: SharpImage(
+                                      widget.image!,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 34),
+                      const SizedBox(height: 22),
                       Text(
                         tr(widget.title),
                         textAlign: TextAlign.center,
@@ -189,6 +204,19 @@ class _LearnPartScreenState extends State<LearnPartScreen> {
                           letterSpacing: -0.3,
                         ),
                       ),
+                      if (widget.line != null) ...[
+                        const SizedBox(height: 10),
+                        Text(
+                          tr(widget.line!),
+                          textAlign: TextAlign.center,
+                          style: appType(
+                            color: const Color(0xFF4F5F5D),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

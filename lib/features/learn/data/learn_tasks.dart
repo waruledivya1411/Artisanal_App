@@ -11,6 +11,7 @@ import 'package:artisnal_app/features/learn/screens/product_picker_screen.dart';
 import 'package:artisnal_app/features/learn/screens/task_parts_screen.dart';
 import 'package:artisnal_app/features/learn/screens/professional_part_screen.dart';
 import 'package:artisnal_app/features/learn/screens/setup_try_it_flow_screen.dart';
+import 'package:artisnal_app/features/learn/widgets/light_setup_diagram.dart';
 
 /// Shared by every route of the photography setup, so finishing the last
 /// step can pop back past all of them in one go.
@@ -145,6 +146,108 @@ TaskPartsScreen photographyTask(String locale) {
             ),
             rightReason: 'Shows the full cloth',
             wrongReason: 'A tilted photo cuts off the cloth',
+          ),
+        ),
+      ),
+      // Cotton soaks light up; mulberry and muga throw it back. Eri is soft,
+      // so it follows cotton. Each part is one idea, then two photos.
+      TaskPart(
+        '5',
+        'Light for cotton',
+        open: (_) => LearnPartScreen(
+          locale: locale,
+          partLabel: 'PART 5 · LIGHT FOR COTTON',
+          title: 'Cotton: light from the side',
+          line: 'Cotton and eri soak up light. Side light shows the weave.',
+          image: 'assets/images/lessons/photography/cotton_light_art.jpg',
+          nextBuilder: (_) => CheckPartScreen(
+            locale: locale,
+            partLabel: 'PART 5 · LIGHT FOR COTTON',
+            wrong: const CheckOption(
+              image: 'assets/images/lessons/photography/cotton_flat_light.jpg',
+              label: 'Light from the front',
+            ),
+            right: const CheckOption(
+              image: 'assets/images/lessons/photography/cotton_side_light.jpg',
+              label: 'Light from the side',
+            ),
+            rightReason: 'Side light shows the weave',
+            wrongReason: 'Front light hides the weave',
+          ),
+        ),
+      ),
+      TaskPart(
+        '6',
+        'Light for silk',
+        open: (_) => LearnPartScreen(
+          locale: locale,
+          partLabel: 'PART 6 · LIGHT FOR SILK',
+          title: 'Silk: soft light, no sun',
+          line: 'Mulberry and muga throw light back. Soft light lets them glow.',
+          image: 'assets/images/lessons/photography/silk_light_art.jpg',
+          nextBuilder: (_) => CheckPartScreen(
+            locale: locale,
+            partLabel: 'PART 6 · LIGHT FOR SILK',
+            wrong: const CheckOption(
+              image: 'assets/images/lessons/photography/silk_glare.jpg',
+              label: 'Direct sun',
+            ),
+            right: const CheckOption(
+              image: 'assets/images/lessons/photography/silk_soft_light.jpg',
+              label: 'Soft light',
+            ),
+            rightReason: 'Soft light makes silk glow',
+            wrongReason: 'Sun makes white glare spots',
+          ),
+        ),
+      ),
+      TaskPart(
+        '7',
+        'Shade the silk',
+        open: (_) => LearnPartScreen(
+          locale: locale,
+          partLabel: 'PART 7 · SHADE THE SILK',
+          title: 'Hang a white sheet',
+          line: 'A white sheet on the window keeps the sun off the silk.',
+          picture: const LightSetupDiagram(kind: LightSetupKind.sheet),
+          nextBuilder: (_) => CheckPartScreen(
+            locale: locale,
+            partLabel: 'PART 7 · SHADE THE SILK',
+            wrong: const CheckOption(
+              image: 'assets/images/lessons/photography/silk_glare.jpg',
+              label: 'Bare sun',
+            ),
+            right: const CheckOption(
+              image: 'assets/images/lessons/photography/silk_soft_light.jpg',
+              label: 'White sheet',
+            ),
+            rightReason: 'Soft light lets the silk glow',
+            wrongReason: 'Bare sun makes white spots',
+          ),
+        ),
+      ),
+      TaskPart(
+        '8',
+        'Turn the silk',
+        open: (_) => LearnPartScreen(
+          locale: locale,
+          partLabel: 'PART 8 · TURN THE SILK',
+          title: 'Turn away from the glare',
+          line: 'Turn the cloth until the shine stays on the silk, not in the camera.',
+          picture: const LightSetupDiagram(kind: LightSetupKind.turn),
+          nextBuilder: (_) => CheckPartScreen(
+            locale: locale,
+            partLabel: 'PART 8 · TURN THE SILK',
+            wrong: const CheckOption(
+              image: 'assets/images/lessons/photography/silk_glare.jpg',
+              label: 'Glare on the motif',
+            ),
+            right: const CheckOption(
+              image: 'assets/images/lessons/photography/silk_soft_light.jpg',
+              label: 'Shine on the cloth',
+            ),
+            rightReason: 'The motif stays clear',
+            wrongReason: 'A white spot hides the motif',
           ),
         ),
       ),
