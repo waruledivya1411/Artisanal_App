@@ -56,6 +56,13 @@ const state = {
   choice: null,
   product: null,
   tryName: "",
+  tryHandle: "divya.weaves",
+  tryCustom: "",
+  tryOwn: false,
+  tryDisplayName: "Divya Warule",
+  tryUsername: "",
+  tryBio: null,
+  tryPhoto: "",
   tryCategory: "Clothing (Brand)",
   tryShow: true,
   tryStep: 0,
@@ -67,6 +74,15 @@ const state = {
   shotChosen: null,
   createStep: 0,
   createPhoto: null,
+  guideIndex: 0,
+  photoUrl: "",
+  photoAspect: 0.75,
+  cameraProblem: "",
+  editTool: "bright",
+  editTurns: 0,
+  editBright: 0,
+  editWhite: 0,
+  editCrop: [0, 0, 1, 1],
 };
 
 let splashTimer = 0;
@@ -104,6 +120,7 @@ function t(text) {
     [/^(\d+) OF (\d+) TASKS DONE$/, "{done} OF {total} TASKS DONE", (m) => ({ done: m[1], total: m[2] })],
     [/^(\d+) of (\d+) done$/, "{done} of {total} done", (m) => ({ done: m[1], total: m[2] })],
     [/^Next task: (.+)$/, "Next task: {task}", (m) => ({ task: t(m[1]) })],
+    [/^Next part · (.+)$/, "Next part · {part}", (m) => ({ part: t(m[1]) })],
     [/^Fit the (.+) inside the dotted line$/, "Fit the {product} inside the dotted line", (m) => ({ product: t(m[1]) })],
     [/^Move the (.+) into the frame$/, "Move the {product} into the frame", (m) => ({ product: t(m[1]) })],
     [/^Set up your page\. Step (\d+) of (\d+)\.$/, "Set up your page. Step {n} of {total}.", (m) => ({ n: m[1], total: m[2] })],
@@ -175,10 +192,16 @@ function captureFields() {
   const password = document.getElementById("password");
   const reset = document.getElementById("reset-email");
   const tryName = document.getElementById("try-name");
+  const tryDisplay = document.getElementById("try-display");
+  const tryUser = document.getElementById("try-user");
+  const tryBio = document.getElementById("try-bio");
   if (email) state.email = email.value;
   if (password) state.password = password.value;
   if (reset) state.resetEmail = reset.value;
   if (tryName) state.tryName = tryName.value;
+  if (tryDisplay) state.tryDisplayName = tryDisplay.value;
+  if (tryUser) state.tryUsername = tryUser.value.replace(/^@/, "");
+  if (tryBio) state.tryBio = tryBio.value;
 }
 
 function push(name, params) {
@@ -213,6 +236,7 @@ function current() {
 
 const svg = {
   back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   chev: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>',
   check: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5.2 12.4l4.2 4.2L18.8 7.4" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   mail: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 7 9-7"/></svg>',
@@ -955,27 +979,477 @@ function finishCreateKind(kind) {
   markPart("create_post", kind);
   state.createStep = 0;
   state.createPhoto = null;
-  const keep = [];
-  for (const view of state.stack) {
-    if (view.name === "ig-post" || view.name === "pick-media" || view.name === "did-post") break;
-    keep.push(view);
-  }
-  state.stack = keep.length ? keep : [{ name: "main" }];
-  if (createAllDone()) {
-    showBadge("create_post");
-    return;
-  }
-  openIg(nextCreateKind());
+  showBadge("create_post");
 }
 
 function openShot(productName, id) {
   const product = PRODUCTS.find((item) => item[0] === productName);
   const [name, key] = DISPLAYS[id];
-  push("shot", {
+  state.guideIndex = 0;
+  push("guide", {
     product: productName,
     display: name,
+    displayId: id,
+    key,
     file: displayImage(productName, product[1], key),
+    whole: WHOLE_PHOTOS.has(productName),
   });
+}
+
+const guideSetup = (title, subtitle, art) => ({ title, subtitle, art, example: false, caption: null });
+const guideSample = (title, subtitle, caption) => ({ title, subtitle, art: null, example: true, caption: caption || null });
+
+const GUIDE_STEPS = {
+  full_display: [
+    guideSetup("Lay the whole piece flat", "Floor or table · plain sheet under it", "spread"),
+    guideSetup("Straighten every edge", "Borders even · no folds", "grid"),
+    guideSample("Good example", "The whole piece in frame, laid flat", "Show every edge. Keep it flat, not hanging."),
+  ],
+  mekhala_full: [
+    guideSetup("Lay both pieces flat", "Mekhela and sador side by side · plain sheet under them", "mekhalaSpread"),
+    guideSample("Good example", "Both pieces in frame, laid flat", "Show every edge. Keep both pieces flat, not hanging."),
+  ],
+  "close-up_texture": [
+    guideSetup("One hand-span away", "Hold the phone 15–30 cm above the fabric — close enough to count threads", "distance"),
+    guideSetup("Frame the detail", "Fill the centre box · edges parallel", "close"),
+    guideSample("Good example", "So close you can count the threads"),
+  ],
+  draped_look: [guideSample("Good example", "Over a chair — pleats in front, pallu down the side")],
+  embroidery_and_border: [
+    guideSetup("Find the border", "Close on the extra-weft buta of the pallu — that is the handwork", "border"),
+    guideSetup("Motif on a crossing point", "Use the grid — motif where lines cross", "grid"),
+    guideSample("Good example", "Border filling the frame, folds giving it depth", "The border is where the weaver’s hours show."),
+  ],
+  shawl_full: [
+    guideSetup("Hang the shawl straight", "On a rod · border down the side · tassels along the bottom", "shawlFull"),
+    guideSample("Good example", "Whole shawl in frame, hanging straight", "Show the border and the tassels. Keep it straight, not draped."),
+  ],
+  shawl_folded: [
+    guideSetup("One folded shawl", "Shot from above · border on the side · tassels along the front", "shawlFolded"),
+    guideSample("Good example", "One fold in frame — tassels along the bottom"),
+  ],
+  stole_full: [
+    guideSetup("Hang the stole straight", "On a rod · borders down the sides · tassels along the bottom", "stoleFull"),
+    guideSample("Good example", "Whole stole in frame, hanging straight", "Show the borders and the tassels. Keep it straight, not draped."),
+  ],
+  stole_folded: [
+    guideSetup("One folded stole", "Shot from above · border and tassels along the front edge", "stoleFolded"),
+    guideSample("Good example", "One fold in frame — tassels along the bottom"),
+  ],
+  mekhala_folded: [
+    guideSetup("Stack the two pieces", "Mekhela on top · sador underneath, border and tassels along the bottom", "mekhalaFolded"),
+    guideSample("Good example", "Both pieces folded — sador border and tassels showing", "The mekhela sits on top. The sador border runs along the bottom."),
+  ],
+  folded_stack: [
+    guideSetup("One folded sari in the box", "Shot from above — not a pile, a single stack", "folded"),
+    guideSample("Good example", "One stack in frame — border strip visible on the side", "Layers tell the buyer how heavy the cloth is."),
+  ],
+  mekhala_hanging: [
+    guideSetup("Hang both pieces", "Mekhela on the left, shorter · sador on the right, with tassels", "mekhalaHanging"),
+    guideSample("Good example", "Both pieces on hangers — sador longer, tassels at the bottom", "Hang them straight. The sador is the long piece with tassels."),
+  ],
+  hanging_display: [
+    guideSetup("Hang it dead centre", "Rod or hanger · piece on the center vertical axis", "hanging"),
+    guideSample("Good example", "Hung straight — whole piece in frame, not draped", "Hang it straight so the whole piece shows. Do not drape it."),
+  ],
+  sofa_seated_display: [guideSample("Good example", "Cover against the back, only part of the sofa in frame", "Show the whole cover. Do not crop the corners.")],
+  flat_lay_display: [guideSample("Good example", "Laid flat so the whole cover is in frame", "Keep it flat and show every corner.")],
+  gamusa_full: [
+    guideSetup("Hang the gamusa straight", "On a rod · borders on both sides · tassels along the bottom", "gamusaFull"),
+    guideSample("Good example", "Whole gamusa in frame, hanging straight", "Show the end border and the tassels. Keep it straight."),
+  ],
+  gamusa_folded: [
+    guideSetup("One folded gamusa", "Shot from above · end border across · tassels along the front", "gamusaFolded"),
+    guideSample("Good example", "One fold in frame — tassels along the bottom"),
+  ],
+  jod_hanging: [
+    guideSetup("Hang both pieces", "One rod · wide cloth on the left · narrow piece with tassels", "jodHanging"),
+    guideSample("Good example", "Both pieces in frame, hanging straight", "Show the wide border and the tassels. Keep both pieces straight."),
+  ],
+  yardage_hanging: [
+    guideSetup("Hang the yardage straight", "On a rod · motifs scattered across · no border or tassels", "yardageHanging"),
+    guideSample("Good example", "Whole cloth in frame, hanging from the rod", "Show the scattered motifs. Keep the cloth straight."),
+  ],
+  yardage_close: [
+    guideSetup("Fill the frame with the weave", "Close on the cloth · a few motifs in the shot", "yardageClose"),
+    guideSample("Good example", "So close the weave and motifs fill the frame", "Count the threads. Keep a few motifs in the shot."),
+  ],
+  jod_folded: [guideSample("Good example", "Both folds in frame — tassels along the small piece", "Keep them side by side so the border and the tassels show.")],
+};
+
+function guideFor(displayKey, product) {
+  if (displayKey === "full_display" && product === "Mekhala sador") return GUIDE_STEPS.mekhala_full;
+  if (displayKey === "hanging_display" && product === "Mekhala sador") return GUIDE_STEPS.mekhala_hanging;
+  if (displayKey === "folded_stack" && product === "Mekhala sador") return GUIDE_STEPS.mekhala_folded;
+  if (displayKey === "full_display" && product === "Stole") return GUIDE_STEPS.stole_full;
+  if (displayKey === "folded_stack" && product === "Stole") return GUIDE_STEPS.stole_folded;
+  if (displayKey === "full_display" && product === "Shawl") return GUIDE_STEPS.shawl_full;
+  if (displayKey === "folded_stack" && product === "Shawl") return GUIDE_STEPS.shawl_folded;
+  if (displayKey === "full_display" && product === "Gamusa") return GUIDE_STEPS.gamusa_full;
+  if (displayKey === "folded_stack" && product === "Gamusa") return GUIDE_STEPS.gamusa_folded;
+  if (displayKey === "hanging_display" && product === "Jod kappur") return GUIDE_STEPS.jod_hanging;
+  if (displayKey === "folded_stack" && product === "Jod kappur") return GUIDE_STEPS.jod_folded;
+  if (displayKey === "hanging_display" && product === "Yardages") return GUIDE_STEPS.yardage_hanging;
+  if (displayKey === "close-up_texture" && product === "Yardages") return GUIDE_STEPS.yardage_close;
+  return GUIDE_STEPS[displayKey] || GUIDE_STEPS.full_display;
+}
+
+function guideSvg(art) {
+  const ink = "#152322";
+  const teal = "#1B7574";
+  const faint = "rgba(27,117,116,0.45)";
+  const fill = "rgba(27,117,116,0.08)";
+  const shade = "rgba(27,117,116,0.13)";
+  const shadeStrong = "rgba(27,117,116,0.2)";
+  const motif = "rgba(27,117,116,0.8)";
+  const n = (value) => Math.round(value * 100) / 100;
+  const line = (x1, y1, x2, y2, color, width) =>
+    `<line x1="${n(x1)}" y1="${n(y1)}" x2="${n(x2)}" y2="${n(y2)}" stroke="${color}" stroke-width="${width || 2.2}" stroke-linecap="round"/>`;
+  const frame = (l, t, r, b) =>
+    `<rect x="${n(l)}" y="${n(t)}" width="${n(r - l)}" height="${n(b - t)}" rx="3" fill="none" stroke="${faint}" stroke-width="1.6"/>`;
+  const block = (l, t, r, b, paint) =>
+    `<rect x="${n(l)}" y="${n(t)}" width="${n(r - l)}" height="${n(b - t)}" fill="${paint || fill}" stroke="${teal}" stroke-width="2.2"/>`;
+  const wash = (l, t, r, b, paint) =>
+    `<rect x="${n(l)}" y="${n(t)}" width="${n(r - l)}" height="${n(b - t)}" fill="${paint}"/>`;
+  const diamond = (x, y, rx, ry) =>
+    `<path d="M${n(x)} ${n(y - ry)} L${n(x + rx)} ${n(y)} L${n(x)} ${n(y + ry)} L${n(x - rx)} ${n(y)} Z" fill="${motif}"/>`;
+  const motifs = (l, t, r, b) => {
+    const spots = [[0.22, 0.28], [0.48, 0.22], [0.72, 0.34], [0.3, 0.55], [0.58, 0.62], [0.78, 0.72], [0.18, 0.78]];
+    return spots.map(([sx, sy]) => diamond(l + (r - l) * sx, t + (b - t) * sy, 1.3, 1.6)).join("");
+  };
+  const star = (x, y, radius, paint) => {
+    const arm = radius * 0.32;
+    return `<path d="M${n(x)} ${n(y - radius)} L${n(x + arm)} ${n(y - arm)} L${n(x + radius)} ${n(y)} L${n(x + arm)} ${n(y + arm)} L${n(x)} ${n(y + radius)} L${n(x - arm)} ${n(y + arm)} L${n(x - radius)} ${n(y)} L${n(x - arm)} ${n(y - arm)} Z" fill="${paint}"/>`;
+  };
+  const peaks = (left, right, top, drop) => {
+    const count = 6;
+    const step = (right - left) / count;
+    let d = `M${n(left)} ${n(top + drop)}`;
+    for (let i = 0; i < count; i += 1) {
+      const x = left + step * i;
+      d += ` L${n(x + step / 2)} ${n(top)} L${n(x + step)} ${n(top + drop)}`;
+    }
+    return `<path d="${d}" fill="none" stroke="${teal}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  };
+  const tassels = (xs, y1, y2) => xs.map((x) => line(x, y1, x, y2, teal)).join("");
+  const hanger = (cx, left, right) =>
+    line(cx, 16, cx, 19.2, teal, 1.6) + line(left, 24, cx, 18.4, teal, 1.6) + line(right, 24, cx, 18.4, teal, 1.6) + line(left, 24, right, 24, teal, 1.6);
+  let body = "";
+  if (art === "spread") {
+    body = frame(18, 8, 82, 92) + block(27, 17, 73, 83) + line(36, 17, 36, 83, faint, 1.6) + line(64, 17, 64, 83, faint, 1.6) + line(27, 72, 73, 72, faint, 1.6);
+  } else if (art === "mekhalaSpread") {
+    body = frame(14, 10, 86, 90) + block(20, 16, 46, 78) + block(52, 16, 80, 78) + line(20, 64, 46, 64, teal) + line(52, 58, 80, 58, teal) + tassels([58, 64, 70, 76], 78, 84);
+  } else if (art === "grid") {
+    body = [33.3, 66.6].map((v) => line(v, 8, v, 92, faint, 1.6) + line(8, v, 92, v, faint, 1.6)).join("") + block(33.3, 25, 66.6, 80);
+  } else if (art === "distance") {
+    body = `<rect x="38" y="10" width="24" height="24" rx="4" fill="none" stroke="${ink}" stroke-width="2.2"/>` + line(12, 82, 88, 82, ink) + line(50, 38, 50, 78, teal) + line(50, 78, 46, 70, teal) + line(50, 78, 54, 70, teal);
+  } else if (art === "close") {
+    body = frame(16, 12, 84, 88) + block(22, 20, 78, 80) + [36, 50, 64].map((x) => line(x, 20, x, 80, faint, 1.6)).join("") + [35, 50, 65].map((y) => line(22, y, 78, y, faint, 1.6)).join("") + motifs(22, 20, 78, 80);
+  } else if (art === "border") {
+    const fl = 18;
+    const ft = 11;
+    const fw = 64;
+    const fh = 78;
+    const inside = (l, t, r, b) => [fl + fw * l, ft + fh * t, fl + fw * r, ft + fh * b];
+    const strip = inside(0.74, 0.05, 0.93, 0.95);
+    const window = inside(0.07, 0.05, 0.67, 0.95);
+    let ticks = "";
+    for (let y = strip[1] + 6; y < strip[3] - 3; y += 6) ticks += line(strip[0] + 1.5, y, strip[2] - 1.5, y, faint, 1.6);
+    const motifLabel = t("Motif");
+    const borderLabel = t("Border");
+    body = frame(18, 11, 82, 89).replace('stroke-width="1.6"', 'stroke-width="2.2"').replace(`stroke="${faint}"`, `stroke="${ink}"`)
+      + wash(strip[0], strip[1], strip[2], strip[3], fill)
+      + `<rect x="${n(strip[0])}" y="${n(strip[1])}" width="${n(strip[2] - strip[0])}" height="${n(strip[3] - strip[1])}" fill="none" stroke="${teal}" stroke-width="2.2"/>`
+      + ticks
+      + `<rect x="${n(window[0])}" y="${n(window[1])}" width="${n(window[2] - window[0])}" height="${n(window[3] - window[1])}" rx="2.5" fill="none" stroke="${teal}" stroke-width="2.2"/>`
+      + `<text x="${n((window[0] + window[2]) / 2)}" y="${n((window[1] + window[3]) / 2)}" text-anchor="middle" dominant-baseline="middle" font-size="5.5" font-weight="800" fill="${ink}">${esc(motifLabel)}</text>`
+      + `<g transform="translate(${n((strip[0] + strip[2]) / 2)} ${n((strip[1] + strip[3]) / 2)}) rotate(-90)"><rect x="-12" y="-4.2" width="24" height="8.4" rx="1.2" fill="#fff"/><text text-anchor="middle" dominant-baseline="middle" font-size="5.5" font-weight="800" fill="${ink}">${esc(borderLabel)}</text></g>`;
+  } else if (art === "folded") {
+    const saree = { l: 22.48, t: 25.64, r: 77.52, b: 74.36 };
+    const borderLeft = saree.l + (saree.r - saree.l) * 0.74;
+    const inner = borderLeft + (saree.r - borderLeft) * 0.28;
+    const outer = borderLeft + (saree.r - borderLeft) * 0.72;
+    body = frame(18, 8, 82, 92) + block(saree.l, saree.t, saree.r, saree.b) + motifs(saree.l, saree.t, borderLeft, saree.b) + wash(borderLeft, saree.t, saree.r, saree.b, shadeStrong) + line(borderLeft, saree.t, borderLeft, saree.b, teal) + line(inner, saree.t + 2, inner, saree.b - 2, "rgba(27,117,116,0.75)", 1.3) + line(outer, saree.t + 2, outer, saree.b - 2, "rgba(27,117,116,0.75)", 1.3);
+  } else if (art === "hanging") {
+    const borderRight = 34 + 32 * 0.22;
+    const palluTop = 20 + 66 * 0.74;
+    body = frame(18, 8, 82, 92) + block(34, 20, 66, 86) + line(30, 18, 70, 18, teal) + `<circle cx="50" cy="18" r="1.8" fill="${teal}"/>` + wash(34, 20, borderRight, 86, shadeStrong) + line(borderRight, 20, borderRight, 86, teal) + line(34 + (borderRight - 34) * 0.35, 21, 34 + (borderRight - 34) * 0.35, 85, "rgba(27,117,116,0.7)", 1.2) + line(34 + (borderRight - 34) * 0.7, 21, 34 + (borderRight - 34) * 0.7, 85, "rgba(27,117,116,0.7)", 1.2) + motifs(borderRight, 20, 66, 70) + wash(34, palluTop, 66, 86, shade) + line(34, palluTop + (86 - palluTop) / 3, 66, palluTop + (86 - palluTop) / 3, faint, 1.6) + line(34, palluTop + (86 - palluTop) * 2 / 3, 66, palluTop + (86 - palluTop) * 2 / 3, faint, 1.6) + line(50, 20, 50, 86, faint, 1.6);
+  } else if (art === "mekhalaHanging") {
+    body = frame(10, 8, 90, 92) + line(14, 16, 86, 16, teal) + hanger(32, 22, 44) + hanger(66, 50, 82) + block(24, 24, 42, 68) + [52, 56, 60, 64].map((y) => line(24, y, 42, y, faint, 1.6)).join("") + block(50, 24, 80, 80) + line(56, 24, 56, 80, faint, 1.6) + line(74, 24, 74, 80, faint, 1.6) + motifs(56, 28, 74, 66) + line(50, 68, 80, 68, teal) + line(50, 74, 80, 74, faint, 1.6) + tassels([56, 62, 68, 74], 80, 86);
+  } else if (art === "mekhalaFolded") {
+    body = frame(12, 10, 88, 90) + block(14, 34, 84, 78) + motifs(18, 63, 72, 69) + line(14, 70, 84, 70, teal) + line(14, 74, 84, 74, faint, 1.6) + tassels([66, 70, 74, 78], 78, 84) + wash(18, 16, 80, 62, "#fff") + block(18, 16, 80, 62) + motifs(20, 18, 62, 60) + line(64, 16, 64, 62, teal) + line(70, 16, 70, 62, faint, 1.6) + line(75, 16, 75, 62, faint, 1.6);
+  } else if (art === "stoleFull") {
+    body = frame(14, 8, 86, 92) + line(24, 16, 76, 16, teal) + block(34, 18, 66, 78) + line(40, 18, 40, 78, faint, 1.6) + line(60, 18, 60, 78, faint, 1.6) + motifs(42, 24, 58, 58) + line(34, 62, 66, 62, teal) + line(34, 68, 66, 68, faint, 1.6) + tassels([38, 44, 50, 56, 62], 78, 84);
+  } else if (art === "stoleFolded") {
+    body = frame(12, 10, 88, 90) + block(16, 26, 84, 70) + line(24, 26, 24, 70, faint, 1.6) + line(76, 26, 76, 70, faint, 1.6) + motifs(28, 30, 72, 52) + line(16, 54, 84, 54, teal) + line(16, 60, 84, 60, faint, 1.6) + tassels([24, 34, 44, 54, 64, 74], 70, 78);
+  } else if (art === "shawlFull") {
+    body = frame(12, 8, 88, 92) + line(18, 16, 82, 16, teal) + block(24, 18, 76, 78) + line(30, 18, 30, 78, faint, 1.6) + wash(64, 18, 76, 78, shade) + line(64, 18, 64, 78, teal) + line(70, 18, 70, 78, faint, 1.6) + motifs(32, 22, 62, 58) + line(24, 60, 76, 60, teal) + line(24, 68, 76, 68, faint, 1.6) + tassels([30, 38, 46, 54, 62, 70], 78, 84);
+  } else if (art === "shawlFolded") {
+    body = frame(12, 10, 88, 90) + block(14, 24, 86, 70) + line(22, 24, 22, 70, faint, 1.6) + wash(70, 24, 86, 70, shade) + line(70, 24, 70, 70, teal) + line(78, 24, 78, 70, faint, 1.6) + motifs(24, 28, 68, 50) + line(14, 54, 86, 54, teal) + line(14, 62, 86, 62, faint, 1.6) + tassels([22, 32, 42, 52, 62, 72, 80], 70, 78);
+  } else if (art === "gamusaFull") {
+    const gems = [46, 54].map((x) => diamond(x, 62, 2.2, 2.6)).join("");
+    body = frame(14, 8, 86, 92) + line(22, 18, 78, 18, teal) + block(32, 18, 68, 76) + line(36, 18, 36, 76, faint, 1.6) + line(40, 18, 40, 76, teal) + line(60, 18, 60, 76, teal) + line(64, 18, 64, 76, faint, 1.6) + wash(32, 54, 68, 70, shade) + line(32, 54, 68, 54, teal) + line(32, 58, 68, 58, faint, 1.6) + line(32, 66, 68, 66, faint, 1.6) + line(32, 70, 68, 70, teal) + gems + tassels([36, 42, 48, 54, 60, 66], 76, 86);
+  } else if (art === "gamusaFolded") {
+    const gems = [26, 38, 50, 62].map((x) => diamond(x, 50, 2.1, 2.4)).join("");
+    body = frame(10, 12, 90, 88) + block(14, 28, 86, 68) + wash(14, 42, 68, 58, shade) + line(14, 42, 68, 42, teal) + line(14, 46, 68, 46, faint, 1.6) + line(14, 54, 68, 54, faint, 1.6) + line(14, 58, 68, 58, teal) + gems + wash(68, 28, 86, 68, shade) + line(68, 28, 68, 68, teal) + line(74, 28, 74, 68, faint, 1.6) + line(80, 28, 80, 68, faint, 1.6) + tassels([22, 32, 42, 52, 62, 72, 80], 68, 78);
+  } else if (art === "jodHanging") {
+    body = frame(8, 8, 92, 92) + line(14, 16, 86, 16, teal) + block(14, 18, 60, 78) + line(24, 18, 24, 58, faint, 1.6) + line(32, 18, 32, 58, teal) + peaks(14, 60, 58, 7) + wash(14, 66, 60, 78, shade) + line(14, 66, 60, 66, teal) + line(14, 72, 60, 72, faint, 1.6) + block(68, 18, 84, 60) + line(74, 18, 74, 46, faint, 1.6) + line(68, 46, 84, 46, teal) + line(68, 52, 84, 52, faint, 1.6) + tassels([70, 74, 78, 82], 60, 70);
+  } else if (art === "yardageHanging") {
+    const spots = [[0.22, 0.14], [0.7, 0.18], [0.46, 0.3], [0.18, 0.4], [0.82, 0.46], [0.36, 0.54], [0.64, 0.62], [0.24, 0.72], [0.78, 0.76], [0.5, 0.84], [0.16, 0.9], [0.68, 0.92]];
+    body = frame(8, 8, 92, 92) + block(16, 16, 84, 82) + line(10, 16, 90, 16, teal) + line(36, 16, 36, 82, faint, 1.6) + line(58, 16, 58, 82, faint, 1.6) + spots.map(([sx, sy], index) => star(16 + 68 * sx, 16 + 66 * sy, index % 2 ? 1.8 : 2.4, index % 2 ? faint : "rgba(27,117,116,0.9)")).join("");
+  } else if (art === "yardageClose") {
+    const spots = [[0.2, 0.18], [0.78, 0.16], [0.48, 0.34], [0.14, 0.48], [0.84, 0.52], [0.36, 0.62], [0.66, 0.74], [0.22, 0.84]];
+    body = frame(10, 10, 90, 90) + block(14, 14, 86, 86) + [28, 42, 56, 70].map((v) => line(v, 14, v, 86, faint, 1.6) + line(14, v, 86, v, faint, 1.6)).join("") + spots.map(([sx, sy], index) => star(14 + 72 * sx, 14 + 72 * sy, index % 2 ? 2.4 : 3.2, index % 2 ? faint : "rgba(27,117,116,0.9)")).join("");
+  }
+  return `<svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">${body}</svg>`;
+}
+
+function guideKicker(name) {
+  const label = t(name);
+  if (code() === "en") return label.toUpperCase().replace(" AND ", " & ");
+  return label;
+}
+
+function renderShootGuide(view) {
+  const steps = guideFor(view.key, view.product);
+  const step = steps[state.guideIndex] || steps[0];
+  const bars = steps
+    .map((_, index) => `<i class="${index <= state.guideIndex ? "on" : ""}"></i>`)
+    .join("");
+  const spoken = [step.title, step.subtitle, step.caption].filter(Boolean).map((line) => t(line)).join(". ");
+  const picture = step.example
+    ? `<div class="guide-example"><img src="${img(view.file)}" alt=""></div>`
+    : guideSvg(step.art);
+  const caption = step.caption ? `<p class="guide-caption">${esc(t(step.caption))}</p>` : "";
+  return screen(`<div class="pad-20 stack">
+    <div class="lesson-head">
+      <button class="icon-btn" type="button" data-act="guide-back" aria-label="${esc(t("Back"))}">${svg.back}</button>
+      <p class="lesson-kicker guide-kicker">${esc(guideKicker(view.display))}</p>
+      ${speakBtn(spoken)}
+    </div>
+    <div class="guide-bars">${bars}</div>
+    <h1 class="guide-title">${esc(t(step.title))}</h1>
+    <p class="guide-sub">${esc(t(step.subtitle))}</p>
+    <div class="guide-card">${picture}</div>
+    ${caption}
+    <div class="foot"><button class="btn" type="button" data-act="guide-next">${esc(t(state.guideIndex === steps.length - 1 ? "Take the shot" : "Next"))}<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+  </div>`);
+}
+
+function shotArt(product, key) {
+  const dir = "lessons/photography/";
+  const pair = product === "Saree" || product === "Mekhala sador";
+  const rod = 900 / 1163;
+  const tassel = 1000 / 641;
+  if (key === "draped_look" && pair) return { file: dir + "draped_outline_v2.png", fit: "draped" };
+  if (key === "full_display" && product === "Saree") return { file: dir + "full_display_outline_v2.png", fit: "inset" };
+  if (key === "full_display" && product === "Mekhala sador") return { file: dir + "mekhala_full_outline.png", fit: "aspect", aspect: 1000 / 1088 };
+  if (key === "full_display" && (product === "Stole" || product === "Shawl" || product === "Gamusa")) return { file: dir + "stole_hanging_outline.png", fit: "aspect", aspect: rod };
+  if (key === "embroidery_and_border" && product === "Mekhala sador") return { file: dir + "mekhala_border_outline.png", fit: "aspect", aspect: 900 / 1220 };
+  if (key === "embroidery_and_border") return { file: dir + "embroidery_outline_v2.png", fit: "inset" };
+  if (key === "hanging_display" && product === "Mekhala sador") return { file: dir + "mekhala_hanging_outline.png", fit: "aspect", aspect: 1000 / 1083 };
+  if (key === "hanging_display" && product === "Saree") return { file: dir + "hanging_outline_v2.png", fit: "hanging" };
+  if (key === "folded_stack" && product === "Mekhala sador") return { file: dir + "mekhala_folded_outline.png", fit: "folded", aspect: 1000 / 710 };
+  if (key === "folded_stack" && (product === "Stole" || product === "Shawl" || product === "Gamusa")) return { file: dir + "stole_folded_outline.png", fit: "aspect", aspect: tassel };
+  if (key === "folded_stack" && product === "Saree") return { file: dir + "folded_outline_v2.png", fit: "folded", aspect: 1.25 };
+  if (key === "sofa_seated_display") return { file: dir + "cushion_sofa_outline.png", fit: "aspect", aspect: 1000 / 914 };
+  if (key === "flat_lay_display") return { file: dir + "cushion_flat_outline.png", fit: "aspect", aspect: 1000 / 892 };
+  if (key === "close-up_texture" && pair) return { file: dir + "closeup_outline.png", fit: "inset", box: true };
+  if (key === "hanging_display" && product === "Jod kappur") return { draw: "jodHanging", fit: "inset" };
+  if (key === "folded_stack" && product === "Jod kappur") return { draw: "jodFolded", fit: "inset" };
+  if (key === "hanging_display" && product === "Yardages") return { draw: "yardageHanging", fit: "inset" };
+  if (key === "close-up_texture" && product === "Yardages") return { draw: "yardageClose", fit: "inset" };
+  return null;
+}
+
+function artStyle(art) {
+  if (art.fit === "inset") return "left:8px;top:8px;width:calc(100% - 16px);height:calc(100% - 16px)";
+  if (art.fit === "draped") return "left:4px;top:10%;width:calc(100% - 8px);height:80%";
+  if (art.fit === "hanging") return "height:94cqh;width:calc(94cqh * 0.58);left:50%;top:50%;transform:translate(-50%,-50%)";
+  if (art.fit === "folded") return `width:calc(100cqw - 8px);height:calc((100cqw - 8px) / ${art.aspect});left:50%;top:50%;transform:translate(-50%,-50%)`;
+  if (art.aspect >= 0.75) return `width:calc(100% - 16px);height:calc((100cqw - 16px) / ${art.aspect});left:50%;top:50%;transform:translate(-50%,-50%)`;
+  return `height:calc(100% - 16px);width:calc((100cqh - 16px) * ${art.aspect});left:50%;top:50%;transform:translate(-50%,-50%)`;
+}
+
+function camPeaks(left, right, top, drop) {
+  const count = 6;
+  const step = (right - left) / count;
+  const peak = drop == null ? step * 0.7 : drop;
+  let d = `M${left} ${top + peak}`;
+  for (let i = 0; i < count; i += 1) {
+    const x = left + step * i;
+    d += ` L${x + step / 2} ${top} L${x + step} ${top + peak}`;
+  }
+  return `<path d="${d}" fill="none" stroke="rgba(255,255,255,0.91)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+
+function camDraw(kind) {
+  const fill = "rgba(255,255,255,0.13)";
+  const stroke = "rgba(255,255,255,0.91)";
+  const faint = "rgba(255,255,255,0.6)";
+  if (kind === "jodHanging") {
+    const wideL = 3;
+    const wideR = 66;
+    const wideT = 5.5;
+    const wideB = 97;
+    const wideW = wideR - wideL;
+    const wideH = wideB - wideT;
+    const band = wideT + wideH * 0.76;
+    const mid = wideT + wideH * 0.88;
+    const peakY = wideT + wideH * 0.62;
+    const narrowL = 72;
+    const narrowR = 97;
+    const narrowT = 5.5;
+    const narrowB = 78;
+    const narrowW = narrowR - narrowL;
+    const narrowH = narrowB - narrowT;
+    const tassels = [0.16, 0.38, 0.6, 0.82]
+      .map((f) => {
+        const x = narrowL + narrowW * f;
+        return `<line x1="${x}" y1="${narrowB}" x2="${x}" y2="${narrowB + 8}" stroke="${stroke}" stroke-width="2.4" stroke-linecap="round"/>`;
+      })
+      .join("");
+    return `<svg class="cam-draw" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <line x1="2" y1="3.5" x2="98" y2="3.5" stroke="${stroke}" stroke-width="3.4" stroke-linecap="round"/>
+      <rect x="${wideL}" y="${wideT}" width="${wideW}" height="${wideH}" fill="${fill}" stroke="${stroke}" stroke-width="2.4"/>
+      <line x1="${wideL + wideW * 0.22}" y1="${wideT}" x2="${wideL + wideW * 0.22}" y2="${peakY}" stroke="${faint}" stroke-width="1.5"/>
+      <line x1="${wideL + wideW * 0.38}" y1="${wideT}" x2="${wideL + wideW * 0.38}" y2="${peakY}" stroke="${stroke}" stroke-width="2.4" stroke-linecap="round"/>
+      ${camPeaks(wideL, wideR, peakY)}
+      <line x1="${wideL}" y1="${band}" x2="${wideR}" y2="${band}" stroke="${stroke}" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="${wideL}" y1="${mid}" x2="${wideR}" y2="${mid}" stroke="${faint}" stroke-width="1.5"/>
+      <rect x="${narrowL}" y="${narrowT}" width="${narrowW}" height="${narrowH}" fill="${fill}" stroke="${stroke}" stroke-width="2.4"/>
+      <line x1="${narrowL + narrowW * 0.4}" y1="${narrowT}" x2="${narrowL + narrowW * 0.4}" y2="${narrowT + narrowH * 0.62}" stroke="${faint}" stroke-width="1.5"/>
+      <line x1="${narrowL}" y1="${narrowT + narrowH * 0.68}" x2="${narrowR}" y2="${narrowT + narrowH * 0.68}" stroke="${stroke}" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="${narrowL}" y1="${narrowT + narrowH * 0.82}" x2="${narrowR}" y2="${narrowT + narrowH * 0.82}" stroke="${faint}" stroke-width="1.5"/>
+      ${tassels}
+    </svg>`;
+  }
+  if (kind === "jodFolded") {
+    return `<svg class="cam-draw" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <rect x="2" y="3" width="70" height="83" rx="2.4" fill="${fill}" stroke="${stroke}" stroke-width="2.4"/>
+      <rect x="56" y="42" width="42" height="55" rx="2.4" fill="${fill}" stroke="${stroke}" stroke-width="2.4"/>
+    </svg>`;
+  }
+  if (kind === "yardageHanging") {
+    const spots = [[0.22, 0.14], [0.7, 0.18], [0.46, 0.3], [0.18, 0.4], [0.82, 0.46], [0.36, 0.54], [0.64, 0.62], [0.24, 0.72], [0.78, 0.76], [0.5, 0.84], [0.16, 0.9], [0.68, 0.92]];
+    const marks = spots
+      .map(([sx, sy], index) => {
+        const x = 16 + 68 * sx;
+        const y = 16 + 66 * sy;
+        const r = index % 2 ? 1.2 : 1.6;
+        return `<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="${index % 2 ? faint : stroke}" stroke-width="1.4"/>`;
+      })
+      .join("");
+    return `<svg class="cam-draw" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <rect x="16" y="16" width="68" height="66" fill="${fill}" stroke="${stroke}" stroke-width="2.4"/>
+      <line x1="10" y1="16" x2="90" y2="16" stroke="${stroke}" stroke-width="3" stroke-linecap="round"/>
+      <line x1="36" y1="16" x2="36" y2="82" stroke="${faint}" stroke-width="1.5"/>
+      <line x1="58" y1="16" x2="58" y2="82" stroke="${faint}" stroke-width="1.5"/>
+      ${marks}
+    </svg>`;
+  }
+  if (kind === "yardageClose") {
+    const spots = [[0.2, 0.18], [0.78, 0.16], [0.48, 0.34], [0.14, 0.48], [0.84, 0.52], [0.36, 0.62], [0.66, 0.74], [0.22, 0.84]];
+    const grid = [28, 42, 56, 70]
+      .map((v) => `<line x1="${v}" y1="14" x2="${v}" y2="86" stroke="${faint}" stroke-width="1.4"/><line x1="14" y1="${v}" x2="86" y2="${v}" stroke="${faint}" stroke-width="1.4"/>`)
+      .join("");
+    const marks = spots
+      .map(([sx, sy], index) => `<circle cx="${14 + 72 * sx}" cy="${14 + 72 * sy}" r="${index % 2 ? 1.6 : 2.1}" fill="none" stroke="${index % 2 ? faint : stroke}" stroke-width="1.5"/>`)
+      .join("");
+    return `<svg class="cam-draw" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <rect x="14" y="14" width="72" height="72" fill="${fill}" stroke="${stroke}" stroke-width="2.4"/>
+      ${grid}${marks}
+    </svg>`;
+  }
+  return "";
+}
+
+function renderCamera(view) {
+  const art = shotArt(view.product, view.key);
+  const problem = state.cameraProblem;
+  const face = problem
+    ? `<div class="cam-fallback"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h3l2-2h6l2 2h3v10H4V8z" stroke="currentColor" stroke-width="1.6"/><path d="M4 4l16 16" stroke="currentColor" stroke-width="1.6"/></svg><p>${esc(t(problem))}</p><button class="btn slim" type="button" data-act="cam-pick">${esc(t("Choose a photo"))}</button></div>`
+    : `<video class="cam-video" autoplay playsinline muted></video>`;
+  let overlay = `<div class="cam-outline"></div>`;
+  if (art && art.draw) {
+    overlay = `<div class="cam-art" style="${artStyle(art)}">${camDraw(art.draw)}</div>`;
+  } else if (art) {
+    overlay = `<img class="cam-art" style="${artStyle(art)}" src="${img(art.file)}" alt="">${art.box ? `<div class="cam-outline inset"></div>` : ""}`;
+  }
+  return screen(`<div class="cam">
+    <div class="cam-top"><button class="icon-btn light" type="button" data-act="back" aria-label="${esc(t("Back"))}">${svg.back}</button><p class="cam-light wait" aria-live="polite">${lightIcon("wait")}<span>${esc(t("Checking the light"))}</span></p></div>
+    <div class="cam-slot"><div class="cam-frame">${face}${overlay}</div></div>
+    <div class="cam-bottom"><button class="shutter" type="button" data-act="shutter" aria-label="${esc(t("Take photo"))}"></button></div>
+    <input id="cam-file" type="file" accept="image/*" hidden>
+  </div>`, "cam");
+}
+
+function resetEdit() {
+  state.editTool = "bright";
+  state.editTurns = 0;
+  state.editBright = 0;
+  state.editWhite = 0;
+  state.editCrop = [0, 0, 1, 1];
+}
+
+function shownAspect() {
+  const aspect = state.photoAspect || 0.75;
+  return state.editTurns % 2 ? 1 / aspect : aspect;
+}
+
+function editFilter() {
+  const bright = 1 + state.editBright;
+  const warm = Math.max(0, state.editWhite);
+  const cool = Math.max(0, -state.editWhite);
+  return `brightness(${bright}) sepia(${warm * 0.45}) hue-rotate(${cool * 18}deg) saturate(${1 + warm * 0.15})`;
+}
+
+function editHint() {
+  if (state.editTool === "cut") return "Cut — drag the corners or edges to crop";
+  if (state.editTool === "turn") return "Turn — slide, or tap Turn again";
+  if (state.editTool === "white") return "White — slide from cool to warm";
+  return "Bright — slide to lighten or darken";
+}
+
+function editSlideValue() {
+  if (state.editTool === "turn") return (state.editTurns % 4) / 3;
+  if (state.editTool === "white") return (state.editWhite + 1) / 2;
+  if (state.editTool === "bright") return (state.editBright + 0.35) / 0.8;
+  return 0;
+}
+
+function renderEdit() {
+  const cropped = state.editTool !== "cut";
+  const [left, top, right, bottom] = state.editCrop;
+  const cropStyle = cropped
+    ? `width:${100 / (right - left)}%;height:${100 / (bottom - top)}%;left:${(-left / (right - left)) * 100}%;top:${(-top / (bottom - top)) * 100}%;`
+    : "width:100%;height:100%;left:0;top:0;";
+  const tools = [
+    ["cut", "Cut", '<path d="M6 4h4v4H6zM14 4h4v4h-4zM6 16h4v4H6zM14 16h4v4h-4z" fill="currentColor"/>'],
+    ["turn", "Turn", '<path d="M16 7a6 6 0 1 0 1.2 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16 4v3.5H12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'],
+    ["bright", "Bright", '<circle cx="12" cy="12" r="3.2" fill="currentColor"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.4 6.4l1.4 1.4M16.2 16.2l1.4 1.4M17.6 6.4l-1.4 1.4M7.8 16.2l-1.4 1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'],
+    ["white", "White", '<path d="M8 16l7-8 2 2-7 8H8v-2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>'],
+  ]
+    .map(([id, label, icon]) => `<button type="button" class="edit-tool ${state.editTool === id ? "on" : ""}" data-act="edit-tool" data-tool="${id}"><span><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">${icon}</svg></span>${esc(t(label))}</button>`)
+    .join("");
+  const slider = state.editTool === "cut"
+    ? `<div class="edit-gap"></div>`
+    : `<input class="edit-slide" data-act="edit-slide" type="range" min="0" max="1" step="${state.editTool === "turn" ? "0.3333" : "0.01"}" value="${editSlideValue()}">`;
+  const handles = cropped
+    ? ""
+    : `<div class="crop-box" style="left:${left * 100}%;top:${top * 100}%;width:${(right - left) * 100}%;height:${(bottom - top) * 100}%"><i data-handle="nw"></i><i data-handle="ne"></i><i data-handle="sw"></i><i data-handle="se"></i></div>`;
+  return screen(`<div class="edit">
+    <div class="edit-head">
+      <button class="icon-btn light" type="button" data-act="edit-close" aria-label="${esc(t("Back"))}">${svg.close}</button>
+      <b>${esc(t("Edit"))}</b>
+      <button type="button" data-act="edit-reset">${esc(t("Reset"))}</button>
+    </div>
+    <div class="edit-card"><div class="edit-stage" style="aspect-ratio:${shownAspect()}"><img class="edit-photo" src="${state.photoUrl}" alt="" style="${cropStyle}filter:${editFilter()};transform:rotate(${state.editTurns * 90}deg)">${handles}</div></div>
+    ${slider}
+    <p class="edit-hint">${esc(t(editHint()))}</p>
+    <div class="edit-tools">${tools}</div>
+    <button class="btn" type="button" data-act="edit-save">${svg.check}${esc(t("Save"))}</button>
+  </div>`, "edit");
 }
 
 function displayImage(productName, material, key) {
@@ -992,9 +1466,7 @@ function pickTick() {
 
 function pickCard(options) {
   const source = img(options.file);
-  const photo = options.whole
-    ? `<img class="blur" src="${source}" alt=""><img class="sharp" src="${source}" alt="">`
-    : `<img src="${source}" alt="">`;
+  const photo = `<img src="${source}" alt="">`;
   return `<button type="button" class="pick-card ${options.tall ? "tall" : ""} ${options.whole ? "whole" : ""} ${options.on ? "on" : ""}" data-act="${options.act}" ${options.attrs || ""}>
     <span class="pic">${photo}${options.on ? pickTick() : ""}</span>
     <b>${esc(t(options.label))}</b>
@@ -1161,15 +1633,35 @@ function igPhone(kind, options) {
   return `<div class="ig-stage ${compact ? "compact" : ""}">${compact ? phone : `<div class="ig-cream">${phone}</div>`}</div>`;
 }
 
+function typeThumb(kind) {
+  const heart = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 18.6s-6.2-3.8-7.8-7.1C2.8 8.8 3.9 6.2 6.5 5.8c1.4-.2 2.7.4 3.5 1.6.8-1.2 2.1-1.8 3.5-1.6 2.6.4 3.7 3 2.3 5.7-1.6 3.3-7.8 7.1-7.8 7.1z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>`;
+  const chat = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 16.2l-1.4 3 3.2-1.4A7.2 7.2 0 1 0 7 16.2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>`;
+  const top = `<div class="mini-top"><span class="mini-plus"></span><i></i><span class="mini-icos">${kind === "post" ? heart + chat : heart}</span></div>`;
+  const stories = `<div class="mini-stories"><b></b><i></i><i></i><i></i></div>`;
+  const body = kind === "post"
+    ? `<div class="mini-user"><i></i><em></em></div><img src="${img("lessons/read_numbers/post_many_saves.jpg")}" alt=""><div class="mini-tabs"><i></i><i></i><i></i><i></i><i></i></div>`
+    : `<div class="mini-sheet">${["post", "story", "reel"].map((id) => {
+        const on = id === kind;
+        return `<div class="mini-row ${on ? "on" : ""}">${typeIcon(id)}<b>${esc(t(CREATE_GUIDE[id].title))}</b>${on ? "<em>1</em>" : ""}</div>`;
+      }).join("")}</div>`;
+  return `<div class="type-thumb" aria-hidden="true"><div class="mini ${kind}">${top}${stories}${body}</div></div>`;
+}
+
 function renderCreateTypes() {
-  const next = nextCreateKind();
+  if (createAllDone()) {
+    CREATE_KINDS.forEach((id) => {
+      delete state.progress[partKey("create_post", id)];
+    });
+    saveProgress();
+  }
+  const next = nextCreateKind() || "post";
   const cards = CREATE_KINDS.map((id) => {
     const guide = CREATE_GUIDE[id];
-    const done = createDone(id);
+    const done = isPartDone("create_post", id);
     const selected = id === next;
     const enabled = selected;
     return `<button type="button" class="type-card ${done ? "done" : ""} ${selected ? "on" : ""}" data-act="pick-kind" data-kind="${id}" ${enabled ? "" : "disabled"}>
-      ${igPhone(id, { compact: true })}
+      ${typeThumb(id)}
       <span class="type-copy">${typeIcon(id)}<b>${esc(t(guide.title))}</b><small>${esc(t(guide.detail))}</small></span>
       ${done ? `<svg class="type-mark" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#1B7574"/><path d="M7.2 12.3l3.1 3.1 6.5-6.8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>` : selected ? `<span class="radio on"></span>` : ""}
     </button>`;
@@ -1185,7 +1677,7 @@ function renderCreateTypes() {
       <p class="access-body left">${esc(t("Do Post first, then Story, then Reel. Tap Continue for each one."))}</p>
       <div class="type-list">${cards}</div>
     </div>
-    <div class="foot">${readyBtn("Continue", "types-continue", !!next)}</div>
+    <div class="foot">${readyBtn("Continue", "types-continue", true)}</div>
   </div>`);
 }
 
@@ -1415,9 +1907,10 @@ function renderCheck(view) {
       ? `${t("Yes! B is better")}. ${t(part.rightReason)}.`
       : `${t("Not quite. B is better")}. ${t(part.wrongReason)}.`;
   const profiles = part.wrong.profile && part.right.profile;
+  const nextLabel = checkNextLabel(task, part);
   const next = revealed
-    ? btn("Next", "after-check")
-    : `<button class="btn wait" type="button" disabled>${esc(t("Next"))}</button>`;
+    ? btn(nextLabel, "after-check")
+    : `<button class="btn wait" type="button" disabled>${esc(t(nextLabel))}</button>`;
   return screen(`<div class="pad-20 stack">
     <div class="lesson-head">
       ${backBtn()}
@@ -1462,12 +1955,15 @@ function renderTry() {
   let head = "";
   let body = "";
   if (step === 0) {
-    head = `<h1 class="pro-title">${esc(t("Good name"))}</h1>
-      <p class="lede">${esc(t("Short name with your craft"))}</p>`;
-    body = `<div class="field"><label>${esc(t("Name"))}</label>
-      <div class="box"><input id="try-name" value="${esc(state.tryName)}" placeholder="@divya.weaves"></div>
-    </div>`;
+    head = `<p class="try-kicker">${esc(t("Set up your page"))}</p>
+      <h1 class="try-title">${esc(t("Pick your name"))}</h1>
+      <p class="try-sub">${esc(t("Short. Easy to say."))}</p>`;
+    body = namePicker();
   } else if (step === 1) {
+    head = `<span class="practice-pill">${esc(t("PRACTICE · LIKE INSTAGRAM"))}</span>
+      <h1 class="try-title">${esc(t("Set up your page"))}</h1>`;
+    body = profileStep();
+  } else if (step === 2) {
     head = `<p class="try-lead">${esc(t("Set up your page"))}</p>
       <h1 class="try-title">${esc(t("What do you sell?"))}</h1>`;
     const cards = categories
@@ -1492,21 +1988,24 @@ function renderTry() {
         <button class="switch ${state.tryShow ? "on" : ""}" type="button" data-act="try-show" aria-pressed="${state.tryShow ? "true" : "false"}"></button>
       </div>`;
   } else {
-    const handle = (state.tryName || "divya.weaves").replace(/^@/, "");
+    const handle = (state.tryUsername || state.tryName || "divya.weaves").replace(/^@/, "");
+    const person = state.tryDisplayName || "Divya Warule";
+    const bio = state.tryBio == null ? t("Handwoven cloth · Sualkuchi, Assam") : state.tryBio;
+    const photo = state.tryPhoto || img(setup("profile_clear.jpg"));
     head = `<p class="try-lead">${esc(t("Set up your page"))}</p>
       <h1 class="try-title">${esc(t("Your Pro page"))}</h1>`;
     body = `<article class="pro-card">
       <div class="pro-top">
-        <img src="${img(setup("profile_clear.jpg"))}" alt="">
+        <img src="${photo}" alt="">
         <div class="ig-stats pro-stats">
           <span><b>0</b><small>${esc(t("posts"))}</small></span>
           <span><b>12</b><small>${esc(t("followers"))}</small></span>
           <span><b>30</b><small>${esc(t("following"))}</small></span>
         </div>
       </div>
-      <p class="pro-name">Divya Warule <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#1B7574"/><path d="M7.6 12.2l2.8 2.8 6-6.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></p>
+      <p class="pro-name">${esc(person)} <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#1B7574"/><path d="M7.6 12.2l2.8 2.8 6-6.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></p>
       <p class="pro-cat">${esc(t(state.tryCategory))}</p>
-      <p class="pro-bio">${esc(t("Handwoven cloth · Sualkuchi, Assam"))}</p>
+      <p class="pro-bio">${esc(bio)}</p>
       <div class="pro-actions"><i>${esc(t("Edit page"))}</i><i>${esc(t("Share page"))}</i><i>${esc(t("Contact"))}</i></div>
     </article>
     <article class="done-card">
@@ -1516,18 +2015,102 @@ function renderTry() {
       <div><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#1B7574"/><path d="M7.6 12.2l2.8 2.8 6-6.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg><span>${esc(t("Contact button"))}</span></div>
     </article>`;
   }
-  const bars = [0, 1, 2].map((index) => `<i class="${index <= step ? "on" : ""}"></i>`).join("");
+  const appStep = [0, 1, 3, 4][step] || 0;
+  const bars = Array.from({ length: 5 }, (_, index) => `<i class="${index <= appStep ? "on" : ""}"></i>`).join("");
+  const next = step < 3 ? nextChevron("Next", "try-next") : btn("Done", "try-next");
+  const label = "TASK 2 · " + (appStep + 1) + " OF 5";
   return screen(`<div class="pad-20 stack">
     <div class="lesson-head">
       ${backBtn()}
-      <p class="lesson-kicker">${esc(t("TASK 2 · " + (step + 1) + " OF 3"))}</p>
+      <p class="lesson-kicker">${esc(t(label))}</p>
       <span></span>
     </div>
     <div class="task-bars">${bars}</div>
     ${head}
     <div class="scroll try-scroll">${body}</div>
-    <div class="foot">${btn(step === 2 ? "Done" : "Next", "try-next")}</div>
-  </div>`);
+    <div class="foot">${next}</div>
+  </div>${ownDialog()}`);
+}
+
+function nextChevron(label, act) {
+  return `<button class="btn" data-act="${act}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6.5l6 5.5-6 5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>${esc(t(label))}</button>`;
+}
+
+function profileBio() {
+  return state.tryBio == null ? t("Handwoven cloth · Sualkuchi, Assam") : state.tryBio;
+}
+
+function profileStep() {
+  const photo = state.tryPhoto || img(setup("profile_clear.jpg"));
+  const name = state.tryDisplayName || "Divya Warule";
+  const user = state.tryUsername || state.tryCustom || state.tryHandle || "divya.weaves";
+  const chips = ["Muga silk", "Order on WhatsApp", "Since 2010"]
+    .map(
+      (tag) =>
+        `<button class="bio-chip" type="button" data-act="bio-tag" data-tag="${esc(tag)}">+ ${esc(t(tag))}</button>`,
+    )
+    .join("");
+  return `<div class="photo-row">
+      <img src="${photo}" alt="">
+      <div>
+        <b>${esc(t("Your photo"))}</b>
+        <button type="button" data-act="change-photo">${esc(t("Change photo"))}</button>
+      </div>
+    </div>
+    <input id="try-photo" type="file" accept="image/*" hidden>
+    <div class="field plain"><label>${esc(t("Name"))}</label><div class="box"><input id="try-display" value="${esc(name)}"></div></div>
+    <div class="field plain"><label>${esc(t("Username"))}</label><div class="box"><input id="try-user" value="${esc(user)}"></div></div>
+    <div class="field plain"><label>${esc(t("Bio"))}</label><div class="box"><textarea id="try-bio" rows="3">${esc(profileBio())}</textarea></div></div>
+    <p class="bio-hint">${esc(t("Tap to add to bio"))}</p>
+    <div class="bio-chips">${chips}</div>`;
+}
+
+function nameMark(on) {
+  return on
+    ? `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#1B7574"/><path d="M7.5 12.2l3 3 6-6.2" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+    : `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.2" stroke="#B8C5C2" stroke-width="1.8"/></svg>`;
+}
+
+function nameCard(handle, best, selected, keep) {
+  const pick = keep ? "" : `data-act="try-handle" data-handle="${esc(handle)}"`;
+  return `<button class="name-card ${selected ? "on" : ""}" type="button" ${pick}>
+    <span>@${esc(handle)}</span>
+    ${best ? `<i>${esc(t("Best"))}</i>` : ""}
+    <b>${nameMark(selected)}</b>
+  </button>`;
+}
+
+function namePicker() {
+  const names = [
+    ["divya.weaves", true],
+    ["divya_mekhela", false],
+    ["sualkuchi.divya", false],
+    ["divya.handloom", false],
+    ["weaves.by.divya", false],
+  ];
+  const custom = state.tryCustom;
+  const chosen = custom || state.tryHandle;
+  const extra = custom ? nameCard(custom, false, true, true) : "";
+  const cards = names
+    .map(([handle, best]) => nameCard(handle, best, !custom && chosen === handle))
+    .join("");
+  return `<div class="name-list">${extra}${cards}</div>
+    <button class="name-own" type="button" data-act="try-own"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 16.8V20h3.2L18.4 8.8l-3.2-3.2L4 16.8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13.8 7l3.2 3.2" stroke="currentColor" stroke-width="1.7"/></svg>${esc(t("Type my own"))}</button>`;
+}
+
+function ownDialog() {
+  if (!state.tryOwn) return "";
+  const value = state.tryCustom || state.tryHandle || "";
+  return `<div class="own-shade">
+    <form class="own-card">
+      <h2>${esc(t("Your handle"))}</h2>
+      <label class="own-field"><span>@</span><input id="try-own" value="${esc(value)}" placeholder="divya.weaves"></label>
+      <div class="own-actions">
+        <button type="button" data-act="own-cancel">${esc(t("Cancel"))}</button>
+        <button type="button" data-act="own-save">${esc(t("Save"))}</button>
+      </div>
+    </form>
+  </div>`;
 }
 
 function renderDisplays(view) {
@@ -1671,9 +2254,13 @@ function render(options) {
     "did-post": () => renderDidPost(view),
     displays: () => renderDisplays(view),
     shots: () => renderShots(view),
+    guide: () => renderShootGuide(view),
+    camera: () => renderCamera(view),
+    edit: () => renderEdit(view),
     shot: () => renderShot(view),
     badge: () => renderBadge(view),
   }[view.name];
+  stopCamera();
   const keep = options && options.keepScroll;
   const previous = keep ? document.querySelector("[data-scroll]") : null;
   const top = previous ? previous.scrollTop : 0;
@@ -1681,6 +2268,21 @@ function render(options) {
   const scroller = document.querySelector("[data-scroll]") || document.querySelector(".scroll");
   if (scroller) scroller.scrollTop = keep ? top : 0;
   bindScrollCue();
+  mountCamera();
+  bindEdit();
+  fitGuidePhoto();
+}
+
+function fitGuidePhoto() {
+  const box = document.querySelector(".guide-example");
+  const photo = box && (box.querySelector("img.sharp") || box.querySelector("img"));
+  if (!photo) return;
+  const apply = () => {
+    if (!photo.naturalWidth || !photo.naturalHeight) return;
+    box.style.setProperty("--photo", String(photo.naturalWidth / photo.naturalHeight));
+  };
+  if (photo.complete) apply();
+  else photo.addEventListener("load", apply, { once: true });
 }
 
 function bindScrollCue() {
@@ -1694,6 +2296,290 @@ function bindScrollCue() {
   };
   update();
   scroller.addEventListener("scroll", update, { passive: true });
+}
+
+let cameraStream = null;
+let lightTimer = null;
+const lightSample = document.createElement("canvas");
+lightSample.width = 24;
+lightSample.height = 24;
+
+const LIGHT_COPY = {
+  as: { "Checking the light": "পোহৰ চালি আছে", "Too dark": "বৰ আন্ধাৰ", Medium: "মজলীয়া", Perfect: "একেবাৰে ঠিক" },
+  or: { "Checking the light": "ଆଲୋକ ଦେଖୁଛି", "Too dark": "ବହୁତ ଅନ୍ଧାର", Medium: "ମଧ୍ୟମ", Perfect: "ଠିକ୍ ଅଛି" },
+  te: { "Checking the light": "వెలుగు చూస్తోంది", "Too dark": "చాలా చీకటి", Medium: "మధ్యస్థం", Perfect: "బాగుంది" },
+};
+if (window.I18N) {
+  Object.keys(LIGHT_COPY).forEach((lang) => {
+    window.I18N[lang] = Object.assign({}, window.I18N[lang], LIGHT_COPY[lang]);
+  });
+}
+
+function stopCamera() {
+  clearInterval(lightTimer);
+  lightTimer = null;
+  if (!cameraStream) return;
+  cameraStream.getTracks().forEach((track) => track.stop());
+  cameraStream = null;
+}
+
+function lightLevel(luma, prev) {
+  if (prev === "dark") return luma < 65 ? "dark" : luma < 115 ? "medium" : "good";
+  if (prev === "good") return luma < 55 ? "dark" : luma < 105 ? "medium" : "good";
+  return luma < 55 ? "dark" : luma < 115 ? "medium" : "good";
+}
+
+function lightIcon(kind) {
+  const box = `width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"`;
+  if (kind === "dark") return `<svg ${box}><path d="M15.4 3.4a7.6 7.6 0 1 0 5.2 12.4A6.3 6.3 0 0 1 15.4 3.4z" fill="currentColor"/></svg>`;
+  const rays = kind === "medium"
+    ? `M12 3.2v2.2M12 18.6V20.8M3.2 12h2.2M18.6 12h2.2`
+    : `M12 2.4v2.3M12 19.3v2.3M2.4 12h2.3M19.3 12h2.3M5 5l1.7 1.7M17.3 17.3 19 19M19 5l-1.7 1.7M6.7 17.3 5 19`;
+  const face = kind === "wait"
+    ? `<circle cx="12" cy="12" r="3.6" stroke="currentColor" stroke-width="1.8"/>`
+    : `<circle cx="12" cy="12" r="3.6" fill="currentColor"/>`;
+  return `<svg ${box}>${face}<path d="${rays}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+}
+
+function paintLight(luma) {
+  const pill = document.querySelector(".cam-light");
+  if (!pill || !Number.isFinite(luma)) return;
+  const level = lightLevel(luma, pill.dataset.level);
+  if (pill.dataset.level === level) return;
+  pill.dataset.level = level;
+  pill.className = "cam-light " + level;
+  const label = level === "dark" ? "Too dark" : level === "medium" ? "Medium" : "Perfect";
+  pill.innerHTML = `${lightIcon(level)}<span>${esc(t(label))}</span>`;
+}
+
+function readSceneLight(video) {
+  if (!video.videoWidth || video.readyState < 2) return;
+  try {
+    const ctx = lightSample.getContext("2d", { willReadFrequently: true });
+    const sw = video.videoWidth * 0.5;
+    const sh = video.videoHeight * 0.5;
+    ctx.drawImage(video, (video.videoWidth - sw) / 2, (video.videoHeight - sh) / 2, sw, sh, 0, 0, 24, 24);
+    const data = ctx.getImageData(0, 0, 24, 24).data;
+    let sum = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      sum += data[i] * 0.2126 + data[i + 1] * 0.7152 + data[i + 2] * 0.0722;
+    }
+    paintLight(sum / (data.length / 4));
+  } catch (_) {}
+}
+
+function startLightMeter(video) {
+  clearInterval(lightTimer);
+  lightTimer = setInterval(() => {
+    if (!document.body.contains(video)) {
+      clearInterval(lightTimer);
+      lightTimer = null;
+      return;
+    }
+    readSceneLight(video);
+  }, 500);
+}
+
+function mountCamera() {
+  const video = document.querySelector(".cam-video");
+  if (!video || cameraStream) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    state.cameraProblem = "No camera found on this device.";
+    render();
+    return;
+  }
+  navigator.mediaDevices
+    .getUserMedia({ audio: false, video: { facingMode: { ideal: "environment" } } })
+    .then((stream) => {
+      if (!document.body.contains(video)) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+      cameraStream = stream;
+      video.srcObject = stream;
+      startLightMeter(video);
+      return video.play();
+    })
+    .catch(() => {
+      if (current().name !== "camera") return;
+      state.cameraProblem = "The camera could not be opened. Allow camera access, then try again.";
+      render();
+    });
+}
+
+function openEditor(url) {
+  state.photoUrl = url;
+  resetEdit();
+  const probe = new Image();
+  probe.onload = () => {
+    state.photoAspect = probe.naturalWidth / probe.naturalHeight || 0.75;
+    if (current().name === "edit") {
+      const stage = document.querySelector(".edit-stage");
+      if (stage) stage.style.aspectRatio = String(shownAspect());
+    }
+  };
+  probe.src = url;
+  push("edit");
+}
+
+function captureFrame() {
+  const video = document.querySelector(".cam-video");
+  if (!video || !video.videoWidth) {
+    const input = document.getElementById("cam-file");
+    if (input) input.click();
+    return;
+  }
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+  const target = 3 / 4;
+  let sx = 0;
+  let sy = 0;
+  let sw = vw;
+  let sh = vh;
+  if (vw / vh > target) {
+    sw = vh * target;
+    sx = (vw - sw) / 2;
+  } else {
+    sh = vw / target;
+    sy = (vh - sh) / 2;
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(sw));
+  canvas.height = Math.max(1, Math.round(sh));
+  canvas.getContext("2d").drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+  openEditor(canvas.toDataURL("image/jpeg", 0.92));
+}
+
+function applyEditSlide(value) {
+  if (state.editTool === "turn") {
+    const turns = Math.round(value * 3) % 4;
+    if (turns !== state.editTurns) state.editCrop = [0, 0, 1, 1];
+    state.editTurns = turns;
+    return;
+  }
+  if (state.editTool === "white") {
+    state.editWhite = value * 2 - 1;
+    return;
+  }
+  if (state.editTool === "bright") state.editBright = value * 0.8 - 0.35;
+}
+
+function paintEdit() {
+  const photo = document.querySelector(".edit-photo");
+  const stage = document.querySelector(".edit-stage");
+  if (stage) stage.style.aspectRatio = String(shownAspect());
+  if (!photo) return;
+  const [l, t, r, b] = state.editCrop;
+  const cropped = state.editTool !== "cut";
+  photo.style.filter = editFilter();
+  photo.style.transform = `rotate(${state.editTurns * 90}deg)`;
+  if (cropped) {
+    photo.style.width = `${100 / (r - l)}%`;
+    photo.style.height = `${100 / (b - t)}%`;
+    photo.style.left = `${(-l / (r - l)) * 100}%`;
+    photo.style.top = `${(-t / (b - t)) * 100}%`;
+  }
+  const box = document.querySelector(".crop-box");
+  if (box) {
+    box.style.left = `${l * 100}%`;
+    box.style.top = `${t * 100}%`;
+    box.style.width = `${(r - l) * 100}%`;
+    box.style.height = `${(b - t) * 100}%`;
+  }
+}
+
+function bindEdit() {
+  const box = document.querySelector(".crop-box");
+  if (!box || box.dataset.bound) return;
+  box.dataset.bound = "1";
+  let drag = null;
+  box.addEventListener("pointerdown", (event) => {
+    drag = {
+      mode: event.target.dataset.handle || "move",
+      x: event.clientX,
+      y: event.clientY,
+      crop: state.editCrop.slice(),
+    };
+    box.setPointerCapture(event.pointerId);
+  });
+  box.addEventListener("pointermove", (event) => {
+    if (!drag) return;
+    const rect = box.parentElement.getBoundingClientRect();
+    const dx = (event.clientX - drag.x) / rect.width;
+    const dy = (event.clientY - drag.y) / rect.height;
+    let [l, t, r, b] = drag.crop;
+    const min = 0.25;
+    if (drag.mode === "move") {
+      const w = r - l;
+      const h = b - t;
+      l = Math.max(0, Math.min(1 - w, l + dx));
+      t = Math.max(0, Math.min(1 - h, t + dy));
+      state.editCrop = [l, t, l + w, t + h];
+    } else {
+      if (drag.mode.indexOf("w") >= 0) l = Math.min(r - min, Math.max(0, l + dx));
+      if (drag.mode.indexOf("e") >= 0) r = Math.max(l + min, Math.min(1, r + dx));
+      if (drag.mode.indexOf("n") >= 0) t = Math.min(b - min, Math.max(0, t + dy));
+      if (drag.mode.indexOf("s") >= 0) b = Math.max(t + min, Math.min(1, b + dy));
+      state.editCrop = [l, t, r, b];
+    }
+    paintEdit();
+  });
+  box.addEventListener("pointerup", () => {
+    drag = null;
+  });
+}
+
+function finishKeptShot() {
+  const keep = [];
+  for (const view of state.stack) {
+    if (view.name === "guide" || view.name === "camera" || view.name === "edit") break;
+    keep.push(view);
+  }
+  state.stack = keep.length ? keep : [{ name: "main" }];
+  if (state.shotQueue.length > 1 && state.shotChosen) {
+    if (state.shotDone.indexOf(state.shotChosen) < 0) state.shotDone.push(state.shotChosen);
+    const left = state.shotQueue.filter((id) => state.shotDone.indexOf(id) < 0);
+    state.shotChosen = left[0] || null;
+  }
+  state.photoUrl = "";
+  toast(t("Photo downloaded"));
+}
+
+function saveEdit() {
+  const photo = new Image();
+  photo.onload = () => {
+    const [l, t, r, b] = state.editCrop;
+    const turns = state.editTurns % 4;
+    const sw = photo.naturalWidth * (r - l);
+    const sh = photo.naturalHeight * (b - t);
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(turns % 2 ? sh : sw));
+    canvas.height = Math.max(1, Math.round(turns % 2 ? sw : sh));
+    const ctx = canvas.getContext("2d");
+    ctx.filter = editFilter();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((turns * Math.PI) / 2);
+    ctx.drawImage(
+      photo,
+      l * photo.naturalWidth,
+      t * photo.naturalHeight,
+      sw,
+      sh,
+      -sw / 2,
+      -sh / 2,
+      sw,
+      sh,
+    );
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "click-social-photo.jpg";
+      link.click();
+      finishKeptShot();
+    }, "image/jpeg", 0.92);
+  };
+  photo.src = state.photoUrl;
 }
 
 function showBadge(taskId) {
@@ -1715,6 +2601,16 @@ function finishCurrentPart() {
   back();
 }
 
+function checkNextLabel(task, part) {
+  if (part.then === "tryit") return "Next";
+  const visible = listedParts(task);
+  const index = visible.findIndex((item) => item.id === part.id);
+  const following = index >= 0 ? visible[index + 1] : null;
+  if (following) return "Next part · " + following.title;
+  const upcoming = nextTask(task);
+  return upcoming ? "Next task: " + upcoming.title : "Finish";
+}
+
 function afterCheck() {
   const view = current();
   const task = taskById(view.task);
@@ -1722,16 +2618,19 @@ function afterCheck() {
   markPart(task.id, part.id);
   if (part.then === "tryit") {
     state.tryStep = 0;
+    state.tryHandle = "divya.weaves";
+    state.tryCustom = "";
+    state.tryOwn = false;
+    state.tryDisplayName = "Divya Warule";
+    state.tryUsername = "";
+    state.tryBio = null;
+    state.tryPhoto = "";
     push("tryit", { task: task.id, part: "4" });
     return;
   }
-  if (isTaskDone(task)) {
-    showBadge(task.id);
-    return;
-  }
-  const visible = task.parts.filter((item) => !item.hidden);
+  const visible = listedParts(task);
   const index = visible.findIndex((item) => item.id === part.id);
-  const following = visible[index + 1];
+  const following = index >= 0 ? visible[index + 1] : null;
   if (following) {
     state.stack = [
       { name: "main" },
@@ -1741,9 +2640,31 @@ function afterCheck() {
     render();
     return;
   }
-  state.stack = [{ name: "main" }];
-  render();
+  task.parts.forEach((item) => markPart(task.id, item.id));
+  showBadge(task.id);
 }
+
+document.getElementById("phone").addEventListener("input", (event) => {
+  if (event.target.dataset.act !== "edit-slide") return;
+  applyEditSlide(Number(event.target.value));
+  paintEdit();
+  const hint = document.querySelector(".edit-hint");
+  if (hint) hint.textContent = t(editHint());
+});
+
+document.getElementById("phone").addEventListener("change", (event) => {
+  const input = event.target;
+  if (input.id === "try-photo" && input.files && input.files[0]) {
+    if (state.tryPhoto.indexOf("blob:") === 0) URL.revokeObjectURL(state.tryPhoto);
+    state.tryPhoto = URL.createObjectURL(input.files[0]);
+    render();
+    return;
+  }
+  if (input.id !== "cam-file" || !input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = () => openEditor(String(reader.result));
+  reader.readAsDataURL(input.files[0]);
+});
 
 document.getElementById("phone").addEventListener("click", (event) => {
   const node = event.target.closest("[data-act]");
@@ -1763,7 +2684,15 @@ document.getElementById("phone").addEventListener("click", (event) => {
     }
     return;
   }
-  if (act === "back") return back();
+  if (act === "back") {
+    if (current().name === "tryit" && state.tryStep > 0) {
+      captureFields();
+      state.tryStep -= 1;
+      render();
+      return;
+    }
+    return back();
+  }
   if (act === "toggle-pass") {
     captureFields();
     state.hidePassword = !state.hidePassword;
@@ -1880,17 +2809,11 @@ document.getElementById("phone").addEventListener("click", (event) => {
   if (act === "access-continue" || act === "allow-photos") {
     state.photos = true;
     localStorage.setItem("cs-photos", "1");
-    if (createAllDone()) {
-      showBadge("create_post");
-      return;
-    }
     push("create-types");
     return;
   }
   if (act === "types-continue") {
-    const kind = nextCreateKind();
-    if (!kind) return;
-    openIg(kind);
+    openIg(nextCreateKind() || "post");
     return;
   }
   if (act === "ig-plus" || act === "ig-step" || act === "ig-menu") {
@@ -1933,6 +2856,39 @@ document.getElementById("phone").addEventListener("click", (event) => {
     back();
     return;
   }
+  if (act === "try-handle") {
+    state.tryCustom = "";
+    state.tryHandle = node.dataset.handle;
+    render();
+    return;
+  }
+  if (act === "try-own") {
+    state.tryOwn = true;
+    render();
+    const field = document.getElementById("try-own");
+    if (field) field.focus();
+    return;
+  }
+  if (act === "own-cancel") {
+    state.tryOwn = false;
+    render();
+    return;
+  }
+  if (act === "own-save") {
+    const field = document.getElementById("try-own");
+    const handle = (field ? field.value : "").trim().replace(/^@/, "");
+    if (!handle) return;
+    const known = ["divya.weaves", "divya_mekhela", "sualkuchi.divya", "divya.handloom", "weaves.by.divya"];
+    if (known.indexOf(handle) >= 0) {
+      state.tryHandle = handle;
+      state.tryCustom = "";
+    } else {
+      state.tryCustom = handle;
+    }
+    state.tryOwn = false;
+    render();
+    return;
+  }
   if (act === "try-cat") {
     state.tryCategory = node.dataset.name;
     render();
@@ -1943,9 +2899,28 @@ document.getElementById("phone").addEventListener("click", (event) => {
     render();
     return;
   }
+  if (act === "bio-tag") {
+    captureFields();
+    const tag = t(node.dataset.tag);
+    const bio = profileBio();
+    if (bio.indexOf(tag) >= 0) return;
+    state.tryBio = bio ? bio + " · " + tag : tag;
+    render();
+    return;
+  }
+  if (act === "change-photo") {
+    const input = document.getElementById("try-photo");
+    if (input) input.click();
+    return;
+  }
   if (act === "try-next") {
     captureFields();
-    if (state.tryStep < 2) {
+    if (state.tryStep === 0) {
+      state.tryName = state.tryCustom || state.tryHandle || "divya.weaves";
+      state.tryUsername = state.tryName;
+    }
+    if (state.tryStep === 1 && state.tryUsername) state.tryName = state.tryUsername.replace(/^@/, "");
+    if (state.tryStep < 3) {
       state.tryStep += 1;
       render();
       return;
@@ -2017,6 +2992,65 @@ document.getElementById("phone").addEventListener("click", (event) => {
   }
   if (act === "open-shot") {
     openShot(node.dataset.product, node.dataset.id);
+    return;
+  }
+  if (act === "guide-back") {
+    if (state.guideIndex > 0) {
+      state.guideIndex -= 1;
+      render();
+      return;
+    }
+    back();
+    return;
+  }
+  if (act === "guide-next") {
+    const view = current();
+    const steps = guideFor(view.key, view.product);
+    if (state.guideIndex < steps.length - 1) {
+      state.guideIndex += 1;
+      render();
+      return;
+    }
+    state.cameraProblem = "";
+    push("camera", {
+      product: view.product,
+      display: view.display,
+      key: view.key,
+      file: view.file,
+      whole: view.whole,
+    });
+    return;
+  }
+  if (act === "shutter") {
+    captureFrame();
+    return;
+  }
+  if (act === "cam-pick") {
+    const input = document.getElementById("cam-file");
+    if (input) input.click();
+    return;
+  }
+  if (act === "edit-close") {
+    back();
+    return;
+  }
+  if (act === "edit-reset") {
+    resetEdit();
+    render();
+    return;
+  }
+  if (act === "edit-tool") {
+    const tool = node.dataset.tool;
+    if (tool === "turn" && state.editTool === "turn") {
+      state.editTurns = (state.editTurns + 1) % 4;
+      state.editCrop = [0, 0, 1, 1];
+    }
+    state.editTool = tool;
+    render();
+    return;
+  }
+  if (act === "edit-save") {
+    saveEdit();
     return;
   }
   if (act === "shot-done") {
