@@ -2574,7 +2574,7 @@ function bindEdit() {
   });
 }
 
-function finishKeptShot() {
+function finishKeptShot(message) {
   const keep = [];
   for (const view of state.stack) {
     if (view.name === "guide" || view.name === "camera" || view.name === "edit") break;
@@ -2587,16 +2587,44 @@ function finishKeptShot() {
     state.shotChosen = left[0] || null;
   }
   state.photoUrl = "";
-  toast(t("Photo downloaded"));
+  toast(t(message || "Photo downloaded"));
+}
+
+function downloadPhotoBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  link.rel = "noopener";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2500);
+}
+
+async function savePhotoBlob(blob) {
+  const name = "click-social-photo-" + Date.now() + ".jpg";
+  const file = new File([blob], name, { type: "image/jpeg" });
+  const phone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+  if (phone && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: "Click & Social" });
+      return "Saved to your gallery";
+    } catch (err) {
+      if (err && err.name === "AbortError") return null;
+    }
+  }
+  downloadPhotoBlob(blob, name);
+  return phone ? "Saved to your gallery" : "Photo downloaded";
 }
 
 function saveEdit() {
   const photo = new Image();
   photo.onload = () => {
-    const [l, t, r, b] = state.editCrop;
+    const [l, topCrop, r, b] = state.editCrop;
     const turns = state.editTurns % 4;
     const sw = photo.naturalWidth * (r - l);
-    const sh = photo.naturalHeight * (b - t);
+    const sh = photo.naturalHeight * (b - topCrop);
     const canvas = document.createElement("canvas");
     canvas.width = Math.max(1, Math.round(turns % 2 ? sh : sw));
     canvas.height = Math.max(1, Math.round(turns % 2 ? sw : sh));
@@ -2607,7 +2635,7 @@ function saveEdit() {
     ctx.drawImage(
       photo,
       l * photo.naturalWidth,
-      t * photo.naturalHeight,
+      topCrop * photo.naturalHeight,
       sw,
       sh,
       -sw / 2,
@@ -2615,13 +2643,11 @@ function saveEdit() {
       sw,
       sh,
     );
-    canvas.toBlob((blob) => {
+    canvas.toBlob(async (blob) => {
       if (!blob) return;
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "click-social-photo.jpg";
-      link.click();
-      finishKeptShot();
+      const message = await savePhotoBlob(blob);
+      if (message == null) return;
+      finishKeptShot(message);
     }, "image/jpeg", 0.92);
   };
   photo.src = state.photoUrl;
