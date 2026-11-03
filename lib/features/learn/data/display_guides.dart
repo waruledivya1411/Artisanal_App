@@ -7,6 +7,7 @@ class GuideStep {
     required this.title,
     required this.subtitle,
     this.art,
+    this.image,
     this.showExample = false,
     this.caption,
   });
@@ -16,6 +17,9 @@ class GuideStep {
 
   /// Line drawing of the setup. Null on an example step.
   final GuideArt? art;
+
+  /// A picture to show in place of [art].
+  final String? image;
 
   /// Shows the chosen material's photo of this display.
   final bool showExample;
@@ -279,8 +283,8 @@ const _jodHanging = <GuideStep>[
 const _yardageHanging = <GuideStep>[
   GuideStep(
     title: 'Hang the yardage straight',
-    subtitle: 'On a rod · motifs scattered across · no border or tassels',
-    art: GuideArt.yardageHanging,
+    subtitle: 'On a rod · motifs scattered across',
+    image: 'assets/images/lessons/photography/yardage_hanging_guide.png',
   ),
   GuideStep(
     title: 'Good example',

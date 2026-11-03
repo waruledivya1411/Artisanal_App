@@ -970,7 +970,7 @@ function openShot(productName, id) {
   });
 }
 
-const guideSetup = (title, subtitle, art) => ({ title, subtitle, art, example: false, caption: null });
+const guideSetup = (title, subtitle, art, picture) => ({ title, subtitle, art, picture, example: false, caption: null });
 const guideSample = (title, subtitle, caption) => ({ title, subtitle, art: null, example: true, caption: caption || null });
 
 const GUIDE_STEPS = {
@@ -1041,7 +1041,7 @@ const GUIDE_STEPS = {
     guideSample("Good example", "Both pieces in frame, hanging straight", "Show the wide border and the tassels. Keep both pieces straight."),
   ],
   yardage_hanging: [
-    guideSetup("Hang the yardage straight", "On a rod · motifs scattered across · no border or tassels", "yardageHanging"),
+    guideSetup("Hang the yardage straight", "On a rod · motifs scattered across", null, "lessons/photography/yardage_hanging_guide.png"),
     guideSample("Good example", "Whole cloth in frame, hanging from the rod", "Show the scattered motifs. Keep the cloth straight."),
   ],
   yardage_close: [
@@ -1110,9 +1110,9 @@ function guideSvg(art) {
     line(cx, 16, cx, 19.2, teal, 1.6) + line(left, 24, cx, 18.4, teal, 1.6) + line(right, 24, cx, 18.4, teal, 1.6) + line(left, 24, right, 24, teal, 1.6);
   let body = "";
   if (art === "spread") {
-    body = frame(18, 8, 82, 92) + block(27, 17, 73, 83) + line(36, 17, 36, 83, faint, 1.6) + line(64, 17, 64, 83, faint, 1.6) + line(27, 72, 73, 72, faint, 1.6);
+    body = frame(18, 8, 82, 92) + block(22, 12, 78, 88) + line(33, 12, 33, 88, faint, 1.6) + line(67, 12, 67, 88, faint, 1.6) + line(22, 75, 78, 75, faint, 1.6);
   } else if (art === "mekhalaSpread") {
-    body = frame(14, 10, 86, 90) + block(20, 16, 46, 78) + block(52, 16, 80, 78) + line(20, 64, 46, 64, teal) + line(52, 58, 80, 58, teal) + tassels([58, 64, 70, 76], 78, 84);
+    body = frame(14, 10, 86, 90) + block(17, 13, 47, 81) + block(51, 13, 83, 81) + line(17, 66, 47, 66, teal) + line(51, 59, 83, 59, teal) + tassels([58, 65, 72, 79], 81, 87);
   } else if (art === "grid") {
     body = [33.3, 66.6].map((v) => line(v, 8, v, 92, faint, 1.6) + line(8, v, 92, v, faint, 1.6)).join("") + block(33.3, 25, 66.6, 80);
   } else if (art === "distance") {
@@ -1168,9 +1168,6 @@ function guideSvg(art) {
     body = frame(10, 12, 90, 88) + block(14, 28, 86, 68) + wash(14, 42, 68, 58, shade) + line(14, 42, 68, 42, teal) + line(14, 46, 68, 46, faint, 1.6) + line(14, 54, 68, 54, faint, 1.6) + line(14, 58, 68, 58, teal) + gems + wash(68, 28, 86, 68, shade) + line(68, 28, 68, 68, teal) + line(74, 28, 74, 68, faint, 1.6) + line(80, 28, 80, 68, faint, 1.6) + tassels([22, 32, 42, 52, 62, 72, 80], 68, 78);
   } else if (art === "jodHanging") {
     body = frame(8, 8, 92, 92) + line(14, 16, 86, 16, teal) + block(14, 18, 60, 78) + line(24, 18, 24, 58, faint, 1.6) + line(32, 18, 32, 58, teal) + peaks(14, 60, 58, 7) + wash(14, 66, 60, 78, shade) + line(14, 66, 60, 66, teal) + line(14, 72, 60, 72, faint, 1.6) + block(68, 18, 84, 60) + line(74, 18, 74, 46, faint, 1.6) + line(68, 46, 84, 46, teal) + line(68, 52, 84, 52, faint, 1.6) + tassels([70, 74, 78, 82], 60, 70);
-  } else if (art === "yardageHanging") {
-    const spots = [[0.22, 0.14], [0.7, 0.18], [0.46, 0.3], [0.18, 0.4], [0.82, 0.46], [0.36, 0.54], [0.64, 0.62], [0.24, 0.72], [0.78, 0.76], [0.5, 0.84], [0.16, 0.9], [0.68, 0.92]];
-    body = frame(8, 8, 92, 92) + block(16, 16, 84, 82) + line(10, 16, 90, 16, teal) + line(36, 16, 36, 82, faint, 1.6) + line(58, 16, 58, 82, faint, 1.6) + spots.map(([sx, sy], index) => star(16 + 68 * sx, 16 + 66 * sy, index % 2 ? 1.8 : 2.4, index % 2 ? faint : "rgba(27,117,116,0.9)")).join("");
   } else if (art === "yardageClose") {
     const spots = [[0.2, 0.18], [0.78, 0.16], [0.48, 0.34], [0.14, 0.48], [0.84, 0.52], [0.36, 0.62], [0.66, 0.74], [0.22, 0.84]];
     body = frame(10, 10, 90, 90) + block(14, 14, 86, 86) + [28, 42, 56, 70].map((v) => line(v, 14, v, 86, faint, 1.6) + line(14, v, 86, v, faint, 1.6)).join("") + spots.map(([sx, sy], index) => star(14 + 72 * sx, 14 + 72 * sy, index % 2 ? 2.4 : 3.2, index % 2 ? faint : "rgba(27,117,116,0.9)")).join("");
@@ -1193,6 +1190,8 @@ function renderShootGuide(view) {
   const spoken = [step.title, step.subtitle, step.caption].filter(Boolean).map((line) => t(line)).join(". ");
   const picture = step.example
     ? `<div class="guide-example"><img src="${img(view.file, 900)}" alt="" decoding="async" fetchpriority="high"></div>`
+    : step.picture
+    ? `<div class="guide-example"><img src="${img(step.picture, 900)}" alt="" decoding="async"></div>`
     : guideSvg(step.art);
   const caption = step.caption ? `<p class="guide-caption">${esc(t(step.caption))}</p>` : "";
   return screen(`<div class="pad-20 stack">
@@ -1216,7 +1215,7 @@ function shotArt(product, key) {
   const rod = 900 / 1163;
   const tassel = 1000 / 641;
   if (key === "draped_look" && pair) return { file: dir + "draped_outline_v2.png", fit: "draped" };
-  if (key === "full_display" && product === "Saree") return { file: dir + "full_display_outline_v2.png", fit: "inset" };
+  if (key === "full_display" && product === "Saree") return { file: dir + "full_display_outline_v2.png", fit: "tall", aspect: 900 / 1344 };
   if (key === "full_display" && product === "Mekhala sador") return { file: dir + "mekhala_full_outline.png", fit: "aspect", aspect: 1000 / 1088 };
   if (key === "full_display" && (product === "Stole" || product === "Shawl" || product === "Gamusa")) return { file: dir + "stole_hanging_outline.png", fit: "aspect", aspect: rod };
   if (key === "embroidery_and_border" && product === "Mekhala sador") return { file: dir + "mekhala_border_outline.png", fit: "aspect", aspect: 900 / 1220 };
@@ -1228,59 +1227,21 @@ function shotArt(product, key) {
   if (key === "folded_stack" && product === "Saree") return { file: dir + "folded_outline_v2.png", fit: "folded", aspect: 1.25 };
   if (key === "sofa_seated_display") return { file: dir + "cushion_sofa_outline.png", fit: "aspect", aspect: 1000 / 914 };
   if (key === "flat_lay_display") return { file: dir + "cushion_flat_outline.png", fit: "aspect", aspect: 1000 / 892 };
-  if (key === "close-up_texture" && pair) return { file: dir + "closeup_outline.png", fit: "inset", box: true };
-  if (key === "hanging_display" && product === "Jod kappur") return { file: dir + "jod_hanging_outline.png", fit: "inset" };
-  if (key === "folded_stack" && product === "Jod kappur") return { file: dir + "jod_folded_outline.png", fit: "inset" };
-  if (key === "hanging_display" && product === "Yardages") return { draw: "yardageHanging", fit: "inset" };
-  if (key === "close-up_texture" && product === "Yardages") return { draw: "yardageClose", fit: "inset" };
+  if (key === "close-up_texture" && (pair || product === "Yardages")) return { file: dir + "closeup_outline.png", fit: "inset", box: true };
+  if (key === "hanging_display" && product === "Jod kappur") return { file: dir + "jod_hanging_outline.png", fit: "aspect", aspect: 1000 / 897 };
+  if (key === "folded_stack" && product === "Jod kappur") return { file: dir + "jod_folded_outline.png", fit: "aspect", aspect: 1000 / 784 };
+  if (key === "hanging_display" && product === "Yardages") return { file: dir + "yardage_hanging_outline.png", fit: "tall", aspect: 900 / 1286 };
   return null;
 }
 
 function artStyle(art) {
   if (art.fit === "inset") return "left:8px;top:8px;width:calc(100% - 16px);height:calc(100% - 16px)";
   if (art.fit === "draped") return "left:4px;top:10%;width:calc(100% - 8px);height:80%";
+  if (art.fit === "tall") return `height:88cqh;width:calc(88cqh * ${art.aspect});left:50%;top:50%;transform:translate(-50%,-50%)`;
   if (art.fit === "hanging") return "height:94cqh;width:calc(94cqh * 0.58);left:50%;top:50%;transform:translate(-50%,-50%)";
   if (art.fit === "folded") return `width:calc(100cqw - 8px);height:calc((100cqw - 8px) / ${art.aspect});left:50%;top:50%;transform:translate(-50%,-50%)`;
   if (art.aspect >= 0.75) return `width:calc(100% - 16px);height:calc((100cqw - 16px) / ${art.aspect});left:50%;top:50%;transform:translate(-50%,-50%)`;
   return `height:calc(100% - 16px);width:calc((100cqh - 16px) * ${art.aspect});left:50%;top:50%;transform:translate(-50%,-50%)`;
-}
-
-function camDraw(kind) {
-  const fill = "rgba(255,255,255,0.13)";
-  const stroke = "rgba(255,255,255,0.91)";
-  const faint = "rgba(255,255,255,0.6)";
-  if (kind === "yardageHanging") {
-    const spots = [[0.22, 0.14], [0.7, 0.18], [0.46, 0.3], [0.18, 0.4], [0.82, 0.46], [0.36, 0.54], [0.64, 0.62], [0.24, 0.72], [0.78, 0.76], [0.5, 0.84], [0.16, 0.9], [0.68, 0.92]];
-    const marks = spots
-      .map(([sx, sy], index) => {
-        const x = 16 + 68 * sx;
-        const y = 16 + 66 * sy;
-        const r = index % 2 ? 1.2 : 1.6;
-        return `<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="${index % 2 ? faint : stroke}" stroke-width="1.4"/>`;
-      })
-      .join("");
-    return `<svg class="cam-draw" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      <rect x="16" y="16" width="68" height="66" fill="${fill}" stroke="${stroke}" stroke-width="2.4"/>
-      <line x1="10" y1="16" x2="90" y2="16" stroke="${stroke}" stroke-width="3" stroke-linecap="round"/>
-      <line x1="36" y1="16" x2="36" y2="82" stroke="${faint}" stroke-width="1.5"/>
-      <line x1="58" y1="16" x2="58" y2="82" stroke="${faint}" stroke-width="1.5"/>
-      ${marks}
-    </svg>`;
-  }
-  if (kind === "yardageClose") {
-    const spots = [[0.2, 0.18], [0.78, 0.16], [0.48, 0.34], [0.14, 0.48], [0.84, 0.52], [0.36, 0.62], [0.66, 0.74], [0.22, 0.84]];
-    const grid = [28, 42, 56, 70]
-      .map((v) => `<line x1="${v}" y1="14" x2="${v}" y2="86" stroke="${faint}" stroke-width="1.4"/><line x1="14" y1="${v}" x2="86" y2="${v}" stroke="${faint}" stroke-width="1.4"/>`)
-      .join("");
-    const marks = spots
-      .map(([sx, sy], index) => `<circle cx="${14 + 72 * sx}" cy="${14 + 72 * sy}" r="${index % 2 ? 1.6 : 2.1}" fill="none" stroke="${index % 2 ? faint : stroke}" stroke-width="1.5"/>`)
-      .join("");
-    return `<svg class="cam-draw" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      <rect x="14" y="14" width="72" height="72" fill="${fill}" stroke="${stroke}" stroke-width="2.4"/>
-      ${grid}${marks}
-    </svg>`;
-  }
-  return "";
 }
 
 function renderCamera(view) {
@@ -1290,9 +1251,7 @@ function renderCamera(view) {
     ? `<div class="cam-fallback"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h3l2-2h6l2 2h3v10H4V8z" stroke="currentColor" stroke-width="1.6"/><path d="M4 4l16 16" stroke="currentColor" stroke-width="1.6"/></svg><p>${esc(t(problem))}</p><button class="btn slim" type="button" data-act="cam-pick">${esc(t("Choose a photo"))}</button></div>`
     : `<video class="cam-video" autoplay playsinline muted></video>`;
   let overlay = `<div class="cam-outline"></div>`;
-  if (art && art.draw) {
-    overlay = `<div class="cam-art" style="${artStyle(art)}">${camDraw(art.draw)}</div>`;
-  } else if (art) {
+  if (art) {
     overlay = `<img class="cam-art" style="${artStyle(art)}" src="${img(art.file)}" alt="">${art.box ? `<div class="cam-outline inset"></div>` : ""}`;
   }
   return screen(`<div class="cam">

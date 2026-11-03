@@ -446,8 +446,7 @@ const _as = <String, String>{
   'Keep them side by side so the border and the tassels show.':
       'কাষে কাষে ৰাখক যাতে পাৰি আৰু ফুল দেখা যায়।',
   'Hang the yardage straight': 'কাপোৰৰ টুকুৰা পোনকৈ ওলোমাওক',
-  'On a rod · motifs scattered across · no border or tassels':
-      'দণ্ডত · ফুল সিঁচৰতি · পাৰি বা ফুল নাই',
+  'On a rod · motifs scattered across': 'ৰডত · ফুল সিঁচৰতি হৈ থাকে',
   'Whole cloth in frame, hanging from the rod':
       'গোটেই কাপোৰ ফ্ৰেমত, দণ্ডৰ পৰা ওলমি আছে',
   'Show the scattered motifs. Keep the cloth straight.':
@@ -1102,7 +1101,7 @@ const _or = <String, String>{
   'Both folds in frame — tassels along the small piece': 'ଦୁଇ ଭଙ୍ଗା ଫ୍ରେମରେ — ଛୋଟ ଟୁକୁଡ଼ାରେ ଝାଲର',
   'Keep them side by side so the border and the tassels show.': 'ପାରି ଓ ଝାଲର ଦେଖାଯିବା ଭଳି ପାଖାପାଖି ରଖନ୍ତୁ।',
   'Hang the yardage straight': 'କପଡ଼ା ଖଣ୍ଡ ସିଧା ଝୁଲାନ୍ତୁ',
-  'On a rod · motifs scattered across · no border or tassels': 'ଦଣ୍ଡରେ · ଫୁଲ ଛିନ୍ନଭିନ୍ନ · ପାରି କିମ୍ବା ଝାଲର ନାହିଁ',
+  'On a rod · motifs scattered across': 'ଦଣ୍ଡରେ · ଫୁଲ ଚାରିଆଡ଼େ ବିଛା',
   'Whole cloth in frame, hanging from the rod': 'ସମସ୍ତ କପଡ଼ା ଫ୍ରେମରେ, ଦଣ୍ଡରୁ ଝୁଲୁଛି',
   'Show the scattered motifs. Keep the cloth straight.': 'ଛିନ୍ନଭିନ୍ନ ଫୁଲ ଦେଖାନ୍ତୁ। କପଡ଼ା ସିଧା ରଖନ୍ତୁ।',
   'Fill the frame with the weave': 'ଫ୍ରେମକୁ ବୁଣାରେ ଭରନ୍ତୁ',
@@ -1642,7 +1641,7 @@ const _te = <String, String>{
   'Both folds in frame — tassels along the small piece': 'రెండు మడతలు ఫ్రేమ్‌లో — చిన్న ముక్కపై కుచ్చులు',
   'Keep them side by side so the border and the tassels show.': 'అంచు మరియు కుచ్చులు కనిపించేలా పక్కపక్కన ఉంచండి.',
   'Hang the yardage straight': 'గజాల వస్త్రాన్ని నిటారుగా వేలాడదీయండి',
-  'On a rod · motifs scattered across · no border or tassels': 'కడ్డీపై · మోటిఫ్‌లు చెదురుగా · అంచు లేదా కుచ్చులు లేవు',
+  'On a rod · motifs scattered across': 'కడ్డీపై · మోటిఫ్‌లు అంతటా',
   'Whole cloth in frame, hanging from the rod': 'మొత్తం గుడ్డ ఫ్రేమ్‌లో, కడ్డీ నుంచి వేలాడుతోంది',
   'Show the scattered motifs. Keep the cloth straight.': 'చెదురుగా ఉన్న మోటిఫ్‌లు చూపండి. గుడ్డను నిటారుగా ఉంచండి.',
   'Fill the frame with the weave': 'ఫ్రేమ్‌ను నేతతో నింపండి',

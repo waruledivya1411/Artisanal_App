@@ -238,6 +238,8 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
               padding: const EdgeInsets.all(10),
               child: _step.showExample
                   ? _example()
+                  : _step.image != null
+                  ? Image.asset(_step.image!, fit: BoxFit.contain)
                   : GuideDiagram(
                       art: _step.art ?? GuideArt.grid,
                       locale: widget.locale,
