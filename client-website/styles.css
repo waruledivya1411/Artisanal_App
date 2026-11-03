@@ -1097,6 +1097,15 @@ h1.hello {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
   color: inherit;
   text-align: center;
+  content-visibility: auto;
+  contain-intrinsic-size: 220px;
+}
+.pick-card .pic img,
+.shot img,
+.gal-cell img,
+.task .art img,
+.shot-row img {
+  background: #eaf1ee;
 }
 .pick-card.on {
   background: var(--mint);

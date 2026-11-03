@@ -145,8 +145,15 @@ function esc(value) {
     .replace(/"/g, "&quot;");
 }
 
-function img(path) {
-  return IMG + path;
+function img(path, size) {
+  const local = IMG + path;
+  if (!path || !/\.jpe?g$/i.test(String(path))) return local;
+  const host = location.hostname || "";
+  const onNetlify = /\.netlify\.app$/i.test(host);
+  if (!onNetlify) return local;
+  const width = Math.min(1600, Math.max(240, Number(size) || 900));
+  const abs = "/assets/images/" + String(path).replace(/^\/+/, "");
+  return `/.netlify/images?url=${encodeURIComponent(abs)}&w=${width}&q=90&fm=webp`;
 }
 
 function saveProgress() {
@@ -787,9 +794,9 @@ function choiceCard(option, letter, revealed, picked) {
   } else if (option.text) {
     body = `<span class="shot text">${esc(t(option.text))}</span>`;
   } else if (option.image && option.caption && !option.contain) {
-    body = `<span class="shot face"><img src="${img(option.image)}" alt=""><small>${esc(t(option.caption))}</small></span>`;
+    body = `<span class="shot face"><img src="${img(option.image, 480)}" alt="" decoding="async"><small>${esc(t(option.caption))}</small></span>`;
   } else if (option.image && option.caption) {
-    body = `<span class="shot captioned"><img src="${img(option.image)}" alt=""><small>${esc(t(option.caption))}</small></span>`;
+    body = `<span class="shot captioned"><img src="${img(option.image, 560)}" alt="" decoding="async"><small>${esc(t(option.caption))}</small></span>`;
   } else if (option.tile) {
     const tile = option.tile;
     const icon = tile.icon === "sun"
@@ -806,7 +813,7 @@ function choiceCard(option, letter, revealed, picked) {
         return `<span class="stat-line ${last ? "save" : ""}">${icon}${esc(t(stat.text))}</span>`;
       })
       .join("");
-    body = `<span class="shot post"><img src="${img(option.image)}" alt="">${lines}</span>`;
+    body = `<span class="shot post"><img src="${img(option.image, 560)}" alt="" decoding="async">${lines}</span>`;
   } else if (option.chat) {
     const chat = option.chat;
     const photo = chat.image ? `<img src="${img(chat.image)}" alt="">` : "";
@@ -816,7 +823,7 @@ function choiceCard(option, letter, revealed, picked) {
       <span class="reply">${esc(chat.reply)}</span>
     </span></span>`;
   } else if (option.image) {
-    body = `<span class="shot ${option.contain ? "fit" : ""}"><img class="${option.contain ? "contain" : ""}" src="${img(option.image)}" alt=""></span>`;
+    body = `<span class="shot ${option.contain ? "fit" : ""}"><img class="${option.contain ? "contain" : ""}" src="${img(option.image, 700)}" alt="" decoding="async"></span>`;
   }
   const labelIcon = letter === "B"
     ? svg.check.replace("#fff", "#1e7b45")
@@ -926,7 +933,7 @@ function renderLearn() {
   const cards = TASKS.map((task) => {
     const on = task.id === active && !isTaskDone(task);
     return `<button class="task ${on ? "active" : ""}" data-act="open-task" data-id="${task.id}">
-      <span class="art"><img src="${img(task.image)}" alt="">${on ? `<span class="play">${svg.play}</span>` : ""}</span>
+      <span class="art"><img src="${img(task.image, 420)}" alt="" loading="lazy" decoding="async">${on ? `<span class="play">${svg.play}</span>` : ""}</span>
       <span class="task-meta"><span class="num">${task.number}</span><span><h2>${esc(t(task.title))}</h2></span></span>
       <p>${esc(taskStatus(task))}</p>
     </button>`;
@@ -1218,7 +1225,7 @@ function renderShootGuide(view) {
     .join("");
   const spoken = [step.title, step.subtitle, step.caption].filter(Boolean).map((line) => t(line)).join(". ");
   const picture = step.example
-    ? `<div class="guide-example"><img src="${img(view.file)}" alt=""></div>`
+    ? `<div class="guide-example"><img src="${img(view.file, 900)}" alt="" decoding="async" fetchpriority="high"></div>`
     : guideSvg(step.art);
   const caption = step.caption ? `<p class="guide-caption">${esc(t(step.caption))}</p>` : "";
   return screen(`<div class="pad-20 stack">
@@ -1465,8 +1472,8 @@ function pickTick() {
 }
 
 function pickCard(options) {
-  const source = img(options.file);
-  const photo = `<img src="${source}" alt="">`;
+  const source = img(options.file, options.tall ? 560 : 420);
+  const photo = `<img src="${source}" alt="" loading="lazy" decoding="async" fetchpriority="low">`;
   return `<button type="button" class="pick-card ${options.tall ? "tall" : ""} ${options.whole ? "whole" : ""} ${options.on ? "on" : ""}" data-act="${options.act}" ${options.attrs || ""}>
     <span class="pic">${photo}${options.on ? pickTick() : ""}</span>
     <b>${esc(t(options.label))}</b>
@@ -1578,7 +1585,7 @@ function renderPhotoAccess() {
       ${speakBtn("Allow photo access. The first time you tap plus to make a post, your phone asks for permission. Tap Allow all or Select photos.")}
     </div>
     <div class="scroll access-scroll">
-      <div class="access-frame"><img src="${img(postArt("photo_access_art.jpg"))}" alt=""></div>
+      <div class="access-frame"><img src="${img(postArt("photo_access_art.jpg"), 900)}" alt="" decoding="async" fetchpriority="high"></div>
       <h1 class="access-title">${esc(t("Allow photo access"))}</h1>
       <p class="access-body">${esc(t("Your phone will ask the first time you post.\nTap Allow all or Select photos."))}</p>
       <article class="perm">
@@ -1620,7 +1627,7 @@ function igPhone(kind, options) {
     })
     .join("");
   const body = kind === "post"
-    ? `<div class="ig-user"><i></i><em></em></div><img class="ig-fabric" src="${img("lessons/read_numbers/post_many_saves.jpg")}" alt=""><div class="ig-tabs"><i></i><i></i><i></i><i></i><i></i></div>`
+    ? `<div class="ig-user"><i></i><em></em></div><img class="ig-fabric" src="${img("lessons/read_numbers/post_many_saves.jpg", compact ? 240 : 700)}" alt="" decoding="async"><div class="ig-tabs"><i></i><i></i><i></i><i></i><i></i></div>`
     : `<div class="ig-menu">${rows}</div>`;
   const heart = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 18.6s-6.2-3.8-7.8-7.1C2.8 8.8 3.9 6.2 6.5 5.8c1.4-.2 2.7.4 3.5 1.6.8-1.2 2.1-1.8 3.5-1.6 2.6.4 3.7 3 2.3 5.7-1.6 3.3-7.8 7.1-7.8 7.1z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>';
   const chat = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 16.2l-1.4 3 3.2-1.4A7.2 7.2 0 1 0 7 16.2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>';
@@ -1715,7 +1722,7 @@ function renderPickMedia(view) {
   const cells = GALLERY.map((file, index) => {
     const on = picked === index;
     const mini = view.kind === "reel" ? `<span class="mini-play"></span>` : "";
-    return `<button type="button" class="gal-cell ${on ? "on" : ""}" data-act="pick-photo" data-index="${index}"><img src="${img(file)}" alt="">${mini}</button>`;
+    return `<button type="button" class="gal-cell ${on ? "on" : ""}" data-act="pick-photo" data-index="${index}"><img src="${img(file, 320)}" alt="" loading="lazy" decoding="async" fetchpriority="low">${mini}</button>`;
   }).join("");
   return screen(`<div class="gal">
     <div class="gal-head">
@@ -1723,7 +1730,7 @@ function renderPickMedia(view) {
       <b>${esc(t(guide.pickHeader))}</b>
       <button type="button" class="gal-next ${picked == null ? "wait" : ""}" data-act="pick-next" ${picked == null ? "disabled" : ""}>${esc(t("Next"))}</button>
     </div>
-    <div class="gal-preview"><img src="${img(preview)}" alt="">${play}</div>
+    <div class="gal-preview"><img src="${img(preview, 900)}" alt="" decoding="async" fetchpriority="high">${play}</div>
     <div class="gal-grid">${cells}</div>
     <article class="gal-card">
       <div class="gal-card-top">
@@ -1744,7 +1751,7 @@ function renderDidPost(view) {
   const play = view.kind === "reel" ? `<span class="play-badge small"><svg width="48" height="48" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M10 8.5v7l6-3.5-6-3.5z" fill="#152322"/></svg></span>` : "";
   return screen(`<div class="did">
     <article class="did-sheet">
-      <div class="did-photo"><img src="${img(file)}" alt="">${play}</div>
+      <div class="did-photo"><img src="${img(file, 900)}" alt="" decoding="async" fetchpriority="high">${play}</div>
       <h1>${esc(t("Did you post it?"))}</h1>
       <p>${esc(t("Look at your Instagram page"))}</p>
       <button class="btn" type="button" data-act="posted-yes"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5.5 12.2l4.2 4.2L18.5 7.6" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>${esc(t("Yes, I posted"))}</button>
@@ -1767,7 +1774,7 @@ function renderLesson(view) {
     </div>
     <div class="lesson-bars"><i></i><i class="off"></i></div>
     <div class="lesson-stage">
-      <div class="lesson-frame"><img src="${img(part.image)}" alt=""></div>
+      <div class="lesson-frame"><img src="${img(part.image, 900)}" alt="" decoding="async" fetchpriority="high"></div>
       <h1 class="lesson-title">${esc(t(part.lessonTitle))}</h1>
       ${part.line ? `<p class="lesson-line">${esc(t(part.line))}</p>` : ""}
     </div>
@@ -1797,7 +1804,7 @@ function renderGuide(task, part) {
     ${backBtn()}
     <div class="scroll">
       <p class="kicker">${esc(t(task.label))}</p>
-      <img class="lesson-art" src="${img(part.image)}" alt="">
+      <img class="lesson-art" src="${img(part.image, 900)}" alt="" decoding="async" fetchpriority="high">
       <h1 class="display">${esc(t(part.header))}</h1>
       <p class="lede">${esc(t(part.instructionTitle))}</p>
       <p class="lede">${esc(t(part.instructionBody))}</p>
@@ -2154,7 +2161,7 @@ function shotRow(id, product, number) {
     ? `<span class="shot-done">${esc(t("Done"))}<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#1B7574"/><path d="M7.2 12.3l3.1 3.1 6.5-6.8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></span>`
     : `<span class="radio ${chosen ? "on" : ""}"></span>`;
   return `<button type="button" class="shot-row ${done || chosen ? "on" : ""}" data-act="choose-shot" data-id="${id}" ${done ? "disabled" : ""}>
-    <img src="${img(file)}" alt="">
+    <img src="${img(file, 240)}" alt="" loading="lazy" decoding="async">
     <span class="copy"><small>${number}</small><b>${esc(t(name))}</b></span>
     ${mark}
   </button>`;
@@ -2186,7 +2193,7 @@ function renderShot(view) {
     ${backBtn()}
     <div class="scroll">
       <p class="kicker">${esc(t(view.display))}</p>
-      <img class="lesson-art" src="${img(view.file)}" alt="">
+      <img class="lesson-art" src="${img(view.file, 900)}" alt="" decoding="async" fetchpriority="high">
       <h1 class="display">${esc(t("Fit the " + view.product + " inside the dotted line"))}</h1>
       <p class="lede">${esc(t("The camera helps you keep the photo\nstraight and bright."))}</p>
     </div>
@@ -2267,10 +2274,48 @@ function render(options) {
   document.getElementById("app").innerHTML = html();
   const scroller = document.querySelector("[data-scroll]") || document.querySelector(".scroll");
   if (scroller) scroller.scrollTop = keep ? top : 0;
+  tuneImages();
   bindScrollCue();
   mountCamera();
   bindEdit();
   fitGuidePhoto();
+}
+
+function tuneImages() {
+  const root = document.getElementById("app");
+  if (!root) return;
+  const imgs = [...root.querySelectorAll("img")];
+  imgs.forEach((el, index) => {
+    if (!el.getAttribute("decoding")) el.decoding = "async";
+    const hero =
+      el.classList.contains("hero-art") ||
+      el.classList.contains("lesson-art") ||
+      el.classList.contains("edit-photo") ||
+      el.classList.contains("cam-art") ||
+      el.closest(".guide-example") ||
+      el.closest(".lesson-frame") ||
+      el.closest(".access-frame") ||
+      el.closest(".gal-preview") ||
+      el.closest(".did-photo");
+    if (hero || index < 2) {
+      el.loading = "eager";
+      el.fetchPriority = "high";
+    } else if (!el.getAttribute("loading")) {
+      el.loading = "lazy";
+      el.fetchPriority = "low";
+    }
+    if (!el.dataset.fallbackBound) {
+      el.dataset.fallbackBound = "1";
+      el.addEventListener("error", () => {
+        const src = el.currentSrc || el.src || "";
+        if (!src.includes("/.netlify/images")) return;
+        try {
+          const url = new URL(src, location.href).searchParams.get("url");
+          if (url) el.src = url;
+        } catch (_) {}
+      });
+    }
+  });
 }
 
 function fitGuidePhoto() {
