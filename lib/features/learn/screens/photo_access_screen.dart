@@ -84,7 +84,7 @@ class _PhotoAccessScreenState extends State<PhotoAccessScreen> {
                         ),
                       ),
                       Text(
-                        tr('TASK 3 OF 5'),
+                        tr('TASK 3 OF 6'),
                         style: appType(
                           color: PhotoAccessScreen.teal,
                           fontSize: 12,

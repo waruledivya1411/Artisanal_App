@@ -20,11 +20,12 @@ const photographyTaskId = 'photography';
 const setUpPageTaskId = 'set_up_page';
 const postingPlanTaskId = 'posting_plan';
 const readNumbersTaskId = 'read_numbers';
+const aiPhotosTaskId = 'ai_photos';
 
 ProductPickerScreen photographyEntry(String locale) {
   return ProductPickerScreen(
     locale: locale,
-    taskLabel: 'TASK 1 OF 5',
+    taskLabel: 'TASK 1 OF 6',
     onPicked: (_) {
       // Each product is woven in one yarn, so there is nothing to ask: its
       // material is set and the shoot goes straight to the displays.
@@ -39,7 +40,7 @@ ProductPickerScreen photographyEntry(String locale) {
 DisplayPickerScreen photographyDisplayPicker(String locale) {
   return DisplayPickerScreen(
     locale: locale,
-    taskLabel: 'TASK 1 OF 5',
+    taskLabel: 'TASK 1 OF 6',
     product: SelectedProduct.instance.name,
     material: SelectedMaterial.instance.name,
   );
@@ -49,7 +50,7 @@ TaskPartsScreen photographyTask(String locale) {
   return TaskPartsScreen(
     locale: locale,
     taskId: photographyTaskId,
-    taskLabel: 'TASK 1 OF 5',
+    taskLabel: 'TASK 1 OF 6',
     title: 'Photography',
     parts: [
       TaskPart(
@@ -209,7 +210,7 @@ TaskPartsScreen setUpPageTask(String locale) {
   return TaskPartsScreen(
     locale: locale,
     taskId: setUpPageTaskId,
-    taskLabel: 'TASK 2 OF 5',
+    taskLabel: 'TASK 2 OF 6',
     title: 'Set up your page',
     showChevron: true,
     parts: [
@@ -279,7 +280,7 @@ TaskPartsScreen postingPlanTask(String locale) {
   return TaskPartsScreen(
     locale: locale,
     taskId: postingPlanTaskId,
-    taskLabel: 'TASK 4 OF 5',
+    taskLabel: 'TASK 4 OF 6',
     title: 'Posting plan',
     showChevron: true,
     parts: [
@@ -385,7 +386,7 @@ TaskPartsScreen readNumbersTask(String locale) {
   return TaskPartsScreen(
     locale: locale,
     taskId: readNumbersTaskId,
-    taskLabel: 'TASK 5 OF 5',
+    taskLabel: 'TASK 5 OF 6',
     title: 'Read the numbers',
     showChevron: true,
     parts: [

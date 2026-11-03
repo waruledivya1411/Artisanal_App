@@ -136,7 +136,7 @@ class _ChooseContentTypeScreenState extends State<ChooseContentTypeScreen> {
                         ),
                       ),
                       Text(
-                        tr('TASK 3 OF 5'),
+                        tr('TASK 3 OF 6'),
                         style: appType(
                           color: ChooseContentTypeScreen.teal,
                           fontSize: 12,

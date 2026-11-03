@@ -94,11 +94,11 @@ let toastTimer = 0;
 
 function toast(message) {
   state.toast = message;
-  render();
+  render({ keepScroll: true });
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => {
     state.toast = "";
-    render();
+    render({ keepScroll: true });
   }, 2200);
 }
 
@@ -373,7 +373,7 @@ const TASKS = [
     title: "Photography",
     detail: "Continue · Hold steady",
     image: photo("try_it_art.jpg"),
-    label: "TASK 1 OF 5",
+    label: "TASK 1 OF 6",
     parts: [
       lesson(
         { id: "1", title: "Hold steady", label: "PART 1 · HOLD STEADY" },
@@ -451,7 +451,7 @@ const TASKS = [
     title: "Set up your page",
     detail: "On Instagram",
     image: setup("good_name_art.jpg"),
-    label: "TASK 2 OF 5",
+    label: "TASK 2 OF 6",
     showChevron: true,
     parts: [
       lesson(
@@ -498,7 +498,7 @@ const TASKS = [
     title: "Create a post",
     detail: "Post and story",
     image: postArt("create_post_art.jpg"),
-    label: "TASK 3 OF 5",
+    label: "TASK 3 OF 6",
     gate: "photos",
     parts: [
       {
@@ -539,7 +539,7 @@ const TASKS = [
     title: "Posting plan",
     detail: "What and when",
     image: plan("post_often_art.jpg"),
-    label: "TASK 4 OF 5",
+    label: "TASK 4 OF 6",
     showChevron: true,
     parts: [
       lesson(
@@ -605,7 +605,7 @@ const TASKS = [
     title: "Read the numbers",
     detail: "Views, likes, saves",
     image: numbers("read_numbers_art.jpg"),
-    label: "TASK 5 OF 5",
+    label: "TASK 5 OF 6",
     showChevron: true,
     parts: [
       lesson(
@@ -665,6 +665,15 @@ const TASKS = [
         { kind: "numbers" },
       ),
     ],
+  },
+  // Opens its own screen, so it has one part and no lesson pages.
+  {
+    id: "ai_photos",
+    number: "06",
+    title: "AI photos",
+    detail: "Copy a prompt",
+    image: photo("ai_photos_card.jpg"),
+    parts: [{ id: "1", title: "AI photos" }],
   },
 ];
 
@@ -1379,6 +1388,311 @@ function renderProducts() {
   </div>`);
 }
 
+// AI photos: writes the prompt an artisan copies into their own AI tool. The
+// wording matches lib/features/learn/data/ai_prompts.dart, and prompts stay in
+// English whatever language the page is in.
+const AI_NEEDED_PHOTOS = [
+  ["Full photo", "The whole product in one photo"],
+  ["Close-up of the motif", "Close enough to see the threads"],
+];
+const AI_PRODUCT_WORDS = {
+  "Saree": "saree",
+  "Mekhala sador": "mekhela sador set",
+  "Stole": "stole",
+  "Gamusa": "gamusa",
+  "Shawl": "shawl",
+  "Jod kappur": "jod kappur set (wide cloth and smaller tasseled piece)",
+  "Yardages": "fabric",
+  "Cushion covers": "cushion cover"
+};
+
+// Close-ups are left out on purpose: a close-up has to be a real photo, because
+// it is the proof of the handwork.
+const AI_SCENES = {
+  "Saree": {
+    "displays": [
+      ["Draped", "Show this saree draped on a plain mannequin, with neat front pleats and the pallu over the shoulder."],
+      ["Hanging", "Show this saree hanging straight from a wooden rod against a plain wall, with the whole piece in frame."],
+      ["Folded", "Show this saree neatly folded on a wooden table, with the pallu on top and the border along the edge."]
+    ],
+    "props": [
+      ["Mannequin", "Show this saree worn on a full-length plain mannequin, standing in a bright, simple room."],
+      ["Wooden hanger", "Hang this saree on a wooden hanger against a plain wall, with the pallu falling in front."],
+      ["Chair", "Drape this saree over the back of a wooden chair, with the pallu hanging down."],
+      ["Festive setting", "Place this saree, neatly folded, on a wooden table with a brass lamp and a few flowers beside it."]
+    ]
+  },
+  "Mekhala sador": {
+    "displays": [
+      ["Draped", "Show this mekhela and sador worn on a plain mannequin, with the sador over the shoulder and both borders visible."],
+      ["Hanging", "Show the mekhela and sador hanging side by side from a wooden rod against a plain wall, with both pieces in frame."],
+      ["Folded", "Show the mekhela and sador neatly folded and stacked on a wooden table, with both borders along the edge."]
+    ],
+    "props": [
+      ["Mannequin", "Show the mekhela and sador worn on a full-length plain mannequin, standing in a bright, simple room."],
+      ["Wooden hanger", "Hang the mekhela and sador on two wooden hangers against a plain wall."],
+      ["Chair", "Drape the sador over the back of a wooden chair, with the folded mekhela on the seat."],
+      ["Festive setting", "Place the mekhela and sador, neatly folded, on a wooden table with a brass lamp and a few flowers beside them."]
+    ]
+  },
+  "Stole": {
+    "displays": [
+      ["Draped", "Show this stole draped around the neck of a plain mannequin, with both ends falling in front."],
+      ["Hanging", "Show this stole hanging straight from a wooden rod against a plain wall, with the whole piece in frame."],
+      ["Folded", "Show this stole neatly folded on a wooden table, with the border along the top edge."]
+    ],
+    "props": [
+      ["Wooden hanger", "Hang this stole on a wooden hanger against a plain wall, with both ends falling straight."]
+    ]
+  },
+  "Gamusa": {
+    "displays": [
+      ["Draped", "Show this gamusa draped around the neck of a plain mannequin, with both ends falling in front."],
+      ["Hanging", "Show this gamusa hanging straight from a wooden rod against a plain wall, with the whole piece in frame."],
+      ["Folded", "Show this gamusa neatly folded on a wooden table, with the border along the top edge."]
+    ],
+    "props": [
+      ["Wooden hanger", "Hang this gamusa on a wooden hanger against a plain wall, with both ends falling straight."]
+    ]
+  },
+  "Shawl": {
+    "displays": [
+      ["Draped", "Show this shawl draped over the shoulders of a plain mannequin, with the border visible."],
+      ["Hanging", "Show this shawl hanging straight from a wooden rod against a plain wall, with the whole piece in frame."],
+      ["Folded", "Show this shawl neatly folded on a wooden table, with the border along the top edge."]
+    ],
+    "props": [
+      ["Wooden hanger", "Hang this shawl on a wooden hanger against a plain wall, with both ends falling straight."]
+    ]
+  },
+  "Jod kappur": {
+    "displays": [
+      ["Hanging", "Show both pieces of this jod kappur hanging side by side from a wooden rod against a plain wall, with the tassels visible."],
+      ["Folded", "Show both pieces of this jod kappur neatly folded and stacked on a wooden table, with the borders along the edge."]
+    ],
+    "props": [
+      ["Cane stool", "Place both pieces of this jod kappur, neatly folded, on a cane stool."],
+      ["Festive setting", "Place both pieces of this jod kappur, neatly folded, on a wooden table with a brass lamp and a few flowers beside them."],
+      ["Outdoor courtyard", "Hang both pieces of this jod kappur side by side from a bamboo pole in a bright outdoor courtyard."]
+    ]
+  },
+  "Yardages": {
+    "displays": [
+      ["Hanging", "Show this fabric hanging straight from a wooden rod against a plain wall, in one long clean length."],
+      ["Folded", "Show this fabric neatly folded on a wooden table, with the pattern visible on top."],
+      ["Fabric roll", "Show this fabric as a neat roll on a wooden table, with a length unrolled in front."]
+    ],
+    "props": [
+      ["Measuring tape", "Place this fabric, neatly folded, on a wooden table with a measuring tape and scissors beside it."],
+      ["Basket", "Place this fabric, neatly folded, in a cane basket on a wooden table."],
+      ["Outdoor courtyard", "Hang this fabric from a bamboo pole in a bright outdoor courtyard, with the whole piece in frame."]
+    ]
+  },
+  "Cushion covers": {
+    "displays": [
+      ["Sofa-Seated", "Show this cushion on a neutral sofa in a bright room, with all four corners visible."],
+      ["Flat-Lay", "Show this cushion flat on a plain surface from directly above, with all four corners visible."]
+    ],
+    "props": [
+      ["Sofa", "Show this cushion leaning against the arm of a neutral sofa, with all four corners visible."]
+    ]
+  }
+};
+
+function aiNeedsBothPhotos(goal) {
+  return goal === "display" || goal === "props";
+}
+
+function aiChoicesFor(product, goal) {
+  const scenes = AI_SCENES[product] || { displays: [], props: [] };
+  return goal === "display" ? scenes.displays : scenes.props;
+}
+
+function buildAiPrompt({ product, goal, scene }) {
+  const word = AI_PRODUCT_WORDS[product] || product.toLowerCase();
+  const short = word.split(" (")[0];
+  if (goal === "clean" || goal === "light") {
+    const wish = goal === "clean" ? "Replace only the background with a plain off-white wall." : "Make the light soft and even, and remove harsh shadows. Keep the true colours.";
+    return `Edit my photo. ${wish}\n\nDo not change the ${short}: keep the same motifs, border, colours and weave. No text.`;
+  }
+  const line = aiChoicesFor(product, goal).find(([label]) => label === scene)[1];
+  return `Photo 1 shows my handwoven ${word} in full. Photo 2 shows its motif up close.\n\n${line}\n\nCopy the motifs, border, colours and weave exactly from my photos. Do not redesign anything. Realistic photo, soft natural light, no people, no text.`;
+}
+
+const AI_GOALS = [
+  ["clean", "Clean background", "A plain wall behind your product", '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 16l5-5 4 4 3-3 4 4"/>'],
+  ["light", "Better light", "Soft, even light and true colours", '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>'],
+  ["display", "New display", null, '<path d="M12 7a2 2 0 1 0-2-2"/><path d="M12 7v2L3 16a1.5 1.5 0 0 0 1 3h16a1.5 1.5 0 0 0 1-3l-9-7"/>'],
+  ["props", "Add props", null, '<path d="M6 11V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5"/><path d="M4 11a2 2 0 0 1 2 2v2h12v-2a2 2 0 1 1 2 2v3H4v-3a2 2 0 0 1 0-4z"/><path d="M7 18v2M17 18v2"/>'],
+];
+const AI_PHOTO_ICON = '<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M5 17l5-4 3 2.5 2.5-2L19 16"/>';
+
+function aiSkipsPhotos() {
+  return !!state.ai.goal && !aiNeedsBothPhotos(state.ai.goal);
+}
+
+function aiCanContinue() {
+  const ai = state.ai;
+  if (ai.step === 0) return !!ai.product;
+  return !!ai.goal && (aiSkipsPhotos() || !!ai.scene);
+}
+
+function aiRow({ title, detail, icon, on, act, attrs }) {
+  return `<button type="button" class="ai-row ${on ? "on" : ""}" data-act="${act}" ${attrs}>
+    <svg class="ai-icon" viewBox="0 0 24 24" aria-hidden="true">${icon}</svg>
+    <span class="ai-row-text"><b>${esc(t(title))}</b>${detail ? `<small>${esc(t(detail))}</small>` : ""}</span>
+    <span class="ai-mark" aria-hidden="true"></span>
+  </button>`;
+}
+
+function aiChips(labels, isOn, act) {
+  return `<div class="ai-chips">${labels.map((label) =>
+    `<button type="button" class="ai-chip ${isOn(label) ? "on" : ""}" data-act="${act}" data-name="${esc(label)}">${esc(t(label))}</button>`,
+  ).join("")}</div>`;
+}
+
+// New displays and props are made from these two photos, so this stands out
+// from everything else on the prompt page.
+function aiPhotosNeeded() {
+  const rows = AI_NEEDED_PHOTOS.map(([label, detail]) =>
+    `<div class="ai-need-row"><svg class="ai-icon" viewBox="0 0 24 24" aria-hidden="true">${AI_PHOTO_ICON}</svg><span><b>${esc(t(label))}</b><small>${esc(t(detail))}</small></span></div>`,
+  ).join("");
+  return `<div class="ai-need">
+    <b class="ai-need-title">${esc(t("You need these 2 photos"))}</b>
+    ${rows}
+    <p>${esc(t("Without these, the AI has to guess your product."))}</p>
+  </div>`;
+}
+
+function aiPromptText() {
+  return buildAiPrompt(state.ai);
+}
+
+function renderAi() {
+  const ai = state.ai;
+  const head = `<div class="lesson-head">
+      ${backBtn()}
+      <p class="lesson-kicker">${esc(t("AI photos").toUpperCase())}</p>
+      <span></span>
+    </div>`;
+  const heading = (title, sub) => `<h1 class="pick-title">${esc(t(title))}</h1><p class="pick-sub">${esc(t(sub))}</p>`;
+  const continueFoot = `<div class="foot">${readyBtn("Continue", "ai-next", aiCanContinue())}</div>`;
+
+  if (ai.step === 0) {
+    const cards = PRODUCTS.map(([name, , file]) =>
+      pickCard({ file, label: name, on: ai.product === name, act: "ai-product", attrs: `data-name="${esc(name)}"` }),
+    ).join("");
+    return screen(`<div class="pad-20 stack">${head}
+      ${heading("Which product is it?", "We write the words for your AI tool")}
+      <div class="pick-grid" data-scroll>${cards}</div>
+      ${continueFoot}
+    </div>`);
+  }
+
+  if (ai.step === 1) {
+    // What this product can really have, so the card promises nothing else.
+    const sample = (goal) => aiChoicesFor(ai.product, goal).slice(0, 3).map((item) => t(item[0])).join(", ");
+    const rows = AI_GOALS.map(([key, title, detail, icon]) =>
+      aiRow({ title, detail: detail || sample(key), icon, on: ai.goal === key, act: "ai-goal", attrs: `data-name="${key}"` }),
+    ).join("");
+    const choices = ai.goal && aiNeedsBothPhotos(ai.goal)
+      ? `<p class="ai-label">${esc(t(ai.goal === "display" ? "Which display?" : "Which prop?"))}</p>${aiChips(aiChoicesFor(ai.product, ai.goal).map((item) => item[0]), (label) => label === ai.scene, "ai-scene")}`
+      : "";
+    return screen(`<div class="pad-20 stack">${head}
+      ${heading("What do you want?", "Tap one")}
+      <div class="ai-body" data-scroll>${rows}${choices}</div>
+      ${continueFoot}
+    </div>`);
+  }
+
+  const steps = ["Open your AI tool", aiSkipsPhotos() ? "Attach your photo" : "Attach the full photo, then the close-up", "Paste the prompt and send"].map((line, index) =>
+    `<div class="ai-step"><i>${index + 1}</i><span>${esc(t(line))}</span></div>`,
+  ).join("");
+  const checks = ["Are the motifs the same?", "Is the colour the same?", "Is the border the same?"].map((line) =>
+    `<div class="ai-step"><svg class="ai-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg><span>${esc(t(line))}</span></div>`,
+  ).join("");
+  return screen(`<div class="pad-20 stack">${head}
+    ${heading("Your prompt", "Copy it and paste it into your AI tool")}
+    <div class="ai-body" data-scroll>
+      ${aiSkipsPhotos() ? "" : aiPhotosNeeded()}
+      <div class="ai-prompt">${esc(aiPromptText())}</div>
+      <p class="ai-label">${esc(t("How to use it"))}</p>
+      ${steps}
+      <p class="ai-label">${esc(t("Check before you post"))}</p>
+      ${checks}
+      <p class="ai-note strong">${esc(t("If not, do not post it. Try again."))}</p>
+      <p class="ai-note">${esc(t("Use your real photo for close-ups. They show your handwork."))}</p>
+    </div>
+    <div class="foot">
+      ${ai.copyFailed ? `<p class="ai-note strong ai-copy-failed">${esc(t("Could not copy. Select the words and copy them."))}</p>` : ""}
+      <button class="btn" type="button" data-act="ai-copy">${ai.copied ? "&#10003; " : ""}${esc(t(ai.copied ? "Prompt copied" : "Copy prompt"))}</button>
+      <button class="ai-done" type="button" data-act="finish-ai">${esc(t("Done"))}</button>
+    </div>
+  </div>`);
+}
+
+function openAi() {
+  state.ai = { step: 0, product: null, goal: null, scene: null };
+  push("ai");
+}
+
+// Copies while the click is still being handled, which works on any address.
+// The newer clipboard call is only the second try: it can fail on some
+// addresses, and it could also leave the button doing nothing while it waits.
+function aiCopyNow(text) {
+  const box = document.createElement("textarea");
+  box.value = text;
+  box.setAttribute("readonly", "");
+  box.style.cssText = "position:fixed;top:0;left:0;opacity:0;font-size:16px;-webkit-user-select:text;user-select:text";
+  document.body.appendChild(box);
+  box.focus();
+  box.select();
+  box.setSelectionRange(0, text.length);
+  let copied = false;
+  try {
+    copied = document.execCommand("copy");
+  } catch (error) {
+    copied = false;
+  }
+  box.remove();
+  return copied;
+}
+
+function aiCopyAnswer(ai, worked) {
+  ai.copied = worked;
+  ai.copyFailed = !worked;
+  render({ keepScroll: true });
+  if (!worked) {
+    // Ready for the artisan to copy by hand.
+    const words = document.querySelector(".ai-prompt");
+    const range = document.createRange();
+    range.selectNodeContents(words);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    return;
+  }
+  clearTimeout(aiCopiedTimer);
+  aiCopiedTimer = setTimeout(() => {
+    ai.copied = false;
+    if (state.ai === ai && current().name === "ai") render({ keepScroll: true });
+  }, 2500);
+}
+
+let aiCopiedTimer;
+
+function aiCopy() {
+  const ai = state.ai;
+  const text = aiPromptText();
+  if (aiCopyNow(text)) return aiCopyAnswer(ai, true);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    const giveUp = new Promise((resolve) => setTimeout(() => resolve(false), 3000));
+    Promise.race([navigator.clipboard.writeText(text).then(() => true, () => false), giveUp]).then((worked) => aiCopyAnswer(ai, worked));
+    return;
+  }
+  aiCopyAnswer(ai, false);
+}
+
 function renderPhoto() {
   return renderProducts();
 }
@@ -1452,7 +1766,7 @@ function renderPhotoAccess() {
   return screen(`<div class="pad-20 stack">
     <div class="lesson-head">
       ${backBtn()}
-      <p class="lesson-kicker">${esc(t("TASK 3 OF 5"))}</p>
+      <p class="lesson-kicker">${esc(t("TASK 3 OF 6"))}</p>
       <span></span>
     </div>
     <div class="scroll access-scroll">
@@ -1547,7 +1861,7 @@ function renderCreateTypes() {
   return screen(`<div class="pad-20 stack">
     <div class="lesson-head">
       ${backBtn()}
-      <p class="lesson-kicker">${esc(t("TASK 3 OF 5"))}</p>
+      <p class="lesson-kicker">${esc(t("TASK 3 OF 6"))}</p>
       <span></span>
     </div>
     <div class="scroll">
@@ -2095,6 +2409,7 @@ function renderBadge(view) {
     create_post: "You practiced Post, Story, and Reel on Instagram.",
     posting_plan: "People remember you",
     read_numbers: "You can read views, likes, saves and messages.",
+    ai_photos: "You can use AI and keep your product the same.",
   };
   const action = upcoming
     ? `<button class="btn" data-act="next-task" data-id="${upcoming.id}">${esc(t("Next task: " + upcoming.title))}</button>`
@@ -2130,6 +2445,7 @@ function render(options) {
     find: () => renderFind(view),
     tryit: () => renderTry(view),
     products: renderProducts,
+    ai: renderAi,
     "create-types": renderCreateTypes,
     "ig-post": () => renderIgPost(view),
     "pick-media": () => renderPickMedia(view),
@@ -2617,6 +2933,11 @@ document.getElementById("phone").addEventListener("click", (event) => {
   if (!node) return;
   const act = node.dataset.act;
   if (act === "back") {
+    if (current().name === "ai" && state.ai.step > 0) {
+      state.ai.step -= 1;
+      render();
+      return;
+    }
     if (current().name === "tryit" && state.tryStep > 0) {
       captureFields();
       state.tryStep -= 1;
@@ -2689,7 +3010,40 @@ document.getElementById("phone").addEventListener("click", (event) => {
     render();
     return;
   }
-  if (act === "open-task") return push("task", { id: node.dataset.id });
+  if (act === "open-task") {
+    if (node.dataset.id === "ai_photos") return openAi();
+    return push("task", { id: node.dataset.id });
+  }
+  if (act.startsWith("ai-") && act !== "ai-next" && act !== "ai-copy") {
+    const ai = state.ai;
+    const name = node.dataset.name;
+    if (act === "ai-product") {
+      // Displays and props differ by product.
+      if (name !== ai.product) ai.scene = null;
+      ai.product = name;
+    }
+    if (act === "ai-goal") {
+      if (name !== ai.goal) ai.scene = null;
+      ai.goal = name;
+    }
+    if (act === "ai-scene") ai.scene = name;
+    render({ keepScroll: true });
+    return;
+  }
+  if (act === "ai-next") {
+    state.ai.step += 1;
+    render();
+    return;
+  }
+  if (act === "ai-copy") return aiCopy();
+  if (act === "finish-ai") {
+    // The first finish earns the badge. After that this stays a tool to come
+    // back to, so Done simply closes it.
+    const task = taskById("ai_photos");
+    if (isTaskDone(task)) return back();
+    markPart(task.id, "1");
+    return showBadge(task.id);
+  }
   if (act === "open-part") {
     if (node.disabled) return;
     if (node.dataset.locked === "1") {
@@ -3000,6 +3354,10 @@ document.getElementById("phone").addEventListener("click", (event) => {
   }
   if (act === "next-task") {
     state.tab = "learn";
+    if (node.dataset.id === "ai_photos") {
+      state.stack = [{ name: "main" }];
+      return openAi();
+    }
     state.stack = [{ name: "main" }, { name: "task", id: node.dataset.id }];
     render();
     return;

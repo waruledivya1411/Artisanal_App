@@ -1,6 +1,6 @@
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
 
-/// Order of the five Learn home tasks and titles for "Next task" buttons.
+/// Order of the Learn home tasks and titles for "Next task" buttons.
 class LearnTaskChain {
   LearnTaskChain._();
 
@@ -12,6 +12,7 @@ class LearnTaskChain {
     createPostTaskId,
     postingPlanTaskId,
     readNumbersTaskId,
+    aiPhotosTaskId,
   ];
 
   static const _order = taskOrder;
@@ -23,6 +24,7 @@ class LearnTaskChain {
     createPostTaskId: 3,
     postingPlanTaskId: 3,
     readNumbersTaskId: 3,
+    aiPhotosTaskId: 1,
   };
 
   static int get totalTasks => taskOrder.length;
@@ -33,6 +35,7 @@ class LearnTaskChain {
     createPostTaskId: 'Create a post',
     postingPlanTaskId: 'Posting plan',
     readNumbersTaskId: 'Read the numbers',
+    aiPhotosTaskId: 'AI photos',
   };
 
   static String titleFor(String taskId) => _titles[taskId] ?? taskId;

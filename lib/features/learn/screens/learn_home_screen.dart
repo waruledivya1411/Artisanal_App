@@ -8,6 +8,7 @@ import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
 import 'package:artisnal_app/features/me/screens/me_screen.dart';
 import 'package:artisnal_app/features/onboarding/screens/language_picker_screen.dart';
+import 'package:artisnal_app/features/learn/screens/ai_photos_screen.dart';
 import 'package:artisnal_app/features/learn/screens/photo_access_screen.dart';
 import 'package:artisnal_app/features/learn/screens/choose_content_type_screen.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
@@ -89,6 +90,12 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
       detail: 'Views, likes, saves',
       image: 'assets/images/lessons/read_numbers/read_numbers_art.jpg',
     ),
+    _Task(
+      number: '06',
+      title: 'AI photos',
+      detail: 'Copy a prompt',
+      image: 'assets/images/lessons/photography/ai_photos_card.jpg',
+    ),
   ];
 
   final _progress = LearnProgress.instance;
@@ -127,6 +134,7 @@ class _LearnHomeScreenState extends State<LearnHomeScreen> {
       ),
       '04' => () => _open(postingPlanTask(widget.locale)),
       '05' => () => _open(readNumbersTask(widget.locale)),
+      '06' => () => _open(AiPhotosScreen(locale: widget.locale)),
       _ => null,
     };
   }
