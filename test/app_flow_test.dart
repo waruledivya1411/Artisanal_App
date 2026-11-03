@@ -233,7 +233,7 @@ void main() {
     await tester.tap(find.text('Next part · Mix posts'));
     await tester.pumpAndSettle();
     expect(find.text('TASK 4 · PART 3 · MIX POSTS'), findsOneWidget);
-    expect(find.text('Cloth, work, then price'), findsOneWidget);
+    expect(find.text('Cloth and work'), findsOneWidget);
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
     expect(find.text('Every post shows something new'), findsNothing);

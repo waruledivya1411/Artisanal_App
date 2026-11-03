@@ -357,8 +357,8 @@ TaskPartsScreen postingPlanTask(String locale) {
         open: (_) => LearnPartScreen(
           locale: locale,
           partLabel: 'TASK 4 · PART 3 · MIX POSTS',
-          title: 'Cloth, work, then price',
-          image: 'assets/images/lessons/posting_plan/mix_posts_art.jpg',
+          title: 'Cloth and work',
+          image: 'assets/images/lessons/posting_plan/mix_posts_cloth_work.jpg',
           nextBuilder: (_) => CheckPartScreen(
             locale: locale,
             partLabel: 'TASK 4 · PART 3 · MIX POSTS',
@@ -368,7 +368,7 @@ TaskPartsScreen postingPlanTask(String locale) {
               label: 'Same photo',
             ),
             right: const CheckOption(
-              image: 'assets/images/lessons/posting_plan/posts_mixed.jpg',
+              image: 'assets/images/lessons/posting_plan/posts_mixed_cloth_work.jpg',
               contain: true,
               label: 'Mixed',
             ),

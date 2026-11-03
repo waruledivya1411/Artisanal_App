@@ -589,10 +589,10 @@ const TASKS = [
       lesson(
         { id: "3", title: "Mix posts", label: "TASK 4 · PART 3 · MIX POSTS" },
         {
-          lessonTitle: "Cloth, work, then price",
-          image: plan("mix_posts_art.jpg"),
+          lessonTitle: "Cloth and work",
+          image: plan("mix_posts_cloth_work.jpg"),
           wrong: { image: plan("posts_same.jpg"), contain: true, label: "Same photo" },
-          right: { image: plan("posts_mixed.jpg"), contain: true, label: "Mixed" },
+          right: { image: plan("posts_mixed_cloth_work.jpg"), contain: true, label: "Mixed" },
           rightReason: "Every post shows something new",
           wrongReason: "The same photo again gets boring",
         },
@@ -2038,11 +2038,13 @@ function renderDisplays(view) {
   const cards = ids
     .map((id) => {
       const [name, key] = DISPLAYS[id];
+      // Hanging masters are taller (often 2:3) than the 3:4 card; cover crops the cloth.
+      // Show them whole so the full piece stays in frame.
       return pickCard({
         file: displayImage(view.product, product[1], key),
         label: name,
         tall: true,
-        whole,
+        whole: whole || id === "hanging",
         on: state.pickedDisplays.indexOf(id) >= 0,
         act: "toggle-display",
         attrs: `data-id="${id}"`,
