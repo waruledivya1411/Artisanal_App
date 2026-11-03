@@ -125,7 +125,8 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
     ),
   ];
 
-  String _selectedId = 'as';
+  /// Starts on the language in use, which is English until one is chosen.
+  String _selectedId = AppLang.code;
 
   /// The language in use when the page opened, put back if the artisan
   /// leaves a change without pressing Continue.
@@ -136,11 +137,7 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
   void initState() {
     super.initState();
     _original = AppLang.current;
-    if (widget.changing) {
-      _selectedId = AppLang.code;
-    } else {
-      AppLang.current = 'as-IN';
-    }
+    _selectedId = AppLang.code;
   }
 
   void _continue() {

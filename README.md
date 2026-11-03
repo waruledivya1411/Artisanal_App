@@ -5,7 +5,7 @@ how to photograph their crafts, set up Instagram, post content, and read
 their numbers. A static client website in `client-website/` follows the same
 lessons inside the same phone frame.
 
-Languages: Assamese (the default on the website), English, Odia, and Telugu.
+Languages: English (the default), Assamese, Odia, and Telugu.
 Listen buttons speak the screen in the chosen language.
 
 ## Features

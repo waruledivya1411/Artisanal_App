@@ -41,8 +41,12 @@ const OWN_PHOTOS = new Set([
   "Yardages",
 ]);
 
+// Renamed from "cs-lang" when English became the default: Assamese used to be
+// preselected, so an old saved value may not be a real choice.
+const LANG_KEY = "cs-language";
+
 const state = {
-  lang: localStorage.getItem("cs-lang") || "as-IN",
+  lang: localStorage.getItem(LANG_KEY) || "en-US",
   langBefore: null,
   stack: [],
   tab: "learn",
@@ -1249,8 +1253,8 @@ function shotArt(product, key) {
   if (key === "sofa_seated_display") return { file: dir + "cushion_sofa_outline.png", fit: "aspect", aspect: 1000 / 914 };
   if (key === "flat_lay_display") return { file: dir + "cushion_flat_outline.png", fit: "aspect", aspect: 1000 / 892 };
   if (key === "close-up_texture" && pair) return { file: dir + "closeup_outline.png", fit: "inset", box: true };
-  if (key === "hanging_display" && product === "Jod kappur") return { draw: "jodHanging", fit: "inset" };
-  if (key === "folded_stack" && product === "Jod kappur") return { draw: "jodFolded", fit: "inset" };
+  if (key === "hanging_display" && product === "Jod kappur") return { file: dir + "jod_hanging_outline.png", fit: "inset" };
+  if (key === "folded_stack" && product === "Jod kappur") return { file: dir + "jod_folded_outline.png", fit: "inset" };
   if (key === "hanging_display" && product === "Yardages") return { draw: "yardageHanging", fit: "inset" };
   if (key === "close-up_texture" && product === "Yardages") return { draw: "yardageClose", fit: "inset" };
   return null;
@@ -1265,65 +1269,10 @@ function artStyle(art) {
   return `height:calc(100% - 16px);width:calc((100cqh - 16px) * ${art.aspect});left:50%;top:50%;transform:translate(-50%,-50%)`;
 }
 
-function camPeaks(left, right, top, drop) {
-  const count = 6;
-  const step = (right - left) / count;
-  const peak = drop == null ? step * 0.7 : drop;
-  let d = `M${left} ${top + peak}`;
-  for (let i = 0; i < count; i += 1) {
-    const x = left + step * i;
-    d += ` L${x + step / 2} ${top} L${x + step} ${top + peak}`;
-  }
-  return `<path d="${d}" fill="none" stroke="rgba(255,255,255,0.91)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`;
-}
-
 function camDraw(kind) {
   const fill = "rgba(255,255,255,0.13)";
   const stroke = "rgba(255,255,255,0.91)";
   const faint = "rgba(255,255,255,0.6)";
-  if (kind === "jodHanging") {
-    const wideL = 3;
-    const wideR = 66;
-    const wideT = 5.5;
-    const wideB = 97;
-    const wideW = wideR - wideL;
-    const wideH = wideB - wideT;
-    const band = wideT + wideH * 0.76;
-    const mid = wideT + wideH * 0.88;
-    const peakY = wideT + wideH * 0.62;
-    const narrowL = 72;
-    const narrowR = 97;
-    const narrowT = 5.5;
-    const narrowB = 78;
-    const narrowW = narrowR - narrowL;
-    const narrowH = narrowB - narrowT;
-    const tassels = [0.16, 0.38, 0.6, 0.82]
-      .map((f) => {
-        const x = narrowL + narrowW * f;
-        return `<line x1="${x}" y1="${narrowB}" x2="${x}" y2="${narrowB + 8}" stroke="${stroke}" stroke-width="2.4" stroke-linecap="round"/>`;
-      })
-      .join("");
-    return `<svg class="cam-draw" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      <line x1="2" y1="3.5" x2="98" y2="3.5" stroke="${stroke}" stroke-width="3.4" stroke-linecap="round"/>
-      <rect x="${wideL}" y="${wideT}" width="${wideW}" height="${wideH}" fill="${fill}" stroke="${stroke}" stroke-width="2.4"/>
-      <line x1="${wideL + wideW * 0.22}" y1="${wideT}" x2="${wideL + wideW * 0.22}" y2="${peakY}" stroke="${faint}" stroke-width="1.5"/>
-      <line x1="${wideL + wideW * 0.38}" y1="${wideT}" x2="${wideL + wideW * 0.38}" y2="${peakY}" stroke="${stroke}" stroke-width="2.4" stroke-linecap="round"/>
-      ${camPeaks(wideL, wideR, peakY)}
-      <line x1="${wideL}" y1="${band}" x2="${wideR}" y2="${band}" stroke="${stroke}" stroke-width="2.4" stroke-linecap="round"/>
-      <line x1="${wideL}" y1="${mid}" x2="${wideR}" y2="${mid}" stroke="${faint}" stroke-width="1.5"/>
-      <rect x="${narrowL}" y="${narrowT}" width="${narrowW}" height="${narrowH}" fill="${fill}" stroke="${stroke}" stroke-width="2.4"/>
-      <line x1="${narrowL + narrowW * 0.4}" y1="${narrowT}" x2="${narrowL + narrowW * 0.4}" y2="${narrowT + narrowH * 0.62}" stroke="${faint}" stroke-width="1.5"/>
-      <line x1="${narrowL}" y1="${narrowT + narrowH * 0.68}" x2="${narrowR}" y2="${narrowT + narrowH * 0.68}" stroke="${stroke}" stroke-width="2.4" stroke-linecap="round"/>
-      <line x1="${narrowL}" y1="${narrowT + narrowH * 0.82}" x2="${narrowR}" y2="${narrowT + narrowH * 0.82}" stroke="${faint}" stroke-width="1.5"/>
-      ${tassels}
-    </svg>`;
-  }
-  if (kind === "jodFolded") {
-    return `<svg class="cam-draw" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      <rect x="2" y="3" width="70" height="83" rx="2.4" fill="${fill}" stroke="${stroke}" stroke-width="2.4"/>
-      <rect x="56" y="42" width="42" height="55" rx="2.4" fill="${fill}" stroke="${stroke}" stroke-width="2.4"/>
-    </svg>`;
-  }
   if (kind === "yardageHanging") {
     const spots = [[0.22, 0.14], [0.7, 0.18], [0.46, 0.3], [0.18, 0.4], [0.82, 0.46], [0.36, 0.54], [0.64, 0.62], [0.24, 0.72], [0.78, 0.76], [0.5, 0.84], [0.16, 0.9], [0.68, 0.92]];
     const marks = spots
@@ -2767,12 +2716,12 @@ document.getElementById("phone").addEventListener("click", (event) => {
     return;
   }
   if (act === "start-welcome") {
-    localStorage.setItem("cs-lang", state.lang);
+    localStorage.setItem(LANG_KEY, state.lang);
     push("welcome", { page: "shoot" });
     return;
   }
   if (act === "confirm-lang") {
-    localStorage.setItem("cs-lang", state.lang);
+    localStorage.setItem(LANG_KEY, state.lang);
     state.langBefore = null;
     back();
     return;

@@ -451,6 +451,16 @@ class ShotOutlineOverlay extends StatelessWidget {
       'assets/images/lessons/photography/cushion_flat_outline.png';
   static const cushionFlatArtAspect = 1000 / 892;
 
+  /// Jod kappur on one rod, the wide cloth beside the narrow tasseled piece,
+  /// for the hanging shot. It fills the whole photo.
+  static const jodHangingArt =
+      'assets/images/lessons/photography/jod_hanging_outline.png';
+
+  /// Jod kappur folded, the wide cloth behind the smaller tasseled piece, for
+  /// the folded shot. It fills the whole photo.
+  static const jodFoldedArt =
+      'assets/images/lessons/photography/jod_folded_outline.png';
+
   /// The motifs of a close-up, light on a clear background, laid inside the
   /// dashed box - the box itself is the texture to fill.
   static const closeUpArt =
@@ -472,6 +482,8 @@ class ShotOutlineOverlay extends StatelessWidget {
         ShotOverlayKind.mekhalaBorder => mekhalaBorderArt,
         ShotOverlayKind.mekhalaFolded => mekhalaFoldedArt,
         ShotOverlayKind.mekhalaHanging => mekhalaHangingArt,
+        ShotOverlayKind.jodHanging => jodHangingArt,
+        ShotOverlayKind.jodFolded => jodFoldedArt,
         ShotOverlayKind.stoleFull ||
         ShotOverlayKind.shawlFull ||
         ShotOverlayKind.gamusaFull => rodHangingArt,
@@ -637,6 +649,8 @@ class _OutlinePainter extends CustomPainter {
       case ShotOverlayKind.mekhalaFull:
       case ShotOverlayKind.mekhalaFolded:
       case ShotOverlayKind.mekhalaHanging:
+      case ShotOverlayKind.jodHanging:
+      case ShotOverlayKind.jodFolded:
       case ShotOverlayKind.stoleFull:
       case ShotOverlayKind.shawlFull:
       case ShotOverlayKind.gamusaFull:
@@ -650,10 +664,6 @@ class _OutlinePainter extends CustomPainter {
       case ShotOverlayKind.sariDraped:
         // Drawn from an image by ShotOutlineOverlay; never reached.
         break;
-      case ShotOverlayKind.jodHanging:
-        _jodHanging(canvas, rect);
-      case ShotOverlayKind.jodFolded:
-        _jodFolded(canvas, rect);
       case ShotOverlayKind.yardageHanging:
         _yardageHanging(canvas, rect);
       case ShotOverlayKind.yardageClose:
@@ -664,149 +674,6 @@ class _OutlinePainter extends CustomPainter {
         break;
     }
   }
-
-  /// Wide cloth and a narrower tasseled piece on one rod.
-  void _jodHanging(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4
-      ..strokeCap = StrokeCap.round;
-    final fill = Paint()..color = const Color(0x22FFFFFF);
-    final faint = Paint()
-      ..color = const Color(0x99FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    Offset at(double x, double y) => Offset(
-          frame.left + frame.width * x,
-          frame.top + frame.height * y,
-        );
-
-    canvas.drawLine(
-      at(0.02, 0.035),
-      at(0.98, 0.035),
-      Paint()
-        ..color = const Color(0xE8FFFFFF)
-        ..strokeWidth = 3.4
-        ..strokeCap = StrokeCap.round,
-    );
-
-    final wide = Rect.fromLTRB(
-      at(0.03, 0.055).dx,
-      at(0.03, 0.055).dy,
-      at(0.66, 0.97).dx,
-      at(0.66, 0.97).dy,
-    );
-    canvas.drawRect(wide, fill);
-    canvas.drawRect(wide, stroke);
-    canvas.drawLine(
-      Offset(wide.left + wide.width * 0.22, wide.top),
-      Offset(wide.left + wide.width * 0.22, wide.top + wide.height * 0.62),
-      faint,
-    );
-    canvas.drawLine(
-      Offset(wide.left + wide.width * 0.38, wide.top),
-      Offset(wide.left + wide.width * 0.38, wide.top + wide.height * 0.62),
-      stroke,
-    );
-    _templePeaks(
-      canvas,
-      wide.left,
-      wide.right,
-      wide.top + wide.height * 0.62,
-      stroke,
-    );
-    final band = wide.top + wide.height * 0.76;
-    canvas.drawLine(Offset(wide.left, band), Offset(wide.right, band), stroke);
-    canvas.drawLine(
-      Offset(wide.left, wide.top + wide.height * 0.88),
-      Offset(wide.right, wide.top + wide.height * 0.88),
-      faint,
-    );
-
-    final narrow = Rect.fromLTRB(
-      at(0.72, 0.055).dx,
-      at(0.72, 0.055).dy,
-      at(0.97, 0.78).dx,
-      at(0.97, 0.78).dy,
-    );
-    canvas.drawRect(narrow, fill);
-    canvas.drawRect(narrow, stroke);
-    canvas.drawLine(
-      Offset(narrow.left + narrow.width * 0.4, narrow.top),
-      Offset(narrow.left + narrow.width * 0.4, narrow.top + narrow.height * 0.62),
-      faint,
-    );
-    canvas.drawLine(
-      Offset(narrow.left, narrow.top + narrow.height * 0.68),
-      Offset(narrow.right, narrow.top + narrow.height * 0.68),
-      stroke,
-    );
-    canvas.drawLine(
-      Offset(narrow.left, narrow.top + narrow.height * 0.82),
-      Offset(narrow.right, narrow.top + narrow.height * 0.82),
-      faint,
-    );
-    for (var i = 0; i < 4; i++) {
-      final x = narrow.left + narrow.width * (0.16 + i * 0.22);
-      canvas.drawLine(
-        Offset(x, narrow.bottom),
-        Offset(x, narrow.bottom + frame.height * 0.08),
-        stroke,
-      );
-    }
-  }
-
-  /// Two plain boxes: the wide fold on the left, the smaller piece on the
-  /// right.
-  void _jodFolded(Canvas canvas, Rect frame) {
-    final stroke = Paint()
-      ..color = const Color(0xE8FFFFFF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.4;
-    final fill = Paint()..color = const Color(0x22FFFFFF);
-
-    final wide = Rect.fromLTRB(
-      frame.left + frame.width * 0.02,
-      frame.top + frame.height * 0.03,
-      frame.left + frame.width * 0.72,
-      frame.top + frame.height * 0.86,
-    );
-    final small = Rect.fromLTRB(
-      frame.left + frame.width * 0.56,
-      frame.top + frame.height * 0.42,
-      frame.right - frame.width * 0.02,
-      frame.top + frame.height * 0.97,
-    );
-    for (final piece in [wide, small]) {
-      final box = RRect.fromRectAndRadius(piece, const Radius.circular(6));
-      canvas.drawRRect(box, fill);
-      canvas.drawRRect(box, stroke);
-    }
-  }
-
-  void _templePeaks(
-    Canvas canvas,
-    double left,
-    double right,
-    double top,
-    Paint paint, {
-    double? drop,
-  }) {
-    const count = 6;
-    final step = (right - left) / count;
-    final peak = drop ?? step * 0.7;
-    final path = Path()..moveTo(left, top + peak);
-    for (var i = 0; i < count; i++) {
-      final x = left + step * i;
-      path
-        ..lineTo(x + step / 2, top)
-        ..lineTo(x + step, top + peak);
-    }
-    canvas.drawPath(path, paint);
-  }
-
 
   /// Rule of thirds, white and faint, inside the frame only.
   void _thirds(Canvas canvas, Rect r) {

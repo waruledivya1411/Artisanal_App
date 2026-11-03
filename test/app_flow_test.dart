@@ -20,7 +20,8 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('login-submit')));
     await tester.pumpAndSettle();
 
-    expect(find.text('আপোনাৰ ভাষা বাছনি কৰক'), findsOneWidget);
+    // The language page opens in English, with English already ticked.
+    expect(find.text('Choose your language'), findsOneWidget);
     expect(find.text('অসমীয়া'), findsWidgets);
     expect(find.text('English'), findsOneWidget);
     expect(find.text('ଓଡ଼ିଆ'), findsOneWidget);
