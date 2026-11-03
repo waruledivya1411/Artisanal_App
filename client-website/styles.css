@@ -443,19 +443,6 @@ h1.hello {
   box-shadow: 0 6px 12px rgba(27, 117, 116, 0.28);
 }
 .check svg { display: block; }
-.speak {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid var(--card-line);
-  background: #fff;
-  display: grid;
-  place-items: center;
-  flex: none;
-  padding: 0;
-  box-shadow: 0 4px 10px rgba(21, 35, 34, 0.08);
-}
-.speak img { width: 20px; height: 20px; }
 .langs { display: flex; flex-direction: column; gap: 12px; margin-top: 18px; }
 
 .task-title {
@@ -1902,7 +1889,6 @@ a.btn { text-decoration: none; }
 .ig-step.on { color: var(--ink); }
 .ig-step.on span { background: var(--gold); color: #fff; }
 .ig-step.on b { font-weight: 800; }
-.ig-step .speak { margin-left: auto; width: 36px; height: 36px; }
 .screen.white { background: #fff; }
 .gal { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; background: #fff; }
 .gal-head { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; padding: 4px 16px 8px 8px; }

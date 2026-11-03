@@ -186,14 +186,6 @@ function nativeName() {
   return (LANGS.find((item) => item.id === id) || LANGS[1]).native;
 }
 
-function speak(text) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(t(text));
-  utterance.lang = state.lang === "en" ? "en-US" : state.lang;
-  window.speechSynthesis.speak(utterance);
-}
-
 function captureFields() {
   const email = document.getElementById("email");
   const password = document.getElementById("password");
@@ -264,10 +256,6 @@ function btn(label, act, extra) {
 
 function backBtn() {
   return `<button class="icon-btn" data-act="back" aria-label="${esc(t("Back"))}">${svg.back}</button>`;
-}
-
-function speakBtn(text) {
-  return `<button class="speak" data-act="speak" data-text="${esc(text)}" aria-label="Listen"><img src="${img("icons/speaker.png")}" alt=""></button>`;
 }
 
 function nav(tab) {
@@ -900,7 +888,6 @@ function renderLanguage(view) {
         ${language.single ? "" : `<em>${esc(t(language.english))}</em>`}
       </span>
       ${on ? `<span class="check">${svg.check}</span>` : ""}
-      <button type="button" class="speak" data-act="speak-native" data-locale="${language.locale}" data-say="${esc(language.native)}" aria-label="Listen"><img src="${img("icons/speaker.png")}" alt=""></button>
     </div>`;
   }).join("");
   return screen(`<div class="pad stack">
@@ -1232,7 +1219,7 @@ function renderShootGuide(view) {
     <div class="lesson-head">
       <button class="icon-btn" type="button" data-act="guide-back" aria-label="${esc(t("Back"))}">${svg.back}</button>
       <p class="lesson-kicker guide-kicker">${esc(guideKicker(view.display))}</p>
-      ${speakBtn(spoken)}
+      <span></span>
     </div>
     <div class="guide-bars">${bars}</div>
     <h1 class="guide-title">${esc(t(step.title))}</h1>
@@ -1499,7 +1486,7 @@ function renderProducts() {
     <div class="lesson-head">
       ${backBtn()}
       <span></span>
-      ${speakBtn(spoken)}
+      <span></span>
     </div>
     <h1 class="pick-title">${esc(t("What are you photographing?"))}</h1>
     <p class="pick-sub">${esc(t("Tap one"))}</p>
@@ -1582,7 +1569,7 @@ function renderPhotoAccess() {
     <div class="lesson-head">
       ${backBtn()}
       <p class="lesson-kicker">${esc(t("TASK 3 OF 5"))}</p>
-      ${speakBtn("Allow photo access. The first time you tap plus to make a post, your phone asks for permission. Tap Allow all or Select photos.")}
+      <span></span>
     </div>
     <div class="scroll access-scroll">
       <div class="access-frame"><img src="${img(postArt("photo_access_art.jpg"), 900)}" alt="" decoding="async" fetchpriority="high"></div>
@@ -1677,7 +1664,7 @@ function renderCreateTypes() {
     <div class="lesson-head">
       ${backBtn()}
       <p class="lesson-kicker">${esc(t("TASK 3 OF 5"))}</p>
-      ${speakBtn("What do you want to make? Choose Post, Story, or Reel. Then tap Continue.")}
+      <span></span>
     </div>
     <div class="scroll">
       <h1 class="access-title left">${esc(t("What do you want to make?"))}</h1>
@@ -1693,7 +1680,7 @@ function renderIgPost(view) {
   const steps = guide.steps
     .map((step, index) => {
       const current = index === state.createStep;
-      return `<div class="ig-step ${current ? "on" : ""}" ${current ? 'data-act="ig-step" data-index="' + index + '"' : ""}><span>${index + 1}</span><b>${esc(t(step))}</b>${current && index === 0 ? speakBtn(guide.first) : ""}</div>`;
+      return `<div class="ig-step ${current ? "on" : ""}" ${current ? 'data-act="ig-step" data-index="' + index + '"' : ""}><span>${index + 1}</span><b>${esc(t(step))}</b></div>`;
     })
     .join("");
   const doodle = state.createStep === 0 ? `<img class="doodle" src="${img(postArt("click_here_doodle.png"))}" alt="">` : "";
@@ -1701,7 +1688,7 @@ function renderIgPost(view) {
     <div class="lesson-head">
       ${backBtn()}
       <p class="lesson-kicker">${esc(t(guide.header))}</p>
-      ${speakBtn(guide.spoken)}
+      <span></span>
     </div>
     <div class="scroll">
       ${igPhone(view.kind)}
@@ -1736,7 +1723,6 @@ function renderPickMedia(view) {
       <div class="gal-card-top">
         <span class="gem"></span>
         <span class="copy"><small>${esc(t(guide.pickStep))}</small><b>${esc(t(guide.pickTitle))}</b></span>
-        ${speakBtn(guide.pickSpoken)}
       </div>
       <div class="gal-card-row">
         <span class="dots"><i class="on"></i><i class="on"></i><em></em><i></i><i></i></span>
@@ -1770,7 +1756,7 @@ function renderLesson(view) {
     <div class="lesson-head">
       ${backBtn()}
       <p class="lesson-kicker">${esc(t(part.label))}</p>
-      ${speakBtn(part.line || part.lessonTitle)}
+      <span></span>
     </div>
     <div class="lesson-bars"><i></i><i class="off"></i></div>
     <div class="lesson-stage">
@@ -1787,7 +1773,7 @@ function renderProfessional(part) {
     <div class="lesson-head">
       ${backBtn()}
       <p class="lesson-kicker">${esc(t(part.label))}</p>
-      ${speakBtn("A professional page shows Professional dashboard. Tap it to learn more.")}
+      <span></span>
     </div>
     <h1 class="pro-title">${esc(t("Use a professional page"))}</h1>
     <p class="pro-sub">${esc(t("Tap Professional dashboard on your page."))}</p>
@@ -1845,7 +1831,7 @@ function renderNumbers() {
     <div class="lesson-head">
       ${backBtn()}
       <p class="lesson-kicker">${esc(t("TASK 5 · 1 OF 2"))}</p>
-      ${speakBtn(["What they mean. Four numbers to watch.", "Views are people who saw it. Likes are people who liked it.", "Saves mean they want to buy later. Messages are buyers asking."].map((line) => t(line)).join(" "))}
+      <span></span>
     </div>
     <p class="num-kicker">${esc(t("Read the numbers"))}</p>
     <div class="step-bars"><i class="on"></i><i></i></div>
@@ -1881,7 +1867,7 @@ function renderFind() {
     <div class="lesson-head">
       ${backBtn()}
       <p class="lesson-kicker">${esc(t("TASK 5 · 2 OF 2"))}</p>
-      ${speakBtn(["Find your numbers. Open your page.", "Tap Professional dashboard. Tap a post, then View insights."].map((line) => t(line)).join(" "))}
+      <span></span>
     </div>
     <p class="num-kicker find">${esc(t("Read the numbers"))}</p>
     <div class="step-bars"><i class="on"></i><i class="on"></i></div>
@@ -1922,7 +1908,7 @@ function renderCheck(view) {
     <div class="lesson-head">
       ${backBtn()}
       <p class="lesson-kicker">${esc(t(part.label))}</p>
-      ${speakBtn(spoken)}
+      <span></span>
     </div>
     <div class="lesson-bars"><i></i><i></i></div>
     <h1 class="check-title">${esc(t("Which is better?"))}</h1>
@@ -2143,7 +2129,7 @@ function renderDisplays(view) {
     <div class="lesson-head">
       ${backBtn()}
       <span></span>
-      ${speakBtn(spoken)}
+      <span></span>
     </div>
     <h1 class="pick-title">${esc(t("How will you show it?"))}</h1>
     <p class="pick-sub">${esc(t("Tap one or more"))}</p>
@@ -2240,7 +2226,10 @@ function renderBadge(view) {
 }
 
 function render(options) {
-  document.body.dataset.lang = code();
+  const langCode = code();
+  document.body.dataset.lang = langCode;
+  const locale = (LANGS.find((item) => item.id === langCode) || LANGS[0]).locale;
+  document.documentElement.lang = locale.split("-")[0];
   const view = current();
   const html = {
     splash: renderSplash,
@@ -2741,20 +2730,6 @@ document.getElementById("phone").addEventListener("click", (event) => {
   const node = event.target.closest("[data-act]");
   if (!node) return;
   const act = node.dataset.act;
-  if (act === "speak" || act === "speak-native") {
-    event.stopPropagation();
-    if (act === "speak-native") {
-      const previous = state.lang;
-      state.lang = node.dataset.locale;
-      speak(node.dataset.say);
-      state.lang = previous;
-      const card = node.closest("[data-act='choose-lang']");
-      if (card) card.click();
-    } else {
-      speak(node.dataset.text);
-    }
-    return;
-  }
   if (act === "back") {
     if (current().name === "tryit" && state.tryStep > 0) {
       captureFields();
