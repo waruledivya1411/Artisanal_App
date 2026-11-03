@@ -11,7 +11,6 @@ import 'package:artisnal_app/features/learn/screens/product_picker_screen.dart';
 import 'package:artisnal_app/features/learn/screens/task_parts_screen.dart';
 import 'package:artisnal_app/features/learn/screens/professional_part_screen.dart';
 import 'package:artisnal_app/features/learn/screens/setup_try_it_flow_screen.dart';
-import 'package:artisnal_app/features/learn/widgets/light_setup_diagram.dart';
 
 /// Shared by every route of the photography setup, so finishing the last
 /// step can pop back past all of them in one go.
@@ -157,22 +156,23 @@ TaskPartsScreen photographyTask(String locale) {
         open: (_) => LearnPartScreen(
           locale: locale,
           partLabel: 'PART 5 · LIGHT FOR COTTON',
-          title: 'Cotton: light from the side',
-          line: 'Cotton and eri soak up light. Side light shows the weave.',
-          image: 'assets/images/lessons/photography/cotton_light_art.jpg',
+          title: 'Cotton: soft light from the front',
+          line:
+              'Cotton and eri soak up light. Soft light from the front shows them evenly.',
+          image: 'assets/images/lessons/photography/cotton_front_light_art.jpg',
           nextBuilder: (_) => CheckPartScreen(
             locale: locale,
             partLabel: 'PART 5 · LIGHT FOR COTTON',
             wrong: const CheckOption(
-              image: 'assets/images/lessons/photography/cotton_flat_light.jpg',
-              label: 'Light from the front',
+              image: 'assets/images/lessons/photography/cotton_side_light.jpg',
+              label: 'Hard light from the side',
             ),
             right: const CheckOption(
-              image: 'assets/images/lessons/photography/cotton_side_light.jpg',
-              label: 'Light from the side',
+              image: 'assets/images/lessons/photography/cotton_soft_front.jpg',
+              label: 'Soft light from the front',
             ),
-            rightReason: 'Side light shows the weave',
-            wrongReason: 'Front light hides the weave',
+            rightReason: 'Soft front light shows the weave evenly',
+            wrongReason: 'Side light leaves dark shadows',
           ),
         ),
       ),
@@ -198,56 +198,6 @@ TaskPartsScreen photographyTask(String locale) {
             ),
             rightReason: 'Soft light makes silk glow',
             wrongReason: 'Sun makes white glare spots',
-          ),
-        ),
-      ),
-      TaskPart(
-        '7',
-        'Shade the silk',
-        open: (_) => LearnPartScreen(
-          locale: locale,
-          partLabel: 'PART 7 · SHADE THE SILK',
-          title: 'Hang a white sheet',
-          line: 'A white sheet on the window keeps the sun off the silk.',
-          picture: const LightSetupDiagram(kind: LightSetupKind.sheet),
-          nextBuilder: (_) => CheckPartScreen(
-            locale: locale,
-            partLabel: 'PART 7 · SHADE THE SILK',
-            wrong: const CheckOption(
-              image: 'assets/images/lessons/photography/silk_glare.jpg',
-              label: 'Bare sun',
-            ),
-            right: const CheckOption(
-              image: 'assets/images/lessons/photography/silk_soft_light.jpg',
-              label: 'White sheet',
-            ),
-            rightReason: 'Soft light lets the silk glow',
-            wrongReason: 'Bare sun makes white spots',
-          ),
-        ),
-      ),
-      TaskPart(
-        '8',
-        'Turn the silk',
-        open: (_) => LearnPartScreen(
-          locale: locale,
-          partLabel: 'PART 8 · TURN THE SILK',
-          title: 'Turn away from the glare',
-          line: 'Turn the cloth until the shine stays on the silk, not in the camera.',
-          picture: const LightSetupDiagram(kind: LightSetupKind.turn),
-          nextBuilder: (_) => CheckPartScreen(
-            locale: locale,
-            partLabel: 'PART 8 · TURN THE SILK',
-            wrong: const CheckOption(
-              image: 'assets/images/lessons/photography/silk_glare.jpg',
-              label: 'Glare on the motif',
-            ),
-            right: const CheckOption(
-              image: 'assets/images/lessons/photography/silk_soft_light.jpg',
-              label: 'Shine on the cloth',
-            ),
-            rightReason: 'The motif stays clear',
-            wrongReason: 'A white spot hides the motif',
           ),
         ),
       ),

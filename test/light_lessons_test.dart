@@ -14,8 +14,6 @@ void main() {
       'Straight angle',
       'Light for cotton',
       'Light for silk',
-      'Shade the silk',
-      'Turn the silk',
     ]);
     expect(LearnTaskChain.partCounts[photographyTaskId], parts.length);
 
@@ -26,7 +24,7 @@ void main() {
 
     expect(
       screen(4).line,
-      'Cotton and eri soak up light. Side light shows the weave.',
+      'Cotton and eri soak up light. Soft light from the front shows them evenly.',
     );
     expect(
       screen(5).line,
@@ -37,10 +35,10 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     await tester.pumpWidget(
-      MaterialApp(home: screen(6)),
+      MaterialApp(home: screen(5)),
     );
     await tester.pump();
-    expect(find.text('Hang a white sheet'), findsOneWidget);
+    expect(find.text('Silk: soft light, no sun'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

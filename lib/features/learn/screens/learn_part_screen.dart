@@ -14,19 +14,15 @@ class LearnPartScreen extends StatefulWidget {
     required this.locale,
     required this.partLabel,
     required this.title,
-    this.image,
-    this.picture,
+    required this.image,
     this.line,
     this.nextBuilder,
-  }) : assert(image != null || picture != null);
+  });
 
   final String locale;
   final String partLabel;
   final String title;
-  final String? image;
-
-  /// Drawn lesson, used when the step is a diagram rather than a photo.
-  final Widget? picture;
+  final String image;
 
   /// One spoken line under the title, the idea the picture is teaching.
   final String? line;
@@ -180,14 +176,13 @@ class _LearnPartScreenState extends State<LearnPartScreen> {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(24),
-                              child: widget.picture ??
-                                  Padding(
-                                    padding: const EdgeInsets.all(12),
-                                    child: SharpImage(
-                                      widget.image!,
-                                      fit: BoxFit.contain,
-                                    ),
-                                  ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: SharpImage(
+                                  widget.image,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
                             ),
                           ),
                         ),
