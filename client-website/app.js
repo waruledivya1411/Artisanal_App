@@ -1249,9 +1249,9 @@ function shotArt(product, key) {
   if (key === "full_display" && (product === "Stole" || product === "Shawl" || product === "Gamusa")) return { file: dir + "stole_hanging_outline_v2.png", fit: "tall", aspect: 900 / 1313 };
   if (key === "embroidery_and_border" && product === "Mekhala sador") return { file: dir + "mekhala_border_outline.png", fit: "aspect", aspect: 900 / 1220 };
   if (key === "embroidery_and_border") return { file: dir + "embroidery_outline_v2.png", fit: "inset" };
-  if (key === "hanging_display" && product === "Mekhala sador") return { file: dir + "mekhala_hanging_outline_v2.png", fit: "aspect", aspect: 1000 / 1014 };
+  if (key === "hanging_display" && product === "Mekhala sador") return { file: dir + "mekhala_hanging_outline_v3.png", fit: "aspect", aspect: 1000 / 1142 };
   if (key === "hanging_display" && product === "Saree") return { file: dir + "hanging_outline_v2.png", fit: "hanging" };
-  if (key === "folded_stack" && product === "Mekhala sador") return { file: dir + "mekhala_folded_outline.png", fit: "folded", aspect: 1000 / 710 };
+  if (key === "folded_stack" && product === "Mekhala sador") return { file: dir + "mekhala_folded_outline_v2.png", fit: "folded", aspect: 1000 / 727 };
   if (key === "folded_stack" && (product === "Stole" || product === "Shawl" || product === "Gamusa")) return { file: dir + "stole_folded_outline.png", fit: "aspect", aspect: tassel };
   if (key === "folded_stack" && product === "Saree") return { file: dir + "folded_outline_v2.png", fit: "folded", aspect: 1.25 };
   if (key === "sofa_seated_display") return { file: dir + "cushion_sofa_outline.png", fit: "aspect", aspect: 1000 / 914 };
