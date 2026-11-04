@@ -1259,7 +1259,7 @@ function shotArt(product, key) {
   if (key === "close-up_texture" && (pair || product === "Yardages")) return { file: dir + "closeup_outline.png", fit: "inset", box: true };
   if (key === "hanging_display" && product === "Jod kappur") return { file: dir + "jod_hanging_outline_v3.png", fit: "jod-hanging", aspect: 1000 / 991 };
   if (key === "folded_stack" && product === "Jod kappur") return { file: dir + "jod_folded_outline_v2.png", fit: "aspect", aspect: 1000 / 897 };
-  if (key === "hanging_display" && product === "Yardages") return { file: dir + "yardage_hanging_outline.png", fit: "tall", aspect: 900 / 1286 };
+  if (key === "hanging_display" && product === "Yardages") return { file: dir + "yardage_hanging_outline_v2.png", fit: "tall", aspect: 900 / 1161 };
   return null;
 }
 
@@ -2725,6 +2725,20 @@ let lightTimer = null;
 const lightSample = document.createElement("canvas");
 lightSample.width = 24;
 lightSample.height = 24;
+const lightGrainSample = document.createElement("canvas");
+lightGrainSample.width = 64;
+lightGrainSample.height = 64;
+const LIGHT_WINDOW = 8; // Readings judged together: 4 seconds.
+const LIGHT_FIRST_READINGS = 4; // Before the first label: 2 seconds.
+const LIGHT_HOLD = 6; // A new level must last this long to show: 3 seconds.
+let lightHistory = [];
+let lightLastPixels = null;
+let lightPending = null;
+let lightPendingCount = 0;
+let lightFrames = 0;
+let lightFrameStart = 0;
+let lightLastFrameShare = 0;
+let lightCanCountFrames = false;
 
 const LIGHT_COPY = {
   as: { "Checking the light": "পোহৰ চালি আছে", "Too dark": "বৰ আন্ধাৰ", Medium: "মজলীয়া", Perfect: "একেবাৰে ঠিক" },
@@ -2746,9 +2760,35 @@ function stopCamera() {
 }
 
 function lightLevel(luma, prev) {
-  if (prev === "dark") return luma < 65 ? "dark" : luma < 115 ? "medium" : "good";
-  if (prev === "good") return luma < 55 ? "dark" : luma < 105 ? "medium" : "good";
-  return luma < 55 ? "dark" : luma < 115 ? "medium" : "good";
+  if (prev === "dark") return luma < 80 ? "dark" : luma < 125 ? "medium" : "good";
+  if (prev === "good") return luma < 70 ? "dark" : luma < 115 ? "medium" : "good";
+  return luma < 70 ? "dark" : luma < 125 ? "medium" : "good";
+}
+
+// A camera brightens its picture in a dim room, so brightness alone can look
+// fine. These are the signs of it working hard: a long exposure at a high ISO,
+// a picture slowed down to gather light, and grain. Each can only lower the
+// label, never raise it. Each is left out when it cannot be measured.
+function lightStrain({ exposure, iso, frameShare, grain }, prev) {
+  const signs = [];
+  if (exposure > 0 && iso > 0) {
+    const effort = exposure * iso;
+    signs.push(effort >= 266000 ? "dark" : effort >= 66000 ? "medium" : "good");
+  }
+  if (frameShare > 0) signs.push(frameShare < 0.55 ? "dark" : frameShare < 0.8 ? "medium" : "good");
+  if (grain >= 0) {
+    // Harder to leave a level than to enter it, so it does not hover between two.
+    const darkFrom = prev === "dark" ? 5 : 6;
+    const mediumFrom = prev === "good" || !prev ? 4 : 3;
+    signs.push(grain >= darkFrom ? "dark" : grain >= mediumFrom ? "medium" : "good");
+  }
+  if (signs.includes("dark")) return "dark";
+  return signs.includes("medium") ? "medium" : "good";
+}
+
+function worseLight(a, b) {
+  const order = ["dark", "medium", "good"];
+  return order[Math.min(order.indexOf(a), order.indexOf(b))];
 }
 
 function lightIcon(kind) {
@@ -2763,15 +2803,68 @@ function lightIcon(kind) {
   return `<svg ${box}>${face}<path d="${rays}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
 }
 
-function paintLight(luma) {
+// Single readings jump about, so the label goes by the last few seconds, and
+// only changes once the new level has lasted a few seconds too.
+function paintLight(luma, facts) {
   const pill = document.querySelector(".cam-light");
   if (!pill || !Number.isFinite(luma)) return;
-  const level = lightLevel(luma, pill.dataset.level);
-  if (pill.dataset.level === level) return;
-  pill.dataset.level = level;
-  pill.className = "cam-light " + level;
-  const label = level === "dark" ? "Too dark" : level === "medium" ? "Medium" : "Perfect";
-  pill.innerHTML = `${lightIcon(level)}<span>${esc(t(label))}</span>`;
+  lightHistory.push({ luma, grain: facts.grain });
+  if (lightHistory.length > LIGHT_WINDOW) lightHistory.shift();
+  if (lightHistory.length < LIGHT_FIRST_READINGS) return;
+
+  const average = lightHistory.reduce((sum, item) => sum + item.luma, 0) / lightHistory.length;
+  const grains = lightHistory.map((item) => item.grain).filter((grain) => grain >= 0).sort((a, b) => a - b);
+  const grain = grains.length ? grains[Math.floor(grains.length / 2)] : -1;
+  const shown = pill.dataset.level;
+  const wanted = worseLight(lightLevel(average, shown), lightStrain({ ...facts, grain }, shown));
+
+  if (shown) {
+    if (wanted === shown) {
+      lightPending = null;
+      lightPendingCount = 0;
+      return;
+    }
+    lightPendingCount = wanted === lightPending ? lightPendingCount + 1 : 1;
+    lightPending = wanted;
+    if (lightPendingCount < LIGHT_HOLD) return;
+    lightPending = null;
+    lightPendingCount = 0;
+  }
+  pill.dataset.level = wanted;
+  pill.className = "cam-light " + wanted;
+  const label = wanted === "dark" ? "Too dark" : wanted === "medium" ? "Medium" : "Perfect";
+  pill.innerHTML = `${lightIcon(wanted)}<span>${esc(t(label))}</span>`;
+}
+
+// The middle of the picture at full detail: squeezing it down would smooth the
+// grain away. The middle value is used, so someone moving does not count.
+function readGrain(video) {
+  const size = 64;
+  const ctx = lightGrainSample.getContext("2d", { willReadFrequently: true });
+  ctx.drawImage(video, (video.videoWidth - size) / 2, (video.videoHeight - size) / 2, size, size, 0, 0, size, size);
+  const data = ctx.getImageData(0, 0, size, size).data;
+  const now = new Float32Array(size * size);
+  for (let i = 0; i < now.length; i += 1) {
+    now[i] = data[i * 4] * 0.2126 + data[i * 4 + 1] * 0.7152 + data[i * 4 + 2] * 0.0722;
+  }
+  const before = lightLastPixels;
+  lightLastPixels = now;
+  if (!before) return -1;
+  const changes = new Float32Array(now.length);
+  for (let i = 0; i < now.length; i += 1) changes[i] = Math.abs(now[i] - before[i]);
+  changes.sort();
+  return changes[Math.floor(changes.length / 2)];
+}
+
+// How much of its usual speed the picture is running at, from 0 to 1.
+function readFrameShare(settings) {
+  const now = performance.now();
+  const seconds = (now - lightFrameStart) / 1000;
+  if (!settings.frameRate || !lightCanCountFrames || seconds < 2 || document.hidden) return 0;
+  const share = lightFrames / seconds / settings.frameRate;
+  lightFrames = 0;
+  lightFrameStart = now;
+  return share;
 }
 
 function readSceneLight(video) {
@@ -2786,12 +2879,35 @@ function readSceneLight(video) {
     for (let i = 0; i < data.length; i += 4) {
       sum += data[i] * 0.2126 + data[i + 1] * 0.7152 + data[i + 2] * 0.0722;
     }
-    paintLight(sum / (data.length / 4));
+    const track = cameraStream && cameraStream.getVideoTracks()[0];
+    const settings = (track && track.getSettings && track.getSettings()) || {};
+    paintLight(sum / (data.length / 4), {
+      exposure: settings.exposureTime || 0,
+      iso: settings.iso || 0,
+      frameShare: (lightLastFrameShare = readFrameShare(settings) || lightLastFrameShare),
+      grain: readGrain(video),
+    });
   } catch (_) {}
 }
 
 function startLightMeter(video) {
   clearInterval(lightTimer);
+  lightHistory = [];
+  lightLastPixels = null;
+  lightPending = null;
+  lightPendingCount = 0;
+  lightFrames = 0;
+  lightFrameStart = performance.now();
+  lightLastFrameShare = 0;
+  lightCanCountFrames = typeof video.requestVideoFrameCallback === "function";
+  if (lightCanCountFrames) {
+    const countFrame = () => {
+      if (!document.body.contains(video)) return;
+      lightFrames += 1;
+      video.requestVideoFrameCallback(countFrame);
+    };
+    video.requestVideoFrameCallback(countFrame);
+  }
   lightTimer = setInterval(() => {
     if (!document.body.contains(video)) {
       clearInterval(lightTimer);

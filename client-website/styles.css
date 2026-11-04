@@ -2482,7 +2482,7 @@ a.btn { text-decoration: none; }
   pointer-events: none;
   box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.4);
 }
-.cam-outline.inset { inset: 8px; width: auto; height: auto; transform: none; }
+.cam-outline.inset { inset: 8px; width: auto; height: auto; aspect-ratio: auto; transform: none; }
 .cam-light {
   position: absolute;
   left: 50%;

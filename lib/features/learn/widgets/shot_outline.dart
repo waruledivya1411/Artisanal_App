@@ -458,8 +458,8 @@ class ShotOutlineOverlay extends StatelessWidget {
   /// Yardage gathered over a rod, motifs scattered across it, for the hanging
   /// shot.
   static const yardageHangingArt =
-      'assets/images/lessons/photography/yardage_hanging_outline.png';
-  static const yardageHangingArtAspect = 900 / 1286;
+      'assets/images/lessons/photography/yardage_hanging_outline_v2.png';
+  static const yardageHangingArtAspect = 900 / 1161;
 
   /// The motifs of a close-up, light on a clear background, laid inside the
   /// dashed box - the box itself is the texture to fill.
