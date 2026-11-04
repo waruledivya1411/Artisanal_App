@@ -433,7 +433,7 @@ const TASKS = [
         {
           lessonTitle: "Cotton: soft light from the front",
           line: "Cotton and eri soak up light. Soft light from the front shows them evenly.",
-          image: photo("cotton_front_light_facing.jpg"),
+          image: photo("cotton_front_light_clean.jpg"),
           wrong: { image: photo("cotton_side_light.jpg"), label: "Hard light from the side" },
           right: { image: photo("cotton_soft_front.jpg"), label: "Soft light from the front" },
           rightReason: "Soft front light shows the weave evenly",
@@ -1248,7 +1248,7 @@ function shotArt(product, key) {
   if (key === "sofa_seated_display") return { file: dir + "cushion_sofa_outline.png", fit: "aspect", aspect: 1000 / 914 };
   if (key === "flat_lay_display") return { file: dir + "cushion_flat_outline.png", fit: "aspect", aspect: 1000 / 892 };
   if (key === "close-up_texture" && (pair || product === "Yardages")) return { file: dir + "closeup_outline.png", fit: "inset", box: true };
-  if (key === "hanging_display" && product === "Jod kappur") return { file: dir + "jod_hanging_outline.png", fit: "aspect", aspect: 1000 / 897 };
+  if (key === "hanging_display" && product === "Jod kappur") return { file: dir + "jod_hanging_outline_v2.png", fit: "aspect", aspect: 1000 / 702 };
   if (key === "folded_stack" && product === "Jod kappur") return { file: dir + "jod_folded_outline_v2.png", fit: "aspect", aspect: 1000 / 897 };
   if (key === "hanging_display" && product === "Yardages") return { file: dir + "yardage_hanging_outline.png", fit: "tall", aspect: 900 / 1286 };
   return null;

@@ -160,7 +160,7 @@ TaskPartsScreen photographyTask(String locale) {
           title: 'Cotton: soft light from the front',
           line:
               'Cotton and eri soak up light. Soft light from the front shows them evenly.',
-          image: 'assets/images/lessons/photography/cotton_front_light_facing.jpg',
+          image: 'assets/images/lessons/photography/cotton_front_light_clean.jpg',
           nextBuilder: (_) => CheckPartScreen(
             locale: locale,
             partLabel: 'PART 5 · LIGHT FOR COTTON',

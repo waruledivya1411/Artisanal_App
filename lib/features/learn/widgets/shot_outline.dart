@@ -446,8 +446,8 @@ class ShotOutlineOverlay extends StatelessWidget {
   /// Jod kappur on one rod, the wide cloth beside the narrow tasseled piece,
   /// for the hanging shot.
   static const jodHangingArt =
-      'assets/images/lessons/photography/jod_hanging_outline.png';
-  static const jodHangingArtAspect = 1000 / 897;
+      'assets/images/lessons/photography/jod_hanging_outline_v2.png';
+  static const jodHangingArtAspect = 1000 / 702;
 
   /// Jod kappur folded, the wide cloth behind the smaller tasseled piece, for
   /// the folded shot.
