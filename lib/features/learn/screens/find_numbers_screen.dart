@@ -8,8 +8,10 @@ import 'package:artisnal_app/core/speech/speech_player.dart';
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
+import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
 import 'package:artisnal_app/features/learn/widgets/ig_profile_preview.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
+import 'package:artisnal_app/features/learn/widgets/next_learn_task_button.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class FindNumbersScreen extends StatefulWidget {
@@ -71,7 +73,35 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
   void _leave() {
     _speech.stop();
     final step = LessonStep.maybeOf(context);
-    step == null ? Navigator.of(context).maybePop() : step.onFinished();
+    if (step == null) {
+      Navigator.of(context).maybePop();
+      return;
+    }
+    final taskId = step.learnTaskId;
+    final locale = step.locale;
+    if (step.nextLearnTaskTitle != null && taskId != null && locale != null) {
+      LearnTaskNavigation.finishLessonAndOpenNext(
+        navigator: Navigator.of(context),
+        finishedTaskId: taskId,
+        locale: locale,
+        finishLesson: step.onFinished,
+      );
+      return;
+    }
+    step.onFinished();
+  }
+
+  void _goHome() {
+    _speech.stop();
+    final step = LessonStep.maybeOf(context);
+    if (step == null) {
+      Navigator.of(context).maybePop();
+      return;
+    }
+    LearnTaskNavigation.finishLessonAndGoHome(
+      navigator: Navigator.of(context),
+      finishLesson: step.onFinished,
+    );
   }
 
   Future<void> _openInstagram() async {
@@ -264,7 +294,15 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
                 color: Color(0x66152322),
                 child: SizedBox.expand(),
               ),
-              Center(child: _BadgeCard(onContinue: _leave)),
+              Center(
+                child: SingleChildScrollView(
+                  child: _BadgeCard(
+                    nextTask: LessonStep.maybeOf(context)?.nextLearnTaskTitle,
+                    onContinue: _leave,
+                    onHome: _goHome,
+                  ),
+                ),
+              ),
               Positioned.fill(
                 child: IgnorePointer(child: _Confetti(animation: _confetti)),
               ),
@@ -277,9 +315,15 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
 }
 
 class _BadgeCard extends StatelessWidget {
-  const _BadgeCard({required this.onContinue});
+  const _BadgeCard({
+    required this.onContinue,
+    required this.onHome,
+    this.nextTask,
+  });
 
   final VoidCallback onContinue;
+  final VoidCallback onHome;
+  final String? nextTask;
 
   @override
   Widget build(BuildContext context) {
@@ -354,7 +398,11 @@ class _BadgeCard extends StatelessWidget {
                     width: double.infinity,
                     child: Center(
                       child: Text(
-                        tr('Continue'),
+                        tr(
+                          nextTask == null
+                              ? 'Continue'
+                              : 'Next task: $nextTask',
+                        ),
                         style: appType(
                           color: Colors.white,
                           fontSize: 16,
@@ -365,6 +413,10 @@ class _BadgeCard extends StatelessWidget {
                   ),
                 ),
               ),
+              if (nextTask != null) ...[
+                const SizedBox(height: 6),
+                GoHomeButton(onTap: onHome),
+              ],
             ],
           ),
         ),

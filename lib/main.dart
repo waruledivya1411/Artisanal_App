@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:artisnal_app/app/app.dart';
+import 'package:artisnal_app/features/learn/data/saved_work.dart';
 import 'package:artisnal_app/features/onboarding/screens/splash_screen.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -15,5 +16,6 @@ void main() {
       systemNavigationBarIconBrightness: Brightness.light,
     ),
   );
+  await loadSavedData();
   runApp(const ArtisnalApp());
 }

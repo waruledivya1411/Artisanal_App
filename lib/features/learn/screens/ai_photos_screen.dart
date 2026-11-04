@@ -9,6 +9,7 @@ import 'package:artisnal_app/features/learn/data/ai_prompts.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
 import 'package:artisnal_app/features/learn/data/products.dart';
+import 'package:artisnal_app/features/learn/data/saved_work.dart';
 import 'package:artisnal_app/features/learn/screens/lesson_badge_screen.dart';
 
 /// Builds a prompt for the artisan's own AI tool, a few taps at a time: the
@@ -130,6 +131,7 @@ class _AiPhotosScreenState extends State<AiPhotosScreen> {
         );
       return;
     }
+    SavedWork.instance.saveAiPrompt(_prompt);
     setState(() => _copied = true);
     _copiedTimer?.cancel();
     _copiedTimer = Timer(const Duration(milliseconds: 2500), () {

@@ -381,8 +381,8 @@ class ShotOutlineOverlay extends StatelessWidget {
   /// Dotted sari laid flat, a border down each side, for the full display
   /// shot. Drawn the same way as [drapedArt].
   static const fullDisplayArt =
-      'assets/images/lessons/photography/full_display_outline_v2.png';
-  static const fullDisplayArtAspect = 900 / 1344;
+      'assets/images/lessons/photography/full_display_outline_v3.png';
+  static const fullDisplayArtAspect = 900 / 1286;
 
   /// Dotted sari hanging from a hanger, for the hanging shot. Drawn the same
   /// way as [drapedArt], borders kept in gold.
@@ -422,8 +422,8 @@ class ShotOutlineOverlay extends StatelessWidget {
   /// tassels at the foot. Stole, shawl and gamusa all hang this way for
   /// their full display shot.
   static const rodHangingArt =
-      'assets/images/lessons/photography/stole_hanging_outline.png';
-  static const rodHangingArtAspect = 900 / 1163;
+      'assets/images/lessons/photography/stole_hanging_outline_v2.png';
+  static const rodHangingArtAspect = 900 / 1313;
 
   /// Dotted folded stole: a woven band across, a border down the side and
   /// tassels along the front. Stole, shawl and gamusa all fold this way.
@@ -452,8 +452,8 @@ class ShotOutlineOverlay extends StatelessWidget {
   /// Jod kappur folded, the wide cloth behind the smaller tasseled piece, for
   /// the folded shot.
   static const jodFoldedArt =
-      'assets/images/lessons/photography/jod_folded_outline.png';
-  static const jodFoldedArtAspect = 1000 / 784;
+      'assets/images/lessons/photography/jod_folded_outline_v2.png';
+  static const jodFoldedArtAspect = 1000 / 897;
 
   /// Yardage gathered over a rod, motifs scattered across it, for the hanging
   /// shot.
@@ -587,6 +587,14 @@ class ShotOutlineOverlay extends StatelessWidget {
             ShotOverlayKind.yardageHanging => tallArtRect(
                 screen,
                 yardageHangingArtAspect,
+                clearTop,
+                clearBottom,
+              ),
+            ShotOverlayKind.stoleFull ||
+            ShotOverlayKind.shawlFull ||
+            ShotOverlayKind.gamusaFull => tallArtRect(
+                screen,
+                rodHangingArtAspect,
                 clearTop,
                 clearBottom,
               ),

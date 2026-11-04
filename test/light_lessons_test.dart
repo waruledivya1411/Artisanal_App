@@ -38,7 +38,7 @@ void main() {
       MaterialApp(home: screen(5)),
     );
     await tester.pump();
-    expect(find.text('Silk: soft light, no sun'), findsOneWidget);
+    expect(find.text('Silk: soft light from the side'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

@@ -6,7 +6,10 @@ import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/core/widgets/sharp_image.dart';
 import 'package:artisnal_app/features/learn/widgets/ig_profile_preview.dart';
+import 'package:artisnal_app/features/learn/data/learn_progress.dart';
+import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
+import 'package:artisnal_app/features/learn/screens/lesson_badge_screen.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
 
@@ -152,18 +155,14 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
     if (_choice == null) return;
     final step = LessonStep.maybeOf(context);
     if (step != null) {
-      final goToNextTask = step.nextTitle == null &&
-          step.nextLearnTaskTitle != null &&
-          step.learnTaskId != null &&
-          step.locale != null;
-      if (goToNextTask) {
-        final navigator = Navigator.of(context);
-        LearnTaskNavigation.finishLessonAndOpenNext(
-          navigator: navigator,
-          finishedTaskId: step.learnTaskId!,
-          locale: step.locale!,
-          finishLesson: step.onFinished,
-        );
+      final taskId = step.learnTaskId;
+      final locale = step.locale;
+      final nextTask = step.nextLearnTaskTitle;
+      if (step.nextTitle == null &&
+          nextTask != null &&
+          taskId != null &&
+          locale != null) {
+        _showBadge(step, taskId, locale, nextTask);
         return;
       }
       step.onFinished();
@@ -172,14 +171,48 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
     Navigator.of(context).maybePop();
   }
 
+  /// The end of a task: the badge, then the artisan chooses where to go.
+  void _showBadge(
+    LessonStep step,
+    String taskId,
+    String locale,
+    String nextTask,
+  ) {
+    final partCount = LearnTaskChain.partCounts[taskId];
+    if (partCount != null) {
+      LearnProgress.instance.finishTask(taskId, partCount);
+    }
+    final lessonNavigator = Navigator.of(context);
+    lessonNavigator.push<void>(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (badgeContext) => LessonBadgeScreen(
+          title: LearnTaskChain.titleFor(taskId),
+          subtitle: LearnTaskChain.badgeLineFor(taskId),
+          nextLearnTaskTitle: nextTask,
+          onContinue: () => LearnTaskNavigation.dismissBadgeFinishAndOpenNext(
+            badgeContext: badgeContext,
+            lessonNavigator: lessonNavigator,
+            finishedTaskId: taskId,
+            locale: locale,
+            finishLesson: step.onFinished,
+          ),
+          onHome: () {
+            Navigator.of(badgeContext).pop();
+            LearnTaskNavigation.finishLessonAndGoHome(
+              navigator: lessonNavigator,
+              finishLesson: step.onFinished,
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   String _nextLabel() {
     final step = LessonStep.maybeOf(context);
     if (step == null) return 'Next';
     final nextTitle = step.nextTitle;
-    final nextTask = step.nextLearnTaskTitle;
-    if (nextTitle == null && nextTask != null) {
-      return 'Next task: $nextTask';
-    }
     if (nextTitle == null) return 'Finish';
     if (step.nextPartHidden) return 'Next';
     return 'Next part · $nextTitle';

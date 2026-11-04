@@ -295,7 +295,18 @@ h1.hello {
   font-weight: 600;
 }
 .nav button.on { color: var(--teal); }
-.nav img { width: 24px; height: 24px; object-fit: contain; }
+.nav-icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+  background: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
 .nav svg { width: 24px; height: 24px; }
 
 .welcome-fit {
@@ -1041,7 +1052,8 @@ h1.hello {
   background: #edf2ef;
   color: var(--muted);
 }
-.badge.on .medal {
+.badge.on .medal,
+.work-top .medal {
   background: linear-gradient(180deg, #f6e7c8, var(--gold));
   color: #fff;
 }
@@ -2377,12 +2389,11 @@ a.btn { text-decoration: none; }
 .cam { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .cam-top { position: relative; height: 56px; display: flex; align-items: center; flex: none; }
 .icon-btn.light { color: #fff; }
-.cam-slot { flex: 1; min-height: 0; display: flex; justify-content: center; }
+.cam-slot { container-type: size; flex: 1; min-height: 0; display: flex; justify-content: center; }
 .cam-frame {
-  height: 100%;
-  width: auto;
-  max-width: 100%;
-  aspect-ratio: 3 / 4;
+  /* Always exactly 3:4, the shape of the saved photo, whatever the window. */
+  width: min(100cqw, 75cqh);
+  height: min(100cqh, 133.333cqw);
   position: relative;
   background: #101614;
   overflow: hidden;
@@ -2459,12 +2470,13 @@ a.btn { text-decoration: none; }
 }
 .screen.edit { background: #102624; color: #fff; }
 .edit { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 4px 16px 12px; }
-.edit-head { height: 48px; display: grid; grid-template-columns: 40px 1fr auto; align-items: center; }
-.edit-head b { text-align: center; font-size: 17px; }
-.edit-head button[data-act="edit-reset"] { border: 0; background: none; color: #fff; font-size: 15px; font-weight: 600; }
-.edit-card { flex: 1; min-height: 0; background: #fff; border-radius: 22px; padding: 16px; display: grid; place-items: center; }
-.edit-stage { position: relative; width: 100%; max-height: 100%; background: #f4f1ea; overflow: hidden; }
-.edit-photo { position: absolute; object-fit: cover; }
+.edit-head { height: 48px; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; column-gap: 8px; align-items: center; }
+.edit-head b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; font-size: 17px; }
+.edit-save { justify-self: end; white-space: nowrap; height: 36px; padding: 0 16px; border: 0; border-radius: 18px; background: #fff; color: var(--teal); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.edit-card { flex: 1; min-height: 0; container-type: size; background: #fff; border-radius: 22px; padding: 8px; display: grid; place-items: center; }
+.edit-stage { position: relative; background: #f4f1ea; overflow: hidden; }
+.edit-photo-box { position: absolute; }
+.edit-photo { position: absolute; left: 50%; top: 50%; max-width: none; object-fit: fill; }
 .crop-box { position: absolute; border: 2px solid #fff; box-shadow: 0 0 0 999px rgba(16, 38, 36, 0.45); touch-action: none; }
 .crop-box i { position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 3px; }
 .crop-box i[data-handle="nw"] { left: -8px; top: -8px; }
@@ -2474,9 +2486,9 @@ a.btn { text-decoration: none; }
 .edit-slide { width: 100%; margin: 16px 0 0; accent-color: #fff; }
 .edit-gap { height: 48px; }
 .edit-hint { margin: 6px 0 0; text-align: center; color: rgba(255, 255, 255, 0.72); font-size: 12px; font-weight: 500; }
-.edit-tools { display: flex; justify-content: space-evenly; margin-top: 14px; }
-.edit-tool { border: 0; background: none; color: #fff; font-size: 12px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.edit-tool span { width: 56px; height: 56px; border-radius: 50%; background: #1c3331; color: #fff; display: grid; place-items: center; }
+.edit-tools { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 14px; }
+.edit-tool { min-width: 0; padding: 0 2px; border: 0; background: none; color: #fff; font-size: 12px; font-weight: 600; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.edit-tool span { width: min(52px, 100%); aspect-ratio: 1; border-radius: 50%; background: #1c3331; color: #fff; display: grid; place-items: center; }
 .edit-tool.on span { background: #fff; color: var(--teal); }
 .edit .btn { margin-top: 18px; }
 .center-copy { text-align: center; padding: 12px 8px 0; }
@@ -2665,5 +2677,88 @@ a.btn { text-decoration: none; }
   font: inherit;
   font-size: 15px;
   font-weight: 700;
+  cursor: pointer;
+}
+
+/* Saved work under an earned badge, and the caption step */
+button.badge {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.work-top { text-align: center; }
+.work-top .medal { margin: 0 auto 12px; }
+.work-top h1 { margin: 0; font-size: 24px; font-weight: 800; line-height: 1.15; }
+.work-top p { margin: 6px 0 0; color: var(--muted); font-size: 14px; line-height: 1.35; }
+.work-card {
+  margin-bottom: 10px;
+  padding: 12px 14px 8px;
+  background: #fff;
+  border: 1px solid var(--card-line);
+  border-radius: 16px;
+}
+.work-card.details { padding-bottom: 12px; }
+.work-card small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.work-text {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.work-text.strong { font-size: 15px; font-weight: 600; }
+.work-card.details .work-text:last-child { margin-bottom: 0; }
+.work-copy {
+  display: block;
+  margin-left: auto;
+  min-height: 36px;
+  padding: 6px 10px;
+  background: none;
+  border: 0;
+  color: var(--teal);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.caption-box {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid var(--card-line);
+  border-radius: 16px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  resize: vertical;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.caption-box:focus { outline: none; border-color: var(--teal); }
+.caption-idea {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid var(--card-line);
+  border-radius: 14px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.35;
+  text-align: left;
   cursor: pointer;
 }

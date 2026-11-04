@@ -6,6 +6,7 @@ import 'package:artisnal_app/core/widgets/sharp_image.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/create_content_kind.dart';
 import 'package:artisnal_app/features/learn/screens/did_you_post_screen.dart';
+import 'package:artisnal_app/features/learn/screens/write_caption_screen.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
 
 class PickPhotoGuideScreen extends StatefulWidget {
@@ -58,14 +59,19 @@ class _PickPhotoGuideScreenState extends State<PickPhotoGuideScreen> {
     final index = _selectedIndex;
     if (index == null) return;
     _speech.stop();
+    Widget didYouPost(BuildContext _) => DidYouPostScreen(
+      photoAsset: PickPhotoGuideScreen.galleryAssets[index],
+      locale: widget.locale,
+      kind: widget.kind,
+      isVideo: widget.kind == CreateContentKind.reel,
+    );
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => DidYouPostScreen(
-          photoAsset: PickPhotoGuideScreen.galleryAssets[index],
-          locale: widget.locale,
-          kind: widget.kind,
-          isVideo: widget.kind == CreateContentKind.reel,
-        ),
+        // A post gets a caption first. It replaces itself with the next page,
+        // so the pages closed after posting stay the same.
+        builder: widget.kind == CreateContentKind.post
+            ? (_) => WriteCaptionScreen(nextBuilder: didYouPost)
+            : didYouPost,
       ),
     );
   }

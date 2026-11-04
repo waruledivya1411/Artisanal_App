@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
+import 'package:artisnal_app/features/me/screens/badge_work_screen.dart';
 
 class MeScreen extends StatefulWidget {
   const MeScreen({super.key, required this.locale});
@@ -91,7 +92,20 @@ class _MeScreenState extends State<MeScreen> {
                 final taskId = LearnTaskChain.taskOrder[index];
                 final title = LearnTaskChain.titleFor(taskId);
                 final unlocked = _progress.isLearnTaskComplete(taskId);
-                return _BadgeTile(title: title, unlocked: unlocked);
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: unlocked
+                        ? () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => BadgeWorkScreen(taskId: taskId),
+                            ),
+                          )
+                        : null,
+                    child: _BadgeTile(title: title, unlocked: unlocked),
+                  ),
+                );
               },
             ),
           ],

@@ -116,7 +116,11 @@ class _NavItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (image case final file?)
-          SharpImage(file, width: 24, height: 24, fit: BoxFit.contain)
+          // The files have their own colours; the tab in use decides here.
+          ColorFiltered(
+            colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+            child: SharpImage(file, width: 24, height: 24, fit: BoxFit.contain),
+          )
         else
           Icon(icon, color: color, size: 24),
         const SizedBox(height: 8),

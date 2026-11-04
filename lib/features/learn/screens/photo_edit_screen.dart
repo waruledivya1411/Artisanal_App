@@ -55,12 +55,13 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   }
 
   PhotoEdits get _edits => PhotoEdits(
-        crop: _crop,
-        quarterTurns: _quarterTurns,
-        brightness: _brightness,
-        white: _white,
-      );
+    crop: _crop,
+    quarterTurns: _quarterTurns,
+    brightness: _brightness,
+    white: _white,
+  );
 
+  /// Undoes every change; the tool in use stays selected.
   void _reset() {
     setState(() {
       _crop = PhotoEdits.fullFrame;
@@ -81,11 +82,11 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   }
 
   double get _sliderValue => switch (_tool) {
-        _EditTool.cut => 0,
-        _EditTool.turn => (_quarterTurns % 4) / 3,
-        _EditTool.bright => ((_brightness + 0.35) / 0.8).clamp(0, 1),
-        _EditTool.white => ((_white + 1) / 2).clamp(0, 1),
-      };
+    _EditTool.cut => 0,
+    _EditTool.turn => (_quarterTurns % 4) / 3,
+    _EditTool.bright => ((_brightness + 0.35) / 0.8).clamp(0, 1),
+    _EditTool.white => ((_white + 1) / 2).clamp(0, 1),
+  };
 
   void _onSlider(double value) {
     setState(() {
@@ -105,11 +106,11 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   }
 
   String get _sliderHint => switch (_tool) {
-        _EditTool.cut => 'Cut — drag the corners or edges to crop',
-        _EditTool.turn => 'Turn — slide, or tap Turn again',
-        _EditTool.bright => 'Bright — slide to lighten or darken',
-        _EditTool.white => 'White — slide from cool to warm',
-      };
+    _EditTool.cut => 'Cut — drag the corners or edges to crop',
+    _EditTool.turn => 'Turn — slide, or tap Turn again',
+    _EditTool.bright => 'Bright — slide to lighten or darken',
+    _EditTool.white => 'White — slide from cool to warm',
+  };
 
   Future<void> _finish() async {
     if (_saving) return;
@@ -117,16 +118,13 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     try {
       final bytes = _edits.isIdentity
           ? widget.imageBytes
-          : await compute(
-              _bakeMessage,
-              (
-                widget.imageBytes,
-                (_crop.left, _crop.top, _crop.right, _crop.bottom),
-                _quarterTurns,
-                _brightness,
-                _white,
-              ),
-            );
+          : await compute(_bakeMessage, (
+              widget.imageBytes,
+              (_crop.left, _crop.top, _crop.right, _crop.bottom),
+              _quarterTurns,
+              _brightness,
+              _white,
+            ));
       final saved = await savePhotoBytes(bytes);
       if (!mounted) return;
       Navigator.of(context).pop(
@@ -146,11 +144,9 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(tr(message), style: appType()),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(tr(message), style: appType())));
   }
 
   @override
@@ -177,23 +173,23 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                 if (_tool == _EditTool.cut)
                   const SizedBox(height: 48)
                 else
-                SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    trackHeight: 4,
-                    activeTrackColor: const Color(0xFFD7E0DD),
-                    inactiveTrackColor: const Color(0xFF3D524F),
-                    thumbColor: Colors.white,
-                    overlayColor: Colors.white24,
-                    thumbShape: const RoundSliderThumbShape(
-                      enabledThumbRadius: 11,
+                  SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      trackHeight: 4,
+                      activeTrackColor: const Color(0xFFD7E0DD),
+                      inactiveTrackColor: const Color(0xFF3D524F),
+                      thumbColor: Colors.white,
+                      overlayColor: Colors.white24,
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 11,
+                      ),
+                    ),
+                    child: Slider(
+                      value: _sliderValue,
+                      divisions: _tool == _EditTool.turn ? 3 : null,
+                      onChanged: _saving ? null : _onSlider,
                     ),
                   ),
-                  child: Slider(
-                    value: _sliderValue,
-                    divisions: _tool == _EditTool.turn ? 3 : null,
-                    onChanged: _saving ? null : _onSlider,
-                  ),
-                ),
                 Text(
                   tr(_sliderHint),
                   textAlign: TextAlign.center,
@@ -204,8 +200,9 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                   ),
                 ),
                 const SizedBox(height: 14),
+                // Equal shares, so five buttons fit the narrowest phones.
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _toolButton(
                       tool: _EditTool.cut,
@@ -227,41 +224,13 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                       icon: Icons.colorize_rounded,
                       label: 'White',
                     ),
+                    _circleButton(
+                      icon: Icons.restart_alt_rounded,
+                      label: 'Reset',
+                      selected: false,
+                      onTap: _reset,
+                    ),
                   ],
-                ),
-                const SizedBox(height: 18),
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: FilledButton.icon(
-                    onPressed: _saving ? null : _finish,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: PhotoEditScreen.teal,
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor:
-                          PhotoEditScreen.teal.withValues(alpha: 0.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    icon: _saving
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.check_rounded, size: 22),
-                    label: Text(
-                      tr('Save'),
-                      style: appType(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -294,15 +263,38 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
               ),
             ),
           ),
-          TextButton(
-            onPressed: _saving ? null : _reset,
-            child: Text(
-              tr('Reset'),
-              style: appType(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
+          // A long word in some languages shrinks rather than overflows.
+          Flexible(
+            child: FilledButton(
+              onPressed: _saving ? null : _finish,
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: PhotoEditScreen.teal,
+                disabledBackgroundColor: Colors.white70,
+                minimumSize: const Size(72, 36),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                tapTargetSize: MaterialTapTargetSize.padded,
               ),
+              child: _saving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: PhotoEditScreen.teal,
+                      ),
+                    )
+                  : FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        tr('Save'),
+                        maxLines: 1,
+                        style: appType(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
             ),
           ),
         ],
@@ -330,7 +322,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
         borderRadius: BorderRadius.circular(22),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(8),
         child: ColoredBox(
           color: const Color(0xFFF4F1EA),
           child: aspect == null
@@ -355,39 +347,55 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     required IconData icon,
     required String label,
   }) {
-    final selected = _tool == tool;
-    return InkWell(
-      onTap: _saving ? null : () => _select(tool),
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: Column(
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: selected ? Colors.white : PhotoEditScreen.toolIdle,
-                shape: BoxShape.circle,
-              ),
-              child: SizedBox(
-                width: 56,
-                height: 56,
-                child: Icon(
-                  icon,
-                  color: selected ? PhotoEditScreen.teal : Colors.white,
-                  size: 24,
+    return _circleButton(
+      icon: icon,
+      label: label,
+      selected: _tool == tool,
+      onTap: () => _select(tool),
+    );
+  }
+
+  Widget _circleButton({
+    required IconData icon,
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: InkWell(
+        onTap: _saving ? null : onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+          child: Column(
+            children: [
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: selected ? Colors.white : PhotoEditScreen.toolIdle,
+                  shape: BoxShape.circle,
+                ),
+                child: SizedBox(
+                  width: 52,
+                  height: 52,
+                  child: Icon(
+                    icon,
+                    color: selected ? PhotoEditScreen.teal : Colors.white,
+                    size: 24,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              tr(label),
-              style: appType(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+              const SizedBox(height: 6),
+              Text(
+                tr(label),
+                textAlign: TextAlign.center,
+                style: appType(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -398,10 +406,26 @@ List<double> _colorMatrix(double brightness, double white) {
   final lift = brightness * 255;
   final warm = white * 48;
   return <double>[
-    1, 0, 0, 0, lift + warm,
-    0, 1, 0, 0, lift,
-    0, 0, 1, 0, lift - warm,
-    0, 0, 0, 1, 0,
+    1,
+    0,
+    0,
+    0,
+    lift + warm,
+    0,
+    1,
+    0,
+    0,
+    lift,
+    0,
+    0,
+    1,
+    0,
+    lift - warm,
+    0,
+    0,
+    0,
+    1,
+    0,
   ];
 }
 

@@ -52,6 +52,9 @@ const state = {
   tab: "learn",
   progress: JSON.parse(localStorage.getItem("cs-progress") || "{}"),
   photos: localStorage.getItem("cs-photos") === "1",
+  work: null,
+  workCopied: null,
+  captionDraft: "",
   email: "",
   password: "",
   hidePassword: true,
@@ -265,10 +268,16 @@ function backBtn() {
 function nav(tab) {
   const item = (id, inner, label) =>
     `<button class="${tab === id ? "on" : ""}" data-act="tab" data-tab="${id}">${inner}<span>${esc(t(label))}</span></button>`;
+  // The files have their own colours, so they are used as shapes filled with
+  // the tab's colour.
+  const icon = (file) => {
+    const source = img(file);
+    return `<span class="nav-icon" style="-webkit-mask-image:url('${source}');mask-image:url('${source}')"></span>`;
+  };
   return `<nav class="nav">
-    ${item("learn", `<img src="${img("icons/book.png")}" alt="">`, "Learn")}
+    ${item("learn", icon("icons/book.png"), "Learn")}
     ${item("photo", svg.camera, "Photo")}
-    ${item("me", `<img src="${img("icons/user.png")}" alt="">`, "Me")}
+    ${item("me", icon("icons/user.png"), "Me")}
   </nav>`;
 }
 
@@ -424,7 +433,7 @@ const TASKS = [
         {
           lessonTitle: "Cotton: soft light from the front",
           line: "Cotton and eri soak up light. Soft light from the front shows them evenly.",
-          image: photo("cotton_front_light_art.jpg"),
+          image: photo("cotton_front_light_facing.jpg"),
           wrong: { image: photo("cotton_side_light.jpg"), label: "Hard light from the side" },
           right: { image: photo("cotton_soft_front.jpg"), label: "Soft light from the front" },
           rightReason: "Soft front light shows the weave evenly",
@@ -434,7 +443,7 @@ const TASKS = [
       lesson(
         { id: "6", title: "Light for silk", label: "PART 6 · LIGHT FOR SILK" },
         {
-          lessonTitle: "Silk: soft light, no sun",
+          lessonTitle: "Silk: soft light from the side",
           line: "Mulberry and muga throw light back. Soft light lets them glow.",
           image: photo("silk_light_art.jpg"),
           wrong: { image: photo("silk_glare.jpg"), label: "Direct sun" },
@@ -929,7 +938,10 @@ function renderLearn() {
 function renderMe() {
   const tiles = TASKS.map((task) => {
     const on = isTaskDone(task);
-    return `<div class="badge ${on ? "on" : ""}"><div class="medal">${on ? svg.medal : svg.lockBadge}</div><p>${esc(t(task.title))}</p></div>`;
+    const inner = `<div class="medal">${on ? svg.medal : svg.lockBadge}</div><p>${esc(t(task.title))}</p>`;
+    return on
+      ? `<button type="button" class="badge on" data-act="open-work" data-id="${task.id}">${inner}</button>`
+      : `<div class="badge">${inner}</div>`;
   }).join("");
   return screen(`<div class="stack">
     <div class="scroll pad-20">
@@ -1221,12 +1233,11 @@ function renderShootGuide(view) {
 function shotArt(product, key) {
   const dir = "lessons/photography/";
   const pair = product === "Saree" || product === "Mekhala sador";
-  const rod = 900 / 1163;
   const tassel = 1000 / 641;
   if (key === "draped_look" && pair) return { file: dir + "draped_outline_v2.png", fit: "draped" };
-  if (key === "full_display" && product === "Saree") return { file: dir + "full_display_outline_v2.png", fit: "tall", aspect: 900 / 1344 };
+  if (key === "full_display" && product === "Saree") return { file: dir + "full_display_outline_v3.png", fit: "tall", aspect: 900 / 1286 };
   if (key === "full_display" && product === "Mekhala sador") return { file: dir + "mekhala_full_outline.png", fit: "aspect", aspect: 1000 / 1088 };
-  if (key === "full_display" && (product === "Stole" || product === "Shawl" || product === "Gamusa")) return { file: dir + "stole_hanging_outline.png", fit: "aspect", aspect: rod };
+  if (key === "full_display" && (product === "Stole" || product === "Shawl" || product === "Gamusa")) return { file: dir + "stole_hanging_outline_v2.png", fit: "tall", aspect: 900 / 1313 };
   if (key === "embroidery_and_border" && product === "Mekhala sador") return { file: dir + "mekhala_border_outline.png", fit: "aspect", aspect: 900 / 1220 };
   if (key === "embroidery_and_border") return { file: dir + "embroidery_outline_v2.png", fit: "inset" };
   if (key === "hanging_display" && product === "Mekhala sador") return { file: dir + "mekhala_hanging_outline.png", fit: "aspect", aspect: 1000 / 1083 };
@@ -1238,7 +1249,7 @@ function shotArt(product, key) {
   if (key === "flat_lay_display") return { file: dir + "cushion_flat_outline.png", fit: "aspect", aspect: 1000 / 892 };
   if (key === "close-up_texture" && (pair || product === "Yardages")) return { file: dir + "closeup_outline.png", fit: "inset", box: true };
   if (key === "hanging_display" && product === "Jod kappur") return { file: dir + "jod_hanging_outline.png", fit: "aspect", aspect: 1000 / 897 };
-  if (key === "folded_stack" && product === "Jod kappur") return { file: dir + "jod_folded_outline.png", fit: "aspect", aspect: 1000 / 784 };
+  if (key === "folded_stack" && product === "Jod kappur") return { file: dir + "jod_folded_outline_v2.png", fit: "aspect", aspect: 1000 / 897 };
   if (key === "hanging_display" && product === "Yardages") return { file: dir + "yardage_hanging_outline.png", fit: "tall", aspect: 900 / 1286 };
   return null;
 }
@@ -1284,6 +1295,32 @@ function shownAspect() {
   return state.editTurns % 2 ? 1 / aspect : aspect;
 }
 
+// The frame takes the exact shape of what is kept, as large as the card allows,
+// so the photo is never trimmed to fit it.
+function stageStyle() {
+  let aspect = shownAspect();
+  if (state.editTool !== "cut") {
+    const [l, t, r, b] = state.editCrop;
+    aspect = (aspect * (r - l)) / (b - t);
+  }
+  return `aspect-ratio:${aspect};width:min(100cqw, calc(100cqh * ${aspect}));`;
+}
+
+// Where the whole photo sits so that only the kept part shows in the frame.
+function photoBoxStyle() {
+  const [l, t, r, b] = state.editTool === "cut" ? [0, 0, 1, 1] : state.editCrop;
+  return `width:${100 / (r - l)}%;height:${100 / (b - t)}%;left:${(-l / (r - l)) * 100}%;top:${(-t / (b - t)) * 100}%;`;
+}
+
+// Turned a quarter, the picture's sides swap, so its box swaps to match.
+function photoStyle() {
+  const turned = state.editTurns % 2 === 1;
+  const aspect = shownAspect();
+  const width = turned ? 100 / aspect : 100;
+  const height = turned ? 100 * aspect : 100;
+  return `width:${width}%;height:${height}%;filter:${editFilter()};transform:translate(-50%, -50%) rotate(${state.editTurns * 90}deg);`;
+}
+
 function editFilter() {
   const bright = 1 + state.editBright;
   const warm = Math.max(0, state.editWhite);
@@ -1308,9 +1345,6 @@ function editSlideValue() {
 function renderEdit() {
   const cropped = state.editTool !== "cut";
   const [left, top, right, bottom] = state.editCrop;
-  const cropStyle = cropped
-    ? `width:${100 / (right - left)}%;height:${100 / (bottom - top)}%;left:${(-left / (right - left)) * 100}%;top:${(-top / (bottom - top)) * 100}%;`
-    : "width:100%;height:100%;left:0;top:0;";
   const tools = [
     ["cut", "Cut", '<path d="M6 4h4v4H6zM14 4h4v4h-4zM6 16h4v4H6zM14 16h4v4h-4z" fill="currentColor"/>'],
     ["turn", "Turn", '<path d="M16 7a6 6 0 1 0 1.2 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16 4v3.5H12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'],
@@ -1329,17 +1363,17 @@ function renderEdit() {
     <div class="edit-head">
       <button class="icon-btn light" type="button" data-act="edit-close" aria-label="${esc(t("Back"))}">${svg.close}</button>
       <b>${esc(t("Edit"))}</b>
-      <button type="button" data-act="edit-reset">${esc(t("Reset"))}</button>
+      <button class="edit-save" type="button" data-act="edit-save">${esc(t("Save"))}</button>
     </div>
-    <div class="edit-card"><div class="edit-stage" style="aspect-ratio:${shownAspect()}"><img class="edit-photo" src="${state.photoUrl}" alt="" style="${cropStyle}filter:${editFilter()};transform:rotate(${state.editTurns * 90}deg)">${handles}</div></div>
+    <div class="edit-card"><div class="edit-stage" style="${stageStyle()}"><div class="edit-photo-box" style="${photoBoxStyle()}"><img class="edit-photo" src="${state.photoUrl}" alt="" style="${photoStyle()}"></div>${handles}</div></div>
     ${slider}
     <p class="edit-hint">${esc(t(editHint()))}</p>
-    <div class="edit-tools">${tools}</div>
-    <button class="btn" type="button" data-act="edit-save">${svg.check}${esc(t("Save"))}</button>
+    <div class="edit-tools">${tools}<button type="button" class="edit-tool" data-act="edit-reset"><span><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M8 7a6 6 0 1 1-1.2 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 4v3.5h3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>${esc(t("Reset"))}</button></div>
   </div>`, "edit");
 }
 
 function displayImage(productName, material, key) {
+  if (productName === "Saree" && key === "full_display") return "lessons/displays/saree_full_display_v2.jpg";
   const slug = productName.toLowerCase().replace(/ /g, "_");
   const file = OWN_PHOTOS.has(productName)
     ? `${slug}_${material.toLowerCase()}_${key}.jpg`
@@ -1659,6 +1693,7 @@ function aiCopyNow(text) {
 }
 
 function aiCopyAnswer(ai, worked) {
+  if (worked) saveWork({ aiPrompt: buildAiPrompt(ai) });
   ai.copied = worked;
   ai.copyFailed = !worked;
   render({ keepScroll: true });
@@ -1692,6 +1727,140 @@ function aiCopy() {
   }
   aiCopyAnswer(ai, false);
 }
+
+// Saved work: what the artisan wrote while practising, shown under an earned
+// badge along with good bios and captions to copy. Same words as
+// lib/features/learn/data/saved_work.dart.
+const BIO_IDEAS = [
+  "Handwoven in Sualkuchi, Assam · Sarees and mekhela sador · Order on WhatsApp",
+  "Weaving by hand since 2010 · Sualkuchi, Assam · Message me to order",
+  "Every piece made by hand on my own loom · Assam · Message me to order",
+  "Handloom from Assam, woven by me · New pieces every week · Order on WhatsApp",
+];
+const CAPTION_IDEAS = [
+  "Woven by hand in Sualkuchi, Assam. Every motif takes hours on the loom. Message me to order. #handloom #assam",
+  "New on my loom. Soft, handwoven and ready to wear. Message me for the price. #handwoven #assam",
+  "Made for your special day. Woven by hand, one thread at a time. Order on WhatsApp. #handloom #sualkuchi",
+  "Save this post for your next festival. Handwoven in Assam, made by me. #handloom #madeinassam",
+];
+const WORK_KEY = "cs-work";
+
+function loadWork() {
+  try {
+    return JSON.parse(localStorage.getItem(WORK_KEY) || "{}") || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function saveWork(fields) {
+  state.work = { ...(state.work || {}), ...fields };
+  try {
+    localStorage.setItem(WORK_KEY, JSON.stringify(state.work));
+  } catch (error) {
+    // Still shown for this visit, just not kept.
+  }
+}
+
+function workCard(text, label) {
+  const copied = state.workCopied === text;
+  return `<div class="work-card">
+    ${label ? `<small>${esc(t(label))}</small>` : ""}
+    <p class="work-text">${esc(text)}</p>
+    <button type="button" class="work-copy ${copied ? "on" : ""}" data-act="work-copy" data-text="${esc(text)}">${copied ? "&#10003; " : ""}${esc(t(copied ? "Copied" : "Copy"))}</button>
+  </div>`;
+}
+
+function workRow(label, value) {
+  return value ? `<small>${esc(t(label))}</small><p class="work-text strong">${esc(value)}</p>` : "";
+}
+
+function renderWork(view) {
+  const task = taskById(view.id);
+  const work = state.work || {};
+  const lines = {
+    photography: "Sharp photos sell better",
+    set_up_page: "You practiced your name, bio, category, and pro page on Instagram.",
+    create_post: "You practiced Post, Story, and Reel on Instagram.",
+    posting_plan: "People remember you",
+    read_numbers: "You can read views, likes, saves and messages.",
+    ai_photos: "You can use AI and keep your product the same.",
+  };
+  const heading = (text) => `<p class="ai-label">${esc(t(text))}</p>`;
+  const nothing = `<p class="ai-note">${esc(t("Nothing saved yet."))}</p>`;
+  let body = "";
+  if (task.id === "set_up_page") {
+    const details = workRow("Name", work.name) + workRow("Username", work.username) + workRow("Category", work.category && t(work.category));
+    body = heading("Your work")
+      + (details ? `<div class="work-card details">${details}</div>` : "")
+      + (work.bio ? workCard(work.bio, "Bio") : "")
+      + (details || work.bio ? "" : nothing)
+      + heading("Bio ideas")
+      + BIO_IDEAS.map((idea) => workCard(t(idea))).join("");
+  }
+  if (task.id === "create_post") {
+    body = heading("Your caption")
+      + (work.caption ? workCard(work.caption) : nothing)
+      + heading("Caption ideas")
+      + CAPTION_IDEAS.map((idea) => workCard(t(idea))).join("");
+  }
+  if (task.id === "ai_photos") {
+    body = heading("Your last prompt") + (work.aiPrompt ? workCard(work.aiPrompt) : nothing);
+  }
+  return screen(`<div class="pad-20 stack">
+    <div class="lesson-head">${backBtn()}<span></span><span></span></div>
+    <div class="scroll work" data-scroll>
+      <div class="work-top">
+        <div class="medal">${svg.medal}</div>
+        <h1>${esc(t(task.title))}</h1>
+        <p>${esc(t(lines[task.id] || "Done"))}</p>
+      </div>
+      ${body}
+    </div>
+  </div>`);
+}
+
+function workCopy(text) {
+  const answer = (worked) => {
+    if (!worked) return toast(t("Could not copy. Select the words and copy them."));
+    state.workCopied = text;
+    render({ keepScroll: true });
+    clearTimeout(workCopiedTimer);
+    workCopiedTimer = setTimeout(() => {
+      state.workCopied = null;
+      if (current().name === "work") render({ keepScroll: true });
+    }, 2500);
+  };
+  if (aiCopyNow(text)) return answer(true);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    const giveUp = new Promise((resolve) => setTimeout(() => resolve(false), 3000));
+    Promise.race([navigator.clipboard.writeText(text).then(() => true, () => false), giveUp]).then(answer);
+    return;
+  }
+  answer(false);
+}
+
+let workCopiedTimer;
+
+function renderCaption() {
+  const draft = state.captionDraft || "";
+  const ideas = CAPTION_IDEAS.map((idea, index) =>
+    `<button type="button" class="caption-idea" data-act="caption-idea" data-index="${index}">${esc(t(idea))}</button>`,
+  ).join("");
+  return screen(`<div class="pad-20 stack">
+    <div class="lesson-head">${backBtn()}<span></span><span></span></div>
+    <h1 class="pick-title">${esc(t("Write your caption"))}</h1>
+    <p class="pick-sub">${esc(t("Say what it is and how to order"))}</p>
+    <div class="ai-body" data-scroll>
+      <textarea id="caption-text" class="caption-box" rows="4">${esc(draft)}</textarea>
+      <p class="ai-label">${esc(t("Tap one to use it"))}</p>
+      ${ideas}
+    </div>
+    <div class="foot">${readyBtn("Continue", "caption-next", !!draft.trim())}</div>
+  </div>`);
+}
+
+state.work = loadWork();
 
 function renderPhoto() {
   return renderProducts();
@@ -2050,6 +2219,7 @@ function renderFind() {
       ([number, text, current]) => `<div class="find-step ${current ? "on" : ""}"><span>${number}</span>${esc(t(text))}</div>`,
     )
     .join("");
+  const earnedNext = nextTask(taskById(current().task));
   const earned = state.earned
     ? `<div class="earn">
         <article class="earn-card">
@@ -2057,7 +2227,10 @@ function renderFind() {
           <p>${esc(t("Badge earned"))}</p>
           <h2>${esc(t("Read the numbers"))}</h2>
           <small>${esc(t("You can read views, likes, saves and messages."))}</small>
-          <button class="btn" data-act="leave-find">${esc(t("Continue"))}</button>
+          ${earnedNext
+            ? `<button class="btn" data-act="next-task" data-id="${earnedNext.id}">${esc(t("Next task: " + earnedNext.title))}</button>
+          <button class="ai-done" type="button" data-act="home">${esc(t("Go to home"))}</button>`
+            : `<button class="btn" data-act="leave-find">${esc(t("Continue"))}</button>`}
         </article>
       </div>`
     : "";
@@ -2412,7 +2585,8 @@ function renderBadge(view) {
     ai_photos: "You can use AI and keep your product the same.",
   };
   const action = upcoming
-    ? `<button class="btn" data-act="next-task" data-id="${upcoming.id}">${esc(t("Next task: " + upcoming.title))}</button>`
+    ? `<button class="btn" data-act="next-task" data-id="${upcoming.id}">${esc(t("Next task: " + upcoming.title))}</button>
+       <button class="ai-done" type="button" data-act="home">${esc(t("Go to home"))}</button>`
     : btn("Done", "home");
   return screen(`<div class="pad-20 stack" style="position:relative">
     ${confetti()}
@@ -2446,6 +2620,8 @@ function render(options) {
     tryit: () => renderTry(view),
     products: renderProducts,
     ai: renderAi,
+    work: () => renderWork(view),
+    caption: renderCaption,
     "create-types": renderCreateTypes,
     "ig-post": () => renderIgPost(view),
     "pick-media": () => renderPickMedia(view),
@@ -2649,10 +2825,7 @@ function openEditor(url) {
   const probe = new Image();
   probe.onload = () => {
     state.photoAspect = probe.naturalWidth / probe.naturalHeight || 0.75;
-    if (current().name === "edit") {
-      const stage = document.querySelector(".edit-stage");
-      if (stage) stage.style.aspectRatio = String(shownAspect());
-    }
+    if (current().name === "edit") paintEdit();
   };
   probe.src = url;
   push("edit");
@@ -2702,19 +2875,13 @@ function applyEditSlide(value) {
 
 function paintEdit() {
   const photo = document.querySelector(".edit-photo");
+  const photoBox = document.querySelector(".edit-photo-box");
   const stage = document.querySelector(".edit-stage");
-  if (stage) stage.style.aspectRatio = String(shownAspect());
-  if (!photo) return;
+  if (stage) stage.style.cssText = stageStyle();
+  if (!photo || !photoBox) return;
   const [l, t, r, b] = state.editCrop;
-  const cropped = state.editTool !== "cut";
-  photo.style.filter = editFilter();
-  photo.style.transform = `rotate(${state.editTurns * 90}deg)`;
-  if (cropped) {
-    photo.style.width = `${100 / (r - l)}%`;
-    photo.style.height = `${100 / (b - t)}%`;
-    photo.style.left = `${(-l / (r - l)) * 100}%`;
-    photo.style.top = `${(-t / (b - t)) * 100}%`;
-  }
+  photoBox.style.cssText = photoBoxStyle();
+  photo.style.cssText = photoStyle();
   const box = document.querySelector(".crop-box");
   if (box) {
     box.style.left = `${l * 100}%`;
@@ -2812,8 +2979,15 @@ async function savePhotoBlob(blob) {
 function saveEdit() {
   const photo = new Image();
   photo.onload = () => {
-    const [l, topCrop, r, b] = state.editCrop;
+    const [shownL, shownT, shownR, shownB] = state.editCrop;
     const turns = state.editTurns % 4;
+    // The cut is marked on the picture as shown; find it on the original.
+    const [l, topCrop, r, b] = [
+      [shownL, shownT, shownR, shownB],
+      [shownT, 1 - shownR, shownB, 1 - shownL],
+      [1 - shownR, 1 - shownB, 1 - shownL, 1 - shownT],
+      [1 - shownB, shownL, 1 - shownT, shownR],
+    ][turns];
     const sw = photo.naturalWidth * (r - l);
     const sh = photo.naturalHeight * (b - topCrop);
     const canvas = document.createElement("canvas");
@@ -2869,8 +3043,8 @@ function checkNextLabel(task, part) {
   const index = visible.findIndex((item) => item.id === part.id);
   const following = index >= 0 ? visible[index + 1] : null;
   if (following) return "Next part · " + following.title;
-  const upcoming = nextTask(task);
-  return upcoming ? "Next task: " + upcoming.title : "Finish";
+  // The badge page that follows offers the next task and the way home.
+  return "Finish";
 }
 
 function afterCheck() {
@@ -3131,9 +3305,28 @@ document.getElementById("phone").addEventListener("click", (event) => {
   if (act === "pick-next") {
     if (state.createPhoto == null) return;
     const view = current();
+    if (view.kind === "post") {
+      state.captionDraft = (state.work && state.work.caption) || "";
+      push("caption", { kind: view.kind, photo: state.createPhoto });
+      return;
+    }
     push("did-post", { kind: view.kind, photo: state.createPhoto });
     return;
   }
+  if (act === "caption-idea") {
+    state.captionDraft = t(CAPTION_IDEAS[Number(node.dataset.index)]);
+    render({ keepScroll: true });
+    return;
+  }
+  if (act === "caption-next") {
+    saveWork({ caption: state.captionDraft.trim() });
+    // Swaps this page only, so Back from the next page returns to the photos.
+    const view = state.stack.pop();
+    push("did-post", { kind: view.kind, photo: view.photo });
+    return;
+  }
+  if (act === "open-work") return push("work", { id: node.dataset.id });
+  if (act === "work-copy") return workCopy(node.dataset.text);
   if (act === "posted-yes") {
     finishCreateKind(current().kind);
     return;
@@ -3211,6 +3404,12 @@ document.getElementById("phone").addEventListener("click", (event) => {
       render();
       return;
     }
+    saveWork({
+      name: state.tryDisplayName || "",
+      username: (state.tryUsername || state.tryCustom || state.tryHandle || "").replace(/^@/, ""),
+      category: state.tryCategory || "",
+      bio: profileBio(),
+    });
     const view = current();
     markPart(view.task, view.part);
     const task = taskById(view.task);
@@ -3321,7 +3520,10 @@ document.getElementById("phone").addEventListener("click", (event) => {
     return;
   }
   if (act === "edit-reset") {
+    // Undoes every change; the tool in use stays selected.
+    const tool = state.editTool;
     resetEdit();
+    state.editTool = tool;
     render();
     return;
   }
@@ -3353,6 +3555,7 @@ document.getElementById("phone").addEventListener("click", (event) => {
     return;
   }
   if (act === "next-task") {
+    state.earned = false;
     state.tab = "learn";
     if (node.dataset.id === "ai_photos") {
       state.stack = [{ name: "main" }];
@@ -3363,9 +3566,22 @@ document.getElementById("phone").addEventListener("click", (event) => {
     return;
   }
   if (act === "home") {
+    state.earned = false;
     state.tab = "learn";
     replace("main");
   }
+});
+
+// Typing must not rebuild the page, or the cursor would be lost.
+document.getElementById("phone").addEventListener("input", (event) => {
+  if (event.target.id !== "caption-text") return;
+  state.captionDraft = event.target.value;
+  const next = document.querySelector('[data-act="caption-next"]');
+  if (!next) return;
+  const ready = !!state.captionDraft.trim();
+  next.disabled = !ready;
+  next.classList.toggle("wait", !ready);
+  next.classList.toggle("shadowed", !ready);
 });
 
 document.getElementById("phone").addEventListener("submit", (event) => {

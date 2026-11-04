@@ -17,6 +17,9 @@ class DisplayOption {
   String imageFor(String material, {String? product}) {
     const dir = 'assets/images/lessons/displays';
     final m = material.toLowerCase();
+    if (product == 'Saree' && key == 'full_display') {
+      return '$dir/saree_full_display_v2.jpg';
+    }
     if (product != null && productsWithOwnPhotos.contains(product)) {
       final slug = product.toLowerCase().replaceAll(' ', '_');
       return '$dir/${slug}_${m}_$key.jpg';

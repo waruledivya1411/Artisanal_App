@@ -68,7 +68,7 @@ class _CreatePostBadgeScreenState extends State<CreatePostBadgeScreen>
               child: SizedBox.expand(),
             ),
             Center(
-              child: Padding(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 28),
                 child: Material(
                   color: Colors.white,
@@ -137,10 +137,22 @@ class _CreatePostBadgeScreenState extends State<CreatePostBadgeScreen>
                               LearnTaskChain.createPostTaskId,
                             );
                             if (nextTask != null) {
-                              return NextLearnTaskButton(
-                                locale: widget.locale,
-                                nextTaskTitle: nextTask,
-                                onTap: _done,
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  NextLearnTaskButton(
+                                    locale: widget.locale,
+                                    nextTaskTitle: nextTask,
+                                    onTap: _done,
+                                  ),
+                                  const SizedBox(height: 6),
+                                  GoHomeButton(
+                                    onTap: () =>
+                                        LearnTaskNavigation.popToLearnHome(
+                                          Navigator.of(context),
+                                        ),
+                                  ),
+                                ],
                               );
                             }
                             return Material(

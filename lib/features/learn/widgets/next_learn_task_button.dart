@@ -53,3 +53,28 @@ class NextLearnTaskButton extends StatelessWidget {
     );
   }
 }
+
+/// The quiet second choice when a task is finished: stop here and go home.
+class GoHomeButton extends StatelessWidget {
+  const GoHomeButton({super.key, required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: TextButton(
+        onPressed: onTap,
+        style: TextButton.styleFrom(
+          foregroundColor: NextLearnTaskButton.teal,
+          minimumSize: const Size(0, 48),
+        ),
+        child: Text(
+          tr('Go to home'),
+          style: appType(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
+      ),
+    );
+  }
+}

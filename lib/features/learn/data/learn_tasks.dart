@@ -160,7 +160,7 @@ TaskPartsScreen photographyTask(String locale) {
           title: 'Cotton: soft light from the front',
           line:
               'Cotton and eri soak up light. Soft light from the front shows them evenly.',
-          image: 'assets/images/lessons/photography/cotton_front_light_art.jpg',
+          image: 'assets/images/lessons/photography/cotton_front_light_facing.jpg',
           nextBuilder: (_) => CheckPartScreen(
             locale: locale,
             partLabel: 'PART 5 · LIGHT FOR COTTON',
@@ -183,7 +183,7 @@ TaskPartsScreen photographyTask(String locale) {
         open: (_) => LearnPartScreen(
           locale: locale,
           partLabel: 'PART 6 · LIGHT FOR SILK',
-          title: 'Silk: soft light, no sun',
+          title: 'Silk: soft light from the side',
           line: 'Mulberry and muga throw light back. Soft light lets them glow.',
           image: 'assets/images/lessons/photography/silk_light_art.jpg',
           nextBuilder: (_) => CheckPartScreen(

@@ -112,6 +112,14 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Next').last);
     await tester.pumpAndSettle();
+    expect(find.text('Write your caption'), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const ValueKey('caption-text')),
+      'My first caption',
+    );
+    await tester.pump();
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
     expect(find.text('Did you post it?'), findsOneWidget);
     expect(find.text('Look at your Instagram page'), findsOneWidget);
     expect(find.text('Yes, I posted'), findsOneWidget);
@@ -242,7 +250,12 @@ void main() {
     expect(find.text('Every post shows something new'), findsOneWidget);
     expect(find.text('Mixed'), findsOneWidget);
     expect(find.text('Same photo'), findsOneWidget);
-    // The last part of a task now leads straight into the next task.
+    // The last part of a task earns the badge, which offers the next task.
+    await tester.tap(find.text('Finish'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('Badge earned'), findsOneWidget);
+    expect(find.text('Go to home'), findsOneWidget);
     await tester.tap(find.text('Next task: Read the numbers'));
     await tester.pumpAndSettle();
     expect(find.text('TASK 5 OF 6'), findsOneWidget);
@@ -306,12 +319,13 @@ void main() {
     await tester.pump();
     expect(find.text('Badge earned'), findsOneWidget);
     expect(find.text('Read the numbers'), findsWidgets);
-    await tester.tap(find.text('Continue'));
+    expect(find.text('Next task: AI photos'), findsOneWidget);
+    await tester.tap(find.text('Go to home'));
     await tester.pumpAndSettle();
-    expect(find.text('TASK 5 OF 6'), findsOneWidget);
-    expect(find.text('Done'), findsNWidgets(3));
-    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
-    await tester.pumpAndSettle();
+    // The Learn home, with its list of tasks and its bottom bar.
+    expect(find.text('Set up your page'), findsOneWidget);
+    expect(find.text('Photo'), findsOneWidget);
+    expect(find.text('Badge earned'), findsNothing);
 
     // The Photo button goes straight into the shoot.
     await tester.tap(find.text('Photo'));

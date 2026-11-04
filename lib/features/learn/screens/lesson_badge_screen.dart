@@ -12,12 +12,16 @@ class LessonBadgeScreen extends StatefulWidget {
     required this.subtitle,
     required this.onContinue,
     this.nextLearnTaskTitle,
+    this.onHome,
   });
 
   final String title;
   final String subtitle;
   final VoidCallback onContinue;
   final String? nextLearnTaskTitle;
+
+  /// Offered beside the next task, to stop here instead.
+  final VoidCallback? onHome;
 
   static const Color background = Color(0xFFF6F7F4);
   static const Color teal = Color(0xFF1B7574);
@@ -65,7 +69,7 @@ class _LessonBadgeScreenState extends State<LessonBadgeScreen>
               child: SizedBox.expand(),
             ),
             Center(
-              child: Padding(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 28),
                 child: Material(
                   color: Colors.white,
@@ -156,6 +160,11 @@ class _LessonBadgeScreenState extends State<LessonBadgeScreen>
                               ),
                             ),
                           ),
+                        if (widget.nextLearnTaskTitle != null &&
+                            widget.onHome != null) ...[
+                          const SizedBox(height: 6),
+                          GoHomeButton(onTap: widget.onHome!),
+                        ],
                       ],
                     ),
                   ),

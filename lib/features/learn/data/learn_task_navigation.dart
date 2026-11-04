@@ -85,6 +85,17 @@ class LearnTaskNavigation {
     });
   }
 
+  /// Runs [finishLesson], then goes back to the Learn home.
+  static void finishLessonAndGoHome({
+    required NavigatorState navigator,
+    required VoidCallback finishLesson,
+  }) {
+    finishLesson();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      popToLearnHome(navigator);
+    });
+  }
+
   /// Pops a badge dialog, finishes the lesson, then opens the next task.
   static void dismissBadgeFinishAndOpenNext({
     required BuildContext badgeContext,

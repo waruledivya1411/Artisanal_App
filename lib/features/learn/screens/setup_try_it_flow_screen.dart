@@ -7,9 +7,9 @@ import 'package:artisnal_app/core/widgets/sharp_image.dart';
 import 'package:artisnal_app/core/widgets/speak_circle_button.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
+import 'package:artisnal_app/features/learn/data/saved_work.dart';
 import 'package:artisnal_app/features/learn/screens/lesson_badge_screen.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
-import 'package:artisnal_app/features/learn/widgets/next_learn_task_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
 
@@ -187,6 +187,12 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
 
   void _showSetUpPageBadge() {
     _speech.stop();
+    SavedWork.instance.savePage(
+      name: _nameController.text.trim(),
+      username: _usernameController.text.trim(),
+      category: _selectedCategoryTitle,
+      bio: _bioController.text.trim(),
+    );
     final step = LessonStep.maybeOf(context);
     final nextTaskTitle = step?.nextLearnTaskTitle;
     final lessonNavigator = Navigator.of(context);
@@ -198,6 +204,15 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
           subtitle:
               'You practiced your name, bio, category, and pro page on Instagram.',
           nextLearnTaskTitle: nextTaskTitle,
+          onHome: step == null
+              ? null
+              : () {
+                  Navigator.of(badgeContext).pop();
+                  LearnTaskNavigation.finishLessonAndGoHome(
+                    navigator: lessonNavigator,
+                    finishLesson: step.onFinished,
+                  );
+                },
           onContinue: () {
             if (step != null && nextTaskTitle != null) {
               LearnTaskNavigation.dismissBadgeFinishAndOpenNext(
@@ -423,10 +438,9 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
     if (nextTitle == null) {
       return _buildPrimaryNextButton(onTap: _finishTryIt, label: 'Done');
     }
-    return NextLearnTaskButton(
-      locale: widget.locale,
-      nextTaskTitle: nextTitle,
+    return _buildPrimaryNextButton(
       onTap: _showSetUpPageBadge,
+      label: 'Finish',
     );
   }
 
