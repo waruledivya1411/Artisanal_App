@@ -446,8 +446,8 @@ class ShotOutlineOverlay extends StatelessWidget {
   /// Jod kappur on one rod, the wide cloth beside the narrow tasseled piece,
   /// for the hanging shot.
   static const jodHangingArt =
-      'assets/images/lessons/photography/jod_hanging_outline_v2.png';
-  static const jodHangingArtAspect = 1000 / 702;
+      'assets/images/lessons/photography/jod_hanging_outline_v3.png';
+  static const jodHangingArtAspect = 1000 / 991;
 
   /// Jod kappur folded, the wide cloth behind the smaller tasseled piece, for
   /// the folded shot.
@@ -532,6 +532,19 @@ class ShotOutlineOverlay extends StatelessWidget {
     );
   }
 
+  /// Both Jod kappur pieces on their rod: the full width of the photo and
+  /// about 70% of its height, sitting towards the top.
+  static Rect jodHangingArtRect(Size screen) {
+    final photo = ShotOutline.photoRect(screen);
+    final width = photo.width - 16;
+    return Rect.fromLTWH(
+      photo.left + 8,
+      photo.top + photo.height * 0.08,
+      width,
+      width / jodHangingArtAspect,
+    );
+  }
+
   /// The hanging drawing is tall and narrow; it runs 94% of the photo's
   /// height and is widened a little so the sari does not look thin.
   static Rect hangingArtRect(Size screen, double? clearTop, double? clearBottom) {
@@ -598,6 +611,7 @@ class ShotOutlineOverlay extends StatelessWidget {
                 clearTop,
                 clearBottom,
               ),
+            ShotOverlayKind.jodHanging => jodHangingArtRect(screen),
             ShotOverlayKind.sariDraped =>
               drapedArtRect(screen, clearTop, clearBottom),
             ShotOverlayKind.hangingDisplay =>

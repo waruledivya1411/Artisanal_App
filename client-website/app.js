@@ -1248,7 +1248,7 @@ function shotArt(product, key) {
   if (key === "sofa_seated_display") return { file: dir + "cushion_sofa_outline.png", fit: "aspect", aspect: 1000 / 914 };
   if (key === "flat_lay_display") return { file: dir + "cushion_flat_outline.png", fit: "aspect", aspect: 1000 / 892 };
   if (key === "close-up_texture" && (pair || product === "Yardages")) return { file: dir + "closeup_outline.png", fit: "inset", box: true };
-  if (key === "hanging_display" && product === "Jod kappur") return { file: dir + "jod_hanging_outline_v2.png", fit: "aspect", aspect: 1000 / 702 };
+  if (key === "hanging_display" && product === "Jod kappur") return { file: dir + "jod_hanging_outline_v3.png", fit: "jod-hanging", aspect: 1000 / 991 };
   if (key === "folded_stack" && product === "Jod kappur") return { file: dir + "jod_folded_outline_v2.png", fit: "aspect", aspect: 1000 / 897 };
   if (key === "hanging_display" && product === "Yardages") return { file: dir + "yardage_hanging_outline.png", fit: "tall", aspect: 900 / 1286 };
   return null;
@@ -1257,6 +1257,7 @@ function shotArt(product, key) {
 function artStyle(art) {
   if (art.fit === "inset") return "left:8px;top:8px;width:calc(100% - 16px);height:calc(100% - 16px)";
   if (art.fit === "draped") return "left:4px;top:10%;width:calc(100% - 8px);height:80%";
+  if (art.fit === "jod-hanging") return `left:8px;top:8cqh;width:calc(100cqw - 16px);height:calc((100cqw - 16px) / ${art.aspect})`;
   if (art.fit === "tall") return `height:88cqh;width:calc(88cqh * ${art.aspect});left:50%;top:50%;transform:translate(-50%,-50%)`;
   if (art.fit === "hanging") return "height:94cqh;width:calc(94cqh * 0.58);left:50%;top:50%;transform:translate(-50%,-50%)";
   if (art.fit === "folded") return `width:calc(100cqw - 8px);height:calc((100cqw - 8px) / ${art.aspect});left:50%;top:50%;transform:translate(-50%,-50%)`;
