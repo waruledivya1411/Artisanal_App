@@ -433,7 +433,7 @@ const TASKS = [
         {
           lessonTitle: "Cotton: soft light from the front",
           line: "Cotton and eri soak up light. Soft light from the front shows them evenly.",
-          image: photo("cotton_front_light_clean.jpg"),
+          image: photo("cotton_front_light_straight.jpg"),
           wrong: { image: photo("cotton_side_light.jpg"), label: "Hard light from the side" },
           right: { image: photo("cotton_soft_front.jpg"), label: "Soft light from the front" },
           rightReason: "Soft front light shows the weave evenly",
@@ -829,8 +829,17 @@ function header() {
 }
 
 function renderSplash() {
+  // Each letter rises in after the one before it.
+  const title = t("Click & Social");
+  const letters = [...title].map((letter, index) =>
+    `<span style="animation-delay:${index * 55}ms">${letter === " " ? "&nbsp;" : esc(letter)}</span>`,
+  ).join("");
   return screen(
-    `<div class="splash"><h1>${esc(t("Click & Social"))}</h1></div>`,
+    `<div class="splash">
+      <h1 aria-label="${esc(title)}"><span class="splash-letters" aria-hidden="true">${letters}</span></h1>
+      <i class="splash-line"></i>
+      <p class="splash-line-text">${esc(t("Show your craft to the world"))}</p>
+    </div>`,
     "teal",
   );
 }
@@ -1236,11 +1245,11 @@ function shotArt(product, key) {
   const tassel = 1000 / 641;
   if (key === "draped_look" && pair) return { file: dir + "draped_outline_v2.png", fit: "draped" };
   if (key === "full_display" && product === "Saree") return { file: dir + "full_display_outline_v3.png", fit: "tall", aspect: 900 / 1286 };
-  if (key === "full_display" && product === "Mekhala sador") return { file: dir + "mekhala_full_outline.png", fit: "aspect", aspect: 1000 / 1088 };
+  if (key === "full_display" && product === "Mekhala sador") return { file: dir + "mekhala_full_outline_v2.png", fit: "aspect", aspect: 1000 / 1095 };
   if (key === "full_display" && (product === "Stole" || product === "Shawl" || product === "Gamusa")) return { file: dir + "stole_hanging_outline_v2.png", fit: "tall", aspect: 900 / 1313 };
   if (key === "embroidery_and_border" && product === "Mekhala sador") return { file: dir + "mekhala_border_outline.png", fit: "aspect", aspect: 900 / 1220 };
   if (key === "embroidery_and_border") return { file: dir + "embroidery_outline_v2.png", fit: "inset" };
-  if (key === "hanging_display" && product === "Mekhala sador") return { file: dir + "mekhala_hanging_outline.png", fit: "aspect", aspect: 1000 / 1083 };
+  if (key === "hanging_display" && product === "Mekhala sador") return { file: dir + "mekhala_hanging_outline_v2.png", fit: "aspect", aspect: 1000 / 1014 };
   if (key === "hanging_display" && product === "Saree") return { file: dir + "hanging_outline_v2.png", fit: "hanging" };
   if (key === "folded_stack" && product === "Mekhala sador") return { file: dir + "mekhala_folded_outline.png", fit: "folded", aspect: 1000 / 710 };
   if (key === "folded_stack" && (product === "Stole" || product === "Shawl" || product === "Gamusa")) return { file: dir + "stole_folded_outline.png", fit: "aspect", aspect: tassel };
@@ -1924,7 +1933,7 @@ function renderTask(view) {
         <span></span>
       </div>
       <h1 class="task-title">${esc(t(task.title))}</h1>
-      <div class="task-bars">${bars}</div>
+      ${task.id === "photography" ? `<div class="task-gap"></div>` : `<div class="task-bars">${bars}</div>`}
       ${rows}
     </div>
     ${nav("learn")}
@@ -3590,4 +3599,4 @@ document.getElementById("phone").addEventListener("submit", (event) => {
 });
 
 replace("splash");
-splashTimer = setTimeout(() => replace("login"), 1800);
+splashTimer = setTimeout(() => replace("login"), 3000);

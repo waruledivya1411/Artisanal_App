@@ -6,14 +6,15 @@ import 'package:artisnal_app/features/learn/widgets/guide_diagram.dart';
 import 'package:artisnal_app/features/learn/widgets/shot_outline.dart';
 import 'package:artisnal_app/features/learn/data/displays.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
+import 'package:artisnal_app/features/onboarding/screens/splash_screen.dart';
 
 void main() {
   testWidgets('Onboarding and Learn lessons flow', (WidgetTester tester) async {
     LearnProgress.instance.reset();
     await tester.pumpWidget(const ArtisnalApp());
-    expect(find.text('Click & Social'), findsOneWidget);
+    expect(find.byKey(const ValueKey('splash-title')), findsOneWidget);
 
-    await tester.pump(const Duration(milliseconds: 1800));
+    await tester.pump(SplashScreen.showFor);
     await tester.pumpAndSettle();
 
     expect(find.text('Forgot password?'), findsOneWidget);

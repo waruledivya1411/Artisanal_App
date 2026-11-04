@@ -397,8 +397,8 @@ class ShotOutlineOverlay extends StatelessWidget {
   /// Dotted mekhela and sador laid side by side, borders and tassels at the
   /// foot, for the Mekhala sador full display shot.
   static const mekhalaFullArt =
-      'assets/images/lessons/photography/mekhala_full_outline.png';
-  static const mekhalaFullArtAspect = 1000 / 1088;
+      'assets/images/lessons/photography/mekhala_full_outline_v2.png';
+  static const mekhalaFullArtAspect = 1000 / 1095;
 
   /// Dotted mekhela corner: plain body, paisley borders down the side and
   /// across the foot, for the Mekhala sador embroidery and border shot.
@@ -415,8 +415,8 @@ class ShotOutlineOverlay extends StatelessWidget {
   /// Dotted mekhela and sador on hangers from one rod, for the Mekhala
   /// sador hanging shot.
   static const mekhalaHangingArt =
-      'assets/images/lessons/photography/mekhala_hanging_outline.png';
-  static const mekhalaHangingArtAspect = 1000 / 1083;
+      'assets/images/lessons/photography/mekhala_hanging_outline_v2.png';
+  static const mekhalaHangingArtAspect = 1000 / 1014;
 
   /// Dotted stole on a rod, borders down the sides, a woven band and
   /// tassels at the foot. Stole, shawl and gamusa all hang this way for

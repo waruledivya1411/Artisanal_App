@@ -180,6 +180,17 @@ void main() {
     await t.pumpAndSettle();
   }
 
+  testWidgets('only the Photography page drops its progress bars', (t) async {
+    await open(t, (_) => photographyTask('en-US'));
+    expect(find.text('Hold steady'), findsOneWidget);
+    expect(find.byKey(const ValueKey('task-progress-bars')), findsNothing);
+  });
+
+  testWidgets('other task pages keep their progress bars', (t) async {
+    await open(t, (_) => postingPlanTask('en-US'));
+    expect(find.byKey(const ValueKey('task-progress-bars')), findsOneWidget);
+  });
+
   testWidgets('Posting plan ends on a badge that can go home', (t) async {
     LearnProgress.instance.completePart(postingPlanTaskId, 0);
     LearnProgress.instance.completePart(postingPlanTaskId, 1);

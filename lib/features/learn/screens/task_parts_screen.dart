@@ -293,8 +293,10 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
                         letterSpacing: -0.4,
                       ),
                     ),
+                    if (widget.taskId != 'photography') ...[
                     const SizedBox(height: 12),
                     Row(
+                      key: const ValueKey('task-progress-bars'),
                       children: [
                         for (var li = 0; li < listed.length; li++) ...[
                           Expanded(
@@ -312,6 +314,7 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
                         ],
                       ],
                     ),
+                    ],
                     const SizedBox(height: 14),
                     for (final i in listed) ...[
                       GestureDetector(
