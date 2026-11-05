@@ -2725,9 +2725,9 @@ let lightTimer = null;
 const lightSample = document.createElement("canvas");
 lightSample.width = 24;
 lightSample.height = 24;
-const LIGHT_WINDOW = 4; // Readings judged together: 2 seconds.
-const LIGHT_FIRST_READINGS = 2; // First label after about 1 second.
-const LIGHT_HOLD = 2; // A new level must last this long to show: 1 second.
+const LIGHT_WINDOW = 8; // Readings judged together: 4 seconds.
+const LIGHT_FIRST_READINGS = 3; // First label after about 1.5 seconds.
+const LIGHT_HOLD = 6; // A new level must last this long to show: 3 seconds.
 let lightHistory = [];
 let lightPending = null;
 let lightPendingCount = 0;
@@ -2751,11 +2751,24 @@ function stopCamera() {
   cameraStream = null;
 }
 
-// Judge the cloth in the middle of the frame. A phone preview is auto-exposed,
-// so a truly dark room still looks dark after it has been lifted a little.
-function clothTone(p50, p95) {
-  if (p50 < 42 && p95 < 98) return "dark";
-  if (p50 >= 88 && p95 >= 158) return "good";
+// Judge the cloth in the middle of the frame. Auto-exposure flicker sits
+// around the band edges, so leaving a shown label needs a clear step.
+function clothTone(p50, p95, shown) {
+  if (shown === "dark") {
+    if (p50 >= 70 || p95 >= 130) return p50 >= 120 && p95 >= 190 ? "good" : "medium";
+    return "dark";
+  }
+  if (shown === "good") {
+    if (p50 < 70 || p95 < 130) return p50 < 35 && p95 < 80 ? "dark" : "medium";
+    return "good";
+  }
+  if (shown === "medium") {
+    if (p50 < 35 && p95 < 80) return "dark";
+    if (p50 >= 120 && p95 >= 190) return "good";
+    return "medium";
+  }
+  if (p50 < 42 && p95 < 90) return "dark";
+  if (p50 >= 115 && p95 >= 185) return "good";
   return "medium";
 }
 
@@ -2783,7 +2796,7 @@ function paintLight(reading) {
   const p50 = lightHistory.reduce((sum, item) => sum + item.p50, 0) / lightHistory.length;
   const p95 = lightHistory.reduce((sum, item) => sum + item.p95, 0) / lightHistory.length;
   const shown = pill.dataset.level;
-  const wanted = clothTone(p50, p95);
+  const wanted = clothTone(p50, p95, shown);
 
   if (shown) {
     if (wanted === shown) {
