@@ -2728,9 +2728,9 @@ lightSample.height = 24;
 const lightGrainSample = document.createElement("canvas");
 lightGrainSample.width = 64;
 lightGrainSample.height = 64;
-const LIGHT_WINDOW = 8; // Readings judged together: 4 seconds.
-const LIGHT_FIRST_READINGS = 4; // Before the first label: 2 seconds.
-const LIGHT_HOLD = 6; // A new level must last this long to show: 3 seconds.
+const LIGHT_WINDOW = 6; // Readings judged together: 3 seconds.
+const LIGHT_FIRST_READINGS = 2; // First label after about 1 second.
+const LIGHT_HOLD = 3; // A new level must last this long to show: 1.5 seconds.
 let lightHistory = [];
 let lightLastPixels = null;
 let lightPending = null;
@@ -2759,18 +2759,16 @@ function stopCamera() {
   cameraStream = null;
 }
 
-// Cloth needs real light: a dim room that the phone has brightened still hides
-// the weave and shifts the colour. Levels are judged on the cloth in the
-// middle of the frame, after a few seconds of readings.
+// Judge the cloth in the middle of the frame. A phone preview is auto-exposed,
+// so a truly dark room still looks dark after it has been lifted a little.
 function clothTone(p50, p95, prev) {
-  const darkP95 = prev === "dark" ? 108 : 90;
-  const goodP95 = prev === "good" ? 188 : 208;
-  const goodP50 = prev === "good" ? 92 : 108;
-  // Crushed: even the brightest threads in the middle stay dark.
-  if (p50 < 36 || (p95 < darkP95 && p50 < 78)) return "dark";
-  // Bright enough to sell only when the cloth body and its highlights are both lit.
-  if (p95 < goodP95 || p50 < goodP50) return "medium";
-  return "good";
+  if (prev === "dark") {
+    if (p50 < 52 && p95 < 118) return "dark";
+  } else if (p50 < 38 && p95 < 92) return "dark";
+  if (prev === "good") {
+    if (p50 >= 78 && p95 >= 148) return "good";
+  } else if (p50 >= 92 && p95 >= 168) return "good";
+  return "medium";
 }
 
 // Browsers report exposure in seconds, milliseconds, Android 100µs steps, or
@@ -2783,37 +2781,16 @@ function exposureSeconds(value) {
   return value;
 }
 
-// A camera brightens a dim room, so the preview can look fine. These signs
-// show it working hard. They can only lower the label. Perfect is allowed
-// only when shutter/ISO or a full frame rate confirms the room is easy to shoot.
-function lightStrain({ exposure, iso, fps, grain }, prev) {
-  const signs = [];
-  let confirmed = false;
+// Extra signs that the camera is struggling. These may lower Perfect to
+// Medium, or Medium to Too dark, but only when the signal is clearly dim.
+function lightStrain({ exposure, iso, fps, grain }) {
   const seconds = exposureSeconds(exposure);
-  if (seconds > 0 && iso > 0) {
-    const effort = seconds * iso;
-    const darkAt = prev === "dark" ? 18 : 28;
-    const goodAt = prev === "good" ? 12 : 8;
-    const level = effort >= darkAt ? "dark" : effort >= goodAt ? "medium" : "good";
-    signs.push(level);
-    if (level === "good") confirmed = true;
-  }
-  if (fps > 0) {
-    const darkAt = prev === "dark" ? 16 : 12;
-    const goodAt = prev === "good" ? 22 : 26;
-    const level = fps < darkAt ? "dark" : fps < goodAt ? "medium" : "good";
-    signs.push(level);
-    if (level === "good") confirmed = true;
-  }
-  if (grain >= 0) {
-    const darkAt = prev === "dark" ? 4.2 : 5.5;
-    const goodAt = prev === "good" ? 3.2 : 2.4;
-    signs.push(grain >= darkAt ? "dark" : grain >= goodAt ? "medium" : "good");
-  }
-  if (!signs.length) return { level: null, confirmed: false };
-  if (signs.includes("dark")) return { level: "dark", confirmed };
-  if (signs.includes("medium")) return { level: "medium", confirmed: false };
-  return { level: "good", confirmed };
+  const effort = seconds > 0 && iso > 0 ? seconds * iso : 0;
+  const dark = (effort >= 40) || (fps > 0 && fps < 8) || grain >= 10;
+  const medium = (effort >= 14) || (fps > 0 && fps < 16) || grain >= 5;
+  if (dark) return "dark";
+  if (medium) return "medium";
+  return null;
 }
 
 function worseLight(a, b) {
@@ -2849,11 +2826,7 @@ function paintLight(reading, facts) {
   const grains = lightHistory.map((item) => item.grain).filter((grain) => grain >= 0).sort((a, b) => a - b);
   const grain = grains.length ? grains[Math.floor(grains.length / 2)] : -1;
   const shown = pill.dataset.level;
-  const tone = clothTone(p50, p95, shown);
-  const strain = lightStrain({ ...facts, grain }, shown);
-  let wanted = worseLight(tone, strain.level);
-  // Brightness alone is not proof. A dark room is often lifted until it looks fine.
-  if (wanted === "good" && !strain.confirmed) wanted = "medium";
+  const wanted = worseLight(clothTone(p50, p95, shown), lightStrain({ ...facts, grain }));
 
   if (shown) {
     if (wanted === shown) {
