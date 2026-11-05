@@ -2725,20 +2725,12 @@ let lightTimer = null;
 const lightSample = document.createElement("canvas");
 lightSample.width = 24;
 lightSample.height = 24;
-const lightGrainSample = document.createElement("canvas");
-lightGrainSample.width = 64;
-lightGrainSample.height = 64;
-const LIGHT_WINDOW = 6; // Readings judged together: 3 seconds.
+const LIGHT_WINDOW = 4; // Readings judged together: 2 seconds.
 const LIGHT_FIRST_READINGS = 2; // First label after about 1 second.
-const LIGHT_HOLD = 3; // A new level must last this long to show: 1.5 seconds.
+const LIGHT_HOLD = 2; // A new level must last this long to show: 1 second.
 let lightHistory = [];
-let lightLastPixels = null;
 let lightPending = null;
 let lightPendingCount = 0;
-let lightFrames = 0;
-let lightFrameStart = 0;
-let lightLastFrameShare = 0;
-let lightCanCountFrames = false;
 
 const LIGHT_COPY = {
   as: { "Checking the light": "পোহৰ চালি আছে", "Too dark": "বৰ আন্ধাৰ", Medium: "মজলীয়া", Perfect: "একেবাৰে ঠিক" },
@@ -2761,43 +2753,10 @@ function stopCamera() {
 
 // Judge the cloth in the middle of the frame. A phone preview is auto-exposed,
 // so a truly dark room still looks dark after it has been lifted a little.
-function clothTone(p50, p95, prev) {
-  if (prev === "dark") {
-    if (p50 < 52 && p95 < 118) return "dark";
-  } else if (p50 < 38 && p95 < 92) return "dark";
-  if (prev === "good") {
-    if (p50 >= 78 && p95 >= 148) return "good";
-  } else if (p50 >= 92 && p95 >= 168) return "good";
+function clothTone(p50, p95) {
+  if (p50 < 42 && p95 < 98) return "dark";
+  if (p50 >= 88 && p95 >= 158) return "good";
   return "medium";
-}
-
-// Browsers report exposure in seconds, milliseconds, Android 100µs steps, or
-// nanoseconds. Fold those into seconds.
-function exposureSeconds(value) {
-  if (!(value > 0)) return 0;
-  if (value > 1e5) return value / 1e9;
-  if (value > 30) return value / 1e4;
-  if (value > 1) return value / 1e3;
-  return value;
-}
-
-// Extra signs that the camera is struggling. These may lower Perfect to
-// Medium, or Medium to Too dark, but only when the signal is clearly dim.
-function lightStrain({ exposure, iso, fps, grain }) {
-  const seconds = exposureSeconds(exposure);
-  const effort = seconds > 0 && iso > 0 ? seconds * iso : 0;
-  const dark = (effort >= 40) || (fps > 0 && fps < 8) || grain >= 10;
-  const medium = (effort >= 14) || (fps > 0 && fps < 16) || grain >= 5;
-  if (dark) return "dark";
-  if (medium) return "medium";
-  return null;
-}
-
-function worseLight(a, b) {
-  if (!a) return b;
-  if (!b) return a;
-  const order = ["dark", "medium", "good"];
-  return order[Math.min(order.indexOf(a), order.indexOf(b))];
 }
 
 function lightIcon(kind) {
@@ -2814,19 +2773,17 @@ function lightIcon(kind) {
 
 // Single readings jump about, so the label goes by the last few seconds, and
 // only changes once the new level has lasted a few seconds too.
-function paintLight(reading, facts) {
+function paintLight(reading) {
   const pill = document.querySelector(".cam-light");
   if (!pill || !Number.isFinite(reading.p50)) return;
-  lightHistory.push({ p50: reading.p50, p95: reading.p95, grain: facts.grain });
+  lightHistory.push({ p50: reading.p50, p95: reading.p95 });
   if (lightHistory.length > LIGHT_WINDOW) lightHistory.shift();
   if (lightHistory.length < LIGHT_FIRST_READINGS) return;
 
   const p50 = lightHistory.reduce((sum, item) => sum + item.p50, 0) / lightHistory.length;
   const p95 = lightHistory.reduce((sum, item) => sum + item.p95, 0) / lightHistory.length;
-  const grains = lightHistory.map((item) => item.grain).filter((grain) => grain >= 0).sort((a, b) => a - b);
-  const grain = grains.length ? grains[Math.floor(grains.length / 2)] : -1;
   const shown = pill.dataset.level;
-  const wanted = worseLight(clothTone(p50, p95, shown), lightStrain({ ...facts, grain }));
+  const wanted = clothTone(p50, p95);
 
   if (shown) {
     if (wanted === shown) {
@@ -2846,53 +2803,16 @@ function paintLight(reading, facts) {
   pill.innerHTML = `${lightIcon(wanted)}<span>${esc(t(label))}</span>`;
 }
 
-// The middle of the picture at full detail: squeezing it down would smooth the
-// grain away. The middle value is used, so someone moving does not count.
-function readGrain(video) {
-  const size = 64;
-  const ctx = lightGrainSample.getContext("2d", { willReadFrequently: true });
-  ctx.drawImage(video, (video.videoWidth - size) / 2, (video.videoHeight - size) / 2, size, size, 0, 0, size, size);
-  const data = ctx.getImageData(0, 0, size, size).data;
-  const now = new Float32Array(size * size);
-  for (let i = 0; i < now.length; i += 1) {
-    now[i] = data[i * 4] * 0.2126 + data[i * 4 + 1] * 0.7152 + data[i * 4 + 2] * 0.0722;
-  }
-  const before = lightLastPixels;
-  lightLastPixels = now;
-  if (!before) return -1;
-  const changes = new Float32Array(now.length);
-  for (let i = 0; i < now.length; i += 1) changes[i] = Math.abs(now[i] - before[i]);
-  changes.sort();
-  return changes[Math.floor(changes.length / 2)];
-}
-
-// Frames actually delivered per second. A dark room slows the preview well
-// below 30 even when the camera reports its usual rate.
-function readFrameRate(settings) {
-  const now = performance.now();
-  const seconds = (now - lightFrameStart) / 1000;
-  let counted = 0;
-  if (lightCanCountFrames && seconds >= 2 && !document.hidden) {
-    counted = lightFrames / seconds;
-    lightFrames = 0;
-    lightFrameStart = now;
-  }
-  const reported = Number(settings.frameRate) || 0;
-  if (counted > 0) return counted;
-  if (reported > 0 && reported < 24) return reported;
-  return 0;
-}
-
 function readSceneLight(video) {
   if (!video.videoWidth || video.readyState < 2) return;
   try {
     const ctx = lightSample.getContext("2d", { willReadFrequently: true });
-    // Native pixels from the middle of the cloth. Scaling the frame down
-    // would hide noise and make a dim scene look evenly bright.
-    const size = Math.min(96, video.videoWidth, video.videoHeight);
+    const size = 32;
     lightSample.width = size;
     lightSample.height = size;
-    ctx.drawImage(video, (video.videoWidth - size) / 2, (video.videoHeight - size) / 2, size, size, 0, 0, size, size);
+    const sw = video.videoWidth * 0.5;
+    const sh = video.videoHeight * 0.5;
+    ctx.drawImage(video, (video.videoWidth - sw) / 2, (video.videoHeight - sh) / 2, sw, sh, 0, 0, size, size);
     const data = ctx.getImageData(0, 0, size, size).data;
     const pixels = data.length / 4;
     const lumas = new Float32Array(pixels);
@@ -2901,67 +2821,18 @@ function readSceneLight(video) {
       lumas[i] = data[o] * 0.2126 + data[o + 1] * 0.7152 + data[o + 2] * 0.0722;
     }
     const sorted = Array.from(lumas).sort((a, b) => a - b);
-    const p50 = sorted[Math.floor((sorted.length - 1) * 0.5)];
-    const p95 = sorted[Math.floor((sorted.length - 1) * 0.95)];
-    const track = cameraStream && cameraStream.getVideoTracks()[0];
-    const settings = (track && track.getSettings && track.getSettings()) || {};
-    refreshLightSensor(track);
-    const fps = readFrameRate(settings);
-    if (fps > 0) lightLastFrameShare = fps;
-    paintLight({ p50, p95 }, {
-      exposure: settings.exposureTime || lightSensor.exposure || 0,
-      iso: settings.iso || lightSensor.iso || 0,
-      fps: lightLastFrameShare,
-      grain: readGrain(video),
+    paintLight({
+      p50: sorted[Math.floor((sorted.length - 1) * 0.5)],
+      p95: sorted[Math.floor((sorted.length - 1) * 0.95)],
     });
   } catch (_) {}
-}
-
-const lightSensor = { exposure: 0, iso: 0, track: null, capture: null, pending: false };
-
-function refreshLightSensor(track) {
-  if (!track || !window.ImageCapture || lightSensor.pending) return;
-  lightSensor.pending = true;
-  try {
-    if (lightSensor.track !== track) {
-      lightSensor.capture = new ImageCapture(track);
-      lightSensor.track = track;
-    }
-    lightSensor.capture.getPhotoSettings().then((photo) => {
-      if (photo) {
-        if (photo.exposureTime > 0) lightSensor.exposure = photo.exposureTime;
-        if (photo.iso > 0) lightSensor.iso = photo.iso;
-      }
-    }).catch(() => {}).finally(() => {
-      lightSensor.pending = false;
-    });
-  } catch (_) {
-    lightSensor.pending = false;
-  }
 }
 
 function startLightMeter(video) {
   clearInterval(lightTimer);
   lightHistory = [];
-  lightLastPixels = null;
   lightPending = null;
   lightPendingCount = 0;
-  lightFrames = 0;
-  lightFrameStart = performance.now();
-  lightLastFrameShare = 0;
-  lightSensor.exposure = 0;
-  lightSensor.iso = 0;
-  lightSensor.track = null;
-  lightSensor.capture = null;
-  lightCanCountFrames = typeof video.requestVideoFrameCallback === "function";
-  if (lightCanCountFrames) {
-    const countFrame = () => {
-      if (!document.body.contains(video)) return;
-      lightFrames += 1;
-      video.requestVideoFrameCallback(countFrame);
-    };
-    video.requestVideoFrameCallback(countFrame);
-  }
   lightTimer = setInterval(() => {
     if (!document.body.contains(video)) {
       clearInterval(lightTimer);
