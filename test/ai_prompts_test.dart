@@ -48,6 +48,7 @@ void main() {
 
       check(AiGoal.newDisplay, displays);
       check(AiGoal.addProps, props);
+      check(AiGoal.makeClothes, aiClothesFor(product.name));
     }
   });
 
@@ -127,6 +128,103 @@ void main() {
     expect(mekhala, isNot(contains('no people')));
   });
 
+  test('only yardages can be made into a kurti, kurta or shirt', () {
+    for (final product in photographyProducts) {
+      expect(
+        [for (final item in aiClothesFor(product.name)) item.label],
+        product.name == 'Yardages' ? ['Kurti', 'Kurta', 'Shirt'] : isEmpty,
+        reason: product.name,
+      );
+    }
+    const wearer = {
+      'Kurti': 'real woman',
+      'Kurta': 'real man',
+      'Shirt': 'real man',
+    };
+    wearer.forEach((label, person) {
+      final prompt = buildAiPrompt(
+        product: 'Yardages',
+        goal: AiGoal.makeClothes,
+        scene: label,
+      );
+      expect(prompt, startsWith('Photo 1 shows my handwoven fabric in full.'));
+      expect(prompt, contains('Sew this fabric into a'));
+      expect(prompt, contains(label.toLowerCase()));
+      expect(prompt, contains('worn by a $person'));
+      expect(prompt, contains('keeping the pattern at its true size'));
+      expect(
+        prompt,
+        contains('It must be this exact fabric, not a similar one.'),
+      );
+      expect(prompt, isNot(contains('no people')));
+      expect(wordsIn(prompt), lessThanOrEqualTo(70), reason: prompt);
+    });
+    expect(aiNeedsBothPhotos(AiGoal.makeClothes), isTrue);
+  });
+
+  testWidgets('yardages offer Make clothes and copy a kurti prompt', (t) async {
+    AppLang.current = 'en-US';
+    t.view.physicalSize = const Size(390, 1400);
+    t.view.devicePixelRatio = 1;
+    addTearDown(t.view.resetPhysicalSize);
+    String? copied;
+    t.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copied = (call.arguments as Map)['text'] as String;
+        }
+        return null;
+      },
+    );
+    await t.pumpWidget(
+      const MaterialApp(home: AiPhotosScreen(locale: 'en-US')),
+    );
+    await t.tap(find.text('Continue'));
+    await t.pump();
+
+    // A saree is not sewn into clothes, so it is not offered.
+    await t.tap(find.text('Saree'));
+    await t.pump();
+    await t.tap(find.text('Continue'));
+    await t.pump();
+    expect(find.text('Make clothes'), findsNothing);
+    await t.tap(find.byIcon(Icons.arrow_back_rounded));
+    await t.pump();
+
+    await t.tap(find.text('Yardages'));
+    await t.pump();
+    await t.tap(find.text('Continue'));
+    await t.pump();
+    expect(find.text('Make clothes'), findsOneWidget);
+    expect(find.text('Kurti, Kurta, Shirt'), findsOneWidget);
+    await t.tap(find.text('Make clothes'));
+    await t.pump();
+    expect(find.text('Which one?'), findsOneWidget);
+    await t.tap(find.text('Kurti'));
+    await t.pump();
+    await t.tap(find.text('Continue'));
+    await t.pump();
+
+    expect(find.text('You need these 2 photos'), findsOneWidget);
+    await t.tap(find.text('Copy prompt'));
+    await t.pump();
+    expect(copied, contains('knee-length kurti worn by a real woman'));
+
+    // Going back and picking a saree drops the clothes choice.
+    await t.pump(const Duration(seconds: 5));
+    await t.tap(find.byIcon(Icons.arrow_back_rounded));
+    await t.pump();
+    await t.tap(find.byIcon(Icons.arrow_back_rounded));
+    await t.pump();
+    await t.tap(find.text('Saree'));
+    await t.pump();
+    await t.tap(find.text('Continue'));
+    await t.pump();
+    expect(find.text('Which one?'), findsNothing);
+    expect(t.takeException(), isNull);
+  });
+
   test('a scene never names another product', () {
     const names = {
       'Saree': 'saree',
@@ -141,6 +239,7 @@ void main() {
       for (final choice in [
         ...aiDisplaysFor(product.name),
         ...aiPropsFor(product.name),
+        ...aiClothesFor(product.name),
       ]) {
         for (final entry in names.entries) {
           if (entry.key == product.name) continue;

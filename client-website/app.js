@@ -1533,6 +1533,11 @@ const AI_SCENES = {
       ["Measuring tape", "Place this fabric, neatly folded, on a wooden table with a measuring tape and scissors beside it."],
       ["Basket", "Place this fabric, neatly folded, in a cane basket on a wooden table."],
       ["Outdoor courtyard", "Hang this fabric from a bamboo pole in a bright outdoor courtyard, with the whole piece in frame."]
+    ],
+    "clothes": [
+      ["Kurti", "Sew this fabric into a knee-length kurti worn by a real woman, keeping the pattern at its true size. Plain background.", true],
+      ["Kurta", "Sew this fabric into a long kurta worn by a real man, keeping the pattern at its true size. Plain background.", true],
+      ["Shirt", "Sew this fabric into a collared shirt worn by a real man, keeping the pattern at its true size. Plain background.", true]
     ]
   },
   "Cushion covers": {
@@ -1547,12 +1552,14 @@ const AI_SCENES = {
 };
 
 function aiNeedsBothPhotos(goal) {
-  return goal === "display" || goal === "props";
+  return goal === "display" || goal === "props" || goal === "clothes";
 }
 
 function aiChoicesFor(product, goal) {
   const scenes = AI_SCENES[product] || { displays: [], props: [] };
-  return goal === "display" ? scenes.displays : scenes.props;
+  if (goal === "display") return scenes.displays;
+  if (goal === "clothes") return scenes.clothes || [];
+  return scenes.props;
 }
 
 function buildAiPrompt({ product, goal, scene }) {
@@ -1575,6 +1582,7 @@ const AI_GOALS = [
   ["light", "Better light", "Soft, even light and true colours", '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>'],
   ["display", "New display", null, '<path d="M12 7a2 2 0 1 0-2-2"/><path d="M12 7v2L3 16a1.5 1.5 0 0 0 1 3h16a1.5 1.5 0 0 0 1-3l-9-7"/>'],
   ["props", "Add props", null, '<path d="M6 11V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5"/><path d="M4 11a2 2 0 0 1 2 2v2h12v-2a2 2 0 1 1 2 2v3H4v-3a2 2 0 0 1 0-4z"/><path d="M7 18v2M17 18v2"/>'],
+  ["clothes", "Make clothes", null, '<path d="M9 4L4 6.5 2.5 11l3 1.2L6 11v9h12v-9l.5 1.2 3-1.2L20 6.5 15 4a3 3 0 0 1-6 0z"/>'],
 ];
 const AI_PHOTO_ICON = '<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M5 17l5-4 3 2.5 2.5-2L19 16"/>';
 
@@ -1643,11 +1651,12 @@ function renderAi() {
   if (ai.step === 1) {
     // What this product can really have, so the card promises nothing else.
     const sample = (goal) => aiChoicesFor(ai.product, goal).slice(0, 3).map((item) => t(item[0])).join(", ");
-    const rows = AI_GOALS.map(([key, title, detail, icon]) =>
+    // Only some products can be made into clothes.
+    const rows = AI_GOALS.filter(([key]) => key !== "clothes" || aiChoicesFor(ai.product, key).length).map(([key, title, detail, icon]) =>
       aiRow({ title, detail: detail || sample(key), icon, on: ai.goal === key, act: "ai-goal", attrs: `data-name="${key}"` }),
     ).join("");
     const choices = ai.goal && aiNeedsBothPhotos(ai.goal)
-      ? `<p class="ai-label">${esc(t(ai.goal === "display" ? "Which display?" : "Which prop?"))}</p>${aiChips(aiChoicesFor(ai.product, ai.goal).map((item) => item[0]), (label) => label === ai.scene, "ai-scene")}`
+      ? `<p class="ai-label">${esc(t({ display: "Which display?", clothes: "Which one?" }[ai.goal] || "Which prop?"))}</p>${aiChips(aiChoicesFor(ai.product, ai.goal).map((item) => item[0]), (label) => label === ai.scene, "ai-scene")}`
       : "";
     return screen(`<div class="pad-20 stack">${head}
       ${heading("What do you want?", "Tap one")}
@@ -3260,6 +3269,7 @@ document.getElementById("phone").addEventListener("click", (event) => {
     if (act === "ai-product") {
       // Displays and props differ by product.
       if (name !== ai.product) ai.scene = null;
+      if (ai.goal === "clothes" && !aiChoicesFor(name, "clothes").length) ai.goal = null;
       ai.product = name;
     }
     if (act === "ai-goal") {

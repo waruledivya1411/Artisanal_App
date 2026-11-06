@@ -4,7 +4,7 @@
 /// artisan only copies them, and AI tools follow English most reliably.
 library;
 
-enum AiGoal { cleanBackground, betterLight, newDisplay, addProps }
+enum AiGoal { cleanBackground, betterLight, newDisplay, addProps, makeClothes }
 
 /// Something the artisan can tap: its [label] on screen, and its [line], which
 /// is the words it adds to the prompt or the help under the label.
@@ -20,10 +20,17 @@ class AiChoice {
 }
 
 class _Scenes {
-  const _Scenes({required this.displays, required this.props});
+  const _Scenes({
+    required this.displays,
+    required this.props,
+    this.clothes = const [],
+  });
 
   final List<AiChoice> displays;
   final List<AiChoice> props;
+
+  /// Clothes sewn from the fabric, for products sold by the metre.
+  final List<AiChoice> clothes;
 }
 
 /// A new display or scene cannot be made from one photo: the AI needs to see
@@ -34,7 +41,9 @@ const aiNeededPhotos = <AiChoice>[
 ];
 
 bool aiNeedsBothPhotos(AiGoal goal) =>
-    goal == AiGoal.newDisplay || goal == AiGoal.addProps;
+    goal == AiGoal.newDisplay ||
+    goal == AiGoal.addProps ||
+    goal == AiGoal.makeClothes;
 
 const _productWords = <String, String>{
   'Saree': 'saree',
@@ -249,6 +258,23 @@ const _scenes = <String, _Scenes>{
         'Hang this fabric from a bamboo pole in a bright outdoor courtyard, with the whole piece in frame.',
       ),
     ],
+    clothes: [
+      AiChoice(
+        'Kurti',
+        'Sew this fabric into a knee-length kurti worn by a real woman, keeping the pattern at its true size. Plain background.',
+        withModel: true,
+      ),
+      AiChoice(
+        'Kurta',
+        'Sew this fabric into a long kurta worn by a real man, keeping the pattern at its true size. Plain background.',
+        withModel: true,
+      ),
+      AiChoice(
+        'Shirt',
+        'Sew this fabric into a collared shirt worn by a real man, keeping the pattern at its true size. Plain background.',
+        withModel: true,
+      ),
+    ],
   ),
   'Cushion covers': _Scenes(
     displays: [
@@ -275,6 +301,9 @@ List<AiChoice> aiDisplaysFor(String? product) =>
 
 List<AiChoice> aiPropsFor(String? product) =>
     _scenes[product]?.props ?? const [];
+
+List<AiChoice> aiClothesFor(String? product) =>
+    _scenes[product]?.clothes ?? const [];
 
 /// The finished prompt. [scene] is the display or prop tapped, for the goals
 /// that need one.
@@ -309,5 +338,6 @@ String buildAiPrompt({
     ),
     AiGoal.newDisplay => makeFromTwoPhotos(aiDisplaysFor(product)),
     AiGoal.addProps => makeFromTwoPhotos(aiPropsFor(product)),
+    AiGoal.makeClothes => makeFromTwoPhotos(aiClothesFor(product)),
   };
 }

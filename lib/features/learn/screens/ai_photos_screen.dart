@@ -60,6 +60,10 @@ class _AiPhotosScreenState extends State<AiPhotosScreen> {
     setState(() {
       // Displays and props differ by product.
       if (name != _product) _scene = null;
+      // Only some products can be made into clothes.
+      if (_goal == AiGoal.makeClothes && aiClothesFor(name).isEmpty) {
+        _goal = null;
+      }
       _product = name;
     });
   }
@@ -286,6 +290,12 @@ class _AiPhotosScreenState extends State<AiPhotosScreen> {
     final goal = _goal;
     final displays = aiDisplaysFor(_product);
     final props = aiPropsFor(_product);
+    final clothes = aiClothesFor(_product);
+    final choices = switch (goal) {
+      AiGoal.newDisplay => displays,
+      AiGoal.makeClothes => clothes,
+      _ => props,
+    };
     // What this product can really have, so the card promises nothing else.
     String sample(List<AiChoice> items) =>
         items.take(3).map((item) => tr(item.label)).join(', ');
@@ -321,13 +331,22 @@ class _AiPhotosScreenState extends State<AiPhotosScreen> {
           selected: goal == AiGoal.addProps,
           onTap: () => _pickGoal(AiGoal.addProps),
         ),
+        if (clothes.isNotEmpty)
+          _ChoiceRow(
+            title: 'Make clothes',
+            detail: sample(clothes),
+            icon: Icons.dry_cleaning_outlined,
+            selected: goal == AiGoal.makeClothes,
+            onTap: () => _pickGoal(AiGoal.makeClothes),
+          ),
         if (goal != null && aiNeedsBothPhotos(goal)) ...[
-          _label(goal == AiGoal.newDisplay ? 'Which display?' : 'Which prop?'),
+          _label(switch (goal) {
+            AiGoal.newDisplay => 'Which display?',
+            AiGoal.makeClothes => 'Which one?',
+            _ => 'Which prop?',
+          }),
           _chips(
-            [
-              for (final item in goal == AiGoal.newDisplay ? displays : props)
-                item.label,
-            ],
+            [for (final item in choices) item.label],
             isOn: (label) => label == _scene,
             onTap: (label) {
               HapticFeedback.selectionClick();
