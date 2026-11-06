@@ -44,6 +44,20 @@ class SavedWork extends ChangeNotifier {
   String? get caption => _values['caption'];
   String? get aiPrompt => _values['aiPrompt'];
 
+  /// Most recent first. Work saved before captions were kept as a list
+  /// still shows, as its one caption.
+  List<String> get captions {
+    final raw = _values['captions'];
+    if (raw != null) {
+      final decoded = jsonDecode(raw);
+      if (decoded is List) return [for (final item in decoded) '$item'];
+    }
+    final last = caption;
+    return last == null || last.isEmpty ? const [] : [last];
+  }
+
+  static const keptCaptions = 5;
+
   bool get hasPage => bio != null || name != null || username != null;
 
   /// Each part of the task saves what it has just had written.
@@ -61,7 +75,13 @@ class SavedWork extends ChangeNotifier {
     });
   }
 
-  void saveCaption(String text) => _update({'caption': text});
+  void saveCaption(String text) {
+    final list = [text, ...captions.where((item) => item != text)];
+    _update({
+      'caption': text,
+      'captions': jsonEncode(list.take(keptCaptions).toList()),
+    });
+  }
 
   void saveAiPrompt(String text) => _update({'aiPrompt': text});
 

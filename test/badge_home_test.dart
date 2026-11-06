@@ -94,7 +94,7 @@ void main() {
     await t.tap(find.text('Complete'));
     await t.pump();
     expect(find.text('Badge earned'), findsOneWidget);
-    expect(find.text('Next task: AI photos'), findsOneWidget);
+    expect(find.text('Next task: Use AI'), findsOneWidget);
     await t.tap(find.text('Go to home'));
     await settle(t);
     expect(find.text('HOME PAGE'), findsOneWidget);
@@ -105,7 +105,7 @@ void main() {
     );
   });
 
-  testWidgets('the numbers badge really opens AI photos next', (t) async {
+  testWidgets('the numbers badge really opens Use AI next', (t) async {
     await open(
       t,
       (context) => lastStep(
@@ -120,9 +120,10 @@ void main() {
     );
     await t.tap(find.text('Complete'));
     await t.pump();
-    await t.tap(find.text('Next task: AI photos'));
+    await t.tap(find.text('Next task: Use AI'));
     await settle(t);
-    expect(find.text('Which product is it?'), findsOneWidget);
+    expect(find.text('Photo prompts'), findsOneWidget);
+    expect(find.text('Bio and caption'), findsOneWidget);
   });
 
   testWidgets('the last page of a lesson task offers home', (t) async {
@@ -297,7 +298,7 @@ void main() {
       MaterialApp(
         key: const ValueKey('no next task'),
         home: LessonBadgeScreen(
-          title: 'AI photos',
+          title: 'Use AI',
           subtitle: 'Done',
           onContinue: () {},
           onHome: () => home++,

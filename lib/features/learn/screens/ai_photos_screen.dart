@@ -6,11 +6,17 @@ import 'package:flutter/services.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
 import 'package:artisnal_app/core/theme/button_shadow.dart';
 import 'package:artisnal_app/features/learn/data/ai_prompts.dart';
+import 'package:artisnal_app/features/learn/data/ai_words.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
+import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
+import 'package:artisnal_app/features/learn/data/learn_task_navigation.dart';
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
 import 'package:artisnal_app/features/learn/data/products.dart';
 import 'package:artisnal_app/features/learn/data/saved_work.dart';
 import 'package:artisnal_app/features/learn/screens/lesson_badge_screen.dart';
+import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
+
+part 'ai_words_screen.dart';
 
 /// Builds a prompt for the artisan's own AI tool, a few taps at a time: the
 /// product, what they want, then the prompt to copy.
@@ -33,7 +39,8 @@ class AiPhotosScreen extends StatefulWidget {
   State<AiPhotosScreen> createState() => _AiPhotosScreenState();
 }
 
-class _AiPhotosScreenState extends State<AiPhotosScreen> {
+class _AiPhotosScreenState extends State<AiPhotosScreen>
+    with _AiPage<AiPhotosScreen> {
   int _step = 0;
   String? _product;
   AiGoal? _goal;
@@ -85,28 +92,6 @@ class _AiPhotosScreenState extends State<AiPhotosScreen> {
   String get _prompt =>
       buildAiPrompt(product: _product!, goal: _goal!, scene: _scene);
 
-  /// The first finish earns the badge. After that this stays a tool to come
-  /// back to, so Done simply closes it.
-  void _finish() {
-    final progress = LearnProgress.instance;
-    final navigator = Navigator.of(context);
-    if (progress.isLearnTaskComplete(aiPhotosTaskId)) {
-      // Not maybePop: on this page that would step back instead of closing.
-      navigator.pop();
-      return;
-    }
-    progress.finishTask(aiPhotosTaskId, 1);
-    navigator.pushReplacement(
-      MaterialPageRoute<void>(
-        builder: (badgeContext) => LessonBadgeScreen(
-          title: 'AI photos',
-          subtitle: 'You can use AI and keep your product the same.',
-          onContinue: () => Navigator.of(badgeContext).pop(),
-        ),
-      ),
-    );
-  }
-
   /// The button itself says when the prompt is copied, so the answer is where
   /// the artisan is already looking. A browser that never answers counts as a
   /// failure rather than leaving the button doing nothing.
@@ -145,119 +130,32 @@ class _AiPhotosScreenState extends State<AiPhotosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
+    return aiFrame(
+      kicker: 'Photo prompts',
       canPop: _step == 0,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _back();
+      onBack: _back,
+      pageKey: _step,
+      body: switch (_step) {
+        0 => _productStep(),
+        1 => _goalStep(),
+        _ => _promptStep(),
       },
-      child: Scaffold(
-        backgroundColor: AiPhotosScreen.background,
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                  height: 48,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: IconButton(
-                          tooltip: tr('Back'),
-                          onPressed: _back,
-                          icon: const Icon(Icons.arrow_back_rounded),
-                          color: AiPhotosScreen.ink,
-                          iconSize: 24,
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(
-                            minWidth: 40,
-                            minHeight: 40,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        tr('AI photos').toUpperCase(),
-                        style: appType(
-                          color: AiPhotosScreen.teal,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Expanded(
-                  // Its own key per page, so each page opens at the top rather
-                  // than scrolled as far as the page before it.
-                  child: KeyedSubtree(
-                    key: ValueKey(_step),
-                    child: switch (_step) {
-                      0 => _productStep(),
-                      1 => _goalStep(),
-                      _ => _promptStep(),
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (_step < 2)
-                  _button(
-                    label: 'Continue',
-                    onTap: _canContinue ? () => setState(() => _step++) : null,
-                  )
-                else ...[
-                  _button(
-                    label: _copied ? 'Prompt copied' : 'Copy prompt',
-                    icon: _copied ? Icons.check_rounded : null,
-                    onTap: _copy,
-                  ),
-                  const SizedBox(height: 4),
-                  TextButton(
-                    onPressed: _finish,
-                    style: TextButton.styleFrom(
-                      foregroundColor: AiPhotosScreen.teal,
-                    ),
-                    child: Text(
-                      tr('Done'),
-                      style: appType(fontSize: 15, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _heading(String title, String subtitle) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            tr(title),
-            style: appType(
-              color: AiPhotosScreen.ink,
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
-              height: 1.2,
-              letterSpacing: -0.4,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            tr(subtitle),
-            style: appType(color: AiPhotosScreen.muted, fontSize: 16),
-          ),
-        ],
-      ),
+      bottom: _step < 2
+          ? [
+              _button(
+                label: 'Continue',
+                onTap: _canContinue ? () => setState(() => _step++) : null,
+              ),
+            ]
+          : [
+              _button(
+                label: _copied ? 'Prompt copied' : 'Copy prompt',
+                icon: _copied ? Icons.check_rounded : null,
+                onTap: _copy,
+              ),
+              const SizedBox(height: 4),
+              finishButton(),
+            ],
     );
   }
 
@@ -487,6 +385,168 @@ class _AiPhotosScreenState extends State<AiPhotosScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// What both AI parts share: the page frame, the small pieces on it, and
+/// what Done does at the end of a part.
+mixin _AiPage<T extends StatefulWidget> on State<T> {
+  Widget aiFrame({
+    required String kicker,
+    required bool canPop,
+    required VoidCallback onBack,
+    required Object pageKey,
+    required Widget body,
+    required List<Widget> bottom,
+  }) {
+    return PopScope(
+      canPop: canPop,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) onBack();
+      },
+      child: Scaffold(
+        backgroundColor: AiPhotosScreen.background,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: 48,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: IconButton(
+                          tooltip: tr('Back'),
+                          onPressed: onBack,
+                          icon: const Icon(Icons.arrow_back_rounded),
+                          color: AiPhotosScreen.ink,
+                          iconSize: 24,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 40,
+                            minHeight: 40,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        tr(kicker).toUpperCase(),
+                        style: appType(
+                          color: AiPhotosScreen.teal,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  // Its own key per page, so each page opens at the top rather
+                  // than scrolled as far as the page before it.
+                  child: KeyedSubtree(key: ValueKey(pageKey), child: body),
+                ),
+                const SizedBox(height: 16),
+                ...bottom,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Whether Done leads on to the other part instead of closing.
+  bool get _leadsToNextPart {
+    final step = LessonStep.maybeOf(context);
+    return step != null &&
+        step.nextTitle != null &&
+        !LearnProgress.instance.isLearnTaskComplete(aiPhotosTaskId);
+  }
+
+  Widget finishButton() {
+    final next = LessonStep.maybeOf(context)?.nextTitle;
+    return TextButton(
+      onPressed: finishPart,
+      style: TextButton.styleFrom(foregroundColor: AiPhotosScreen.teal),
+      child: Text(
+        tr(_leadsToNextPart ? 'Next part · $next' : 'Done'),
+        textAlign: TextAlign.center,
+        style: appType(fontSize: 15, fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+
+  /// The first time through, Done goes on to the other part, and the end of
+  /// the last part earns the badge. After that the parts are tools to come
+  /// back to, so Done simply closes them.
+  void finishPart() {
+    final navigator = Navigator.of(context);
+    final step = LessonStep.maybeOf(context);
+    final progress = LearnProgress.instance;
+    if (step == null || progress.isLearnTaskComplete(aiPhotosTaskId)) {
+      // Not maybePop: on these pages that would step back instead of closing.
+      navigator.pop();
+      return;
+    }
+    if (step.nextTitle != null) {
+      step.onFinished();
+      return;
+    }
+    progress.finishTask(
+      aiPhotosTaskId,
+      LearnTaskChain.partCounts[aiPhotosTaskId]!,
+    );
+    void goHome(BuildContext badgeContext) {
+      Navigator.of(badgeContext).pop();
+      LearnTaskNavigation.finishLessonAndGoHome(
+        navigator: navigator,
+        finishLesson: step.onFinished,
+      );
+    }
+
+    navigator.push<void>(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (badgeContext) => LessonBadgeScreen(
+          title: LearnTaskChain.titleFor(aiPhotosTaskId),
+          subtitle: LearnTaskChain.badgeLineFor(aiPhotosTaskId),
+          nextLearnTaskTitle: step.nextLearnTaskTitle,
+          onContinue: () => goHome(badgeContext),
+          onHome: () => goHome(badgeContext),
+        ),
+      ),
+    );
+  }
+
+  Widget _heading(String title, String subtitle) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            tr(title),
+            style: appType(
+              color: AiPhotosScreen.ink,
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              height: 1.2,
+              letterSpacing: -0.4,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            tr(subtitle),
+            style: appType(color: AiPhotosScreen.muted, fontSize: 16),
+          ),
+        ],
+      ),
     );
   }
 

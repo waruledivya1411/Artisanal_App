@@ -11,7 +11,6 @@ import 'package:artisnal_app/features/learn/data/saved_work.dart';
 import 'package:artisnal_app/features/learn/screens/setup_try_it_flow_screen.dart';
 import 'package:artisnal_app/features/learn/screens/write_caption_screen.dart';
 import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
-import 'package:artisnal_app/features/me/screens/badge_work_screen.dart';
 import 'package:artisnal_app/features/me/screens/me_screen.dart';
 
 void main() {
@@ -58,7 +57,7 @@ void main() {
       category: 'Artist',
       bio: 'My own bio',
     );
-    LearnProgress.instance.finishTask(aiPhotosTaskId, 1);
+    LearnProgress.instance.finishTask(aiPhotosTaskId, 2);
 
     // As if closed: memory is gone, what was stored stays.
     final stored = await SharedPreferences.getInstance();
@@ -70,29 +69,15 @@ void main() {
 
     await loadSavedData();
     expect(SavedWork.instance.caption, 'My own caption');
+    expect(SavedWork.instance.captions, ['My own caption']);
     expect(SavedWork.instance.bio, 'My own bio');
     expect(SavedWork.instance.category, 'Artist');
     expect(LearnProgress.instance.isLearnTaskComplete(aiPhotosTaskId), isTrue);
   });
 
-  testWidgets('only an earned badge opens', (t) async {
-    SavedWork.instance.saveCaption('My own caption');
-    LearnProgress.instance.finishTask(LearnTaskChain.createPostTaskId, 3);
-    await pumpTall(t, const Scaffold(body: MeScreen(locale: 'en-US')));
-
-    await t.tap(find.text('Photography'));
-    await t.pumpAndSettle();
-    expect(find.text('Your caption'), findsNothing);
-
-    await t.tap(find.text('Create a post'));
-    await t.pumpAndSettle();
-    expect(find.text('Your caption'), findsOneWidget);
-    expect(find.text('My own caption'), findsOneWidget);
-    expect(find.text('Caption ideas'), findsOneWidget);
-    expect(find.text(captionIdeas.first), findsOneWidget);
-  });
-
-  testWidgets('the page badge shows their bio and copies it', (t) async {
+  testWidgets('Me shows the badges in one row, then captions and bio', (
+    t,
+  ) async {
     String? copied;
     t.binding.defaultBinaryMessenger.setMockMethodCallHandler(
       SystemChannels.platform,
@@ -103,43 +88,75 @@ void main() {
         return null;
       },
     );
-    SavedWork.instance.savePage(
-      name: 'Divya',
-      username: 'divya.weaves',
-      category: 'Artist',
-      bio: 'My own bio',
-    );
-    await pumpTall(t, const BadgeWorkScreen(taskId: setUpPageTaskId));
+    SavedWork.instance.saveCaption('First caption');
+    SavedWork.instance.saveCaption('Second caption');
+    SavedWork.instance.savePage(name: 'Divya', bio: 'My own bio');
+    LearnProgress.instance.finishTask(LearnTaskChain.createPostTaskId, 3);
+    await pumpTall(t, const Scaffold(body: MeScreen(locale: 'en-US')));
 
-    expect(find.text('Your work'), findsOneWidget);
-    expect(find.text('divya.weaves'), findsOneWidget);
-    expect(find.text('Artist'), findsOneWidget);
+    // Every badge sits on one line.
+    final row = find.byKey(const ValueKey('badge-row'));
+    expect(row, findsOneWidget);
+    final tops = {
+      for (final id in LearnTaskChain.taskOrder.take(4))
+        t.getTopLeft(find.text(LearnTaskChain.titleFor(id))).dy.round(),
+    };
+    expect(tops.length, 1);
+
+    // Only the two kinds of saved work, newest caption first.
+    expect(find.text('Saved captions'), findsOneWidget);
+    expect(find.text('Saved bio'), findsOneWidget);
+    expect(find.text('Your last prompt'), findsNothing);
+    expect(
+      t.getTopLeft(find.text('Second caption')).dy,
+      lessThan(t.getTopLeft(find.text('First caption')).dy),
+    );
+    expect(find.text('Caption ideas'), findsOneWidget);
+    expect(find.text(captionIdeas.first), findsOneWidget);
     expect(find.text('My own bio'), findsOneWidget);
+    expect(find.text('Divya'), findsOneWidget);
     expect(find.text('Bio ideas'), findsOneWidget);
-    expect(find.text(bioIdeas.last), findsOneWidget);
+    expect(
+      t.getTopLeft(find.text('Saved captions')).dy,
+      lessThan(t.getTopLeft(find.text('Saved bio')).dy),
+    );
 
     await t.tap(find.text('Copy').first);
     await t.pump();
-    expect(copied, 'My own bio');
+    expect(copied, 'Second caption');
     expect(find.text('Copied'), findsOneWidget);
     await t.pump(const Duration(seconds: 3));
     expect(find.text('Copied'), findsNothing);
-  });
 
-  testWidgets('a badge with no saved work says so and still helps', (t) async {
-    await pumpTall(
-      t,
-      const BadgeWorkScreen(taskId: LearnTaskChain.createPostTaskId),
+    // The bio ideas run on below.
+    await t.scrollUntilVisible(
+      find.text(bioIdeas.last),
+      300,
+      scrollable: find.byType(Scrollable).first,
     );
-    expect(find.text('Nothing saved yet.'), findsOneWidget);
-    expect(find.text(captionIdeas.first), findsOneWidget);
+    expect(find.text(bioIdeas.last), findsOneWidget);
   });
 
-  testWidgets('badges with nothing to write open without lists', (t) async {
-    await pumpTall(t, const BadgeWorkScreen(taskId: photographyTaskId));
-    expect(find.text('Photography'), findsOneWidget);
-    expect(find.text('Sharp photos sell better'), findsOneWidget);
-    expect(find.text('Copy'), findsNothing);
+  testWidgets('with nothing saved, Me still offers ideas', (t) async {
+    await pumpTall(t, const Scaffold(body: MeScreen(locale: 'en-US')));
+    expect(find.text('Nothing saved yet.'), findsNWidgets(2));
+    expect(find.text(captionIdeas.first), findsOneWidget);
+    expect(find.text(bioIdeas.first), findsOneWidget);
+  });
+
+  test('captions keep the newest few, without repeats', () {
+    for (var i = 0; i < 7; i++) {
+      SavedWork.instance.saveCaption('Caption $i');
+    }
+    SavedWork.instance.saveCaption('Caption 4');
+    expect(SavedWork.instance.captions, [
+      'Caption 4',
+      'Caption 6',
+      'Caption 5',
+      'Caption 3',
+      'Caption 2',
+    ]);
+    expect(SavedWork.instance.caption, 'Caption 4');
   });
 
   testWidgets('name and bio are practised together and saved', (t) async {

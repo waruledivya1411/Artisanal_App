@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
-import 'package:artisnal_app/features/learn/screens/ai_photos_screen.dart';
 import 'package:artisnal_app/features/learn/screens/choose_content_type_screen.dart';
 import 'package:artisnal_app/features/learn/screens/photo_access_screen.dart';
 
@@ -44,7 +43,7 @@ class LearnTaskNavigation {
           builder: (_) => readNumbersTask(locale),
         ),
       aiPhotosTaskId => MaterialPageRoute<void>(
-          builder: (_) => AiPhotosScreen(locale: locale),
+          builder: (_) => aiTask(locale),
         ),
       _ => null,
     };

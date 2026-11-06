@@ -680,14 +680,20 @@ const TASKS = [
       ),
     ],
   },
-  // Opens its own screen, so it has one part and no lesson pages.
+  // Each part opens its own screen and writes a prompt to copy. The id stays
+  // the same so earlier progress counts.
   {
     id: "ai_photos",
     number: "06",
-    title: "AI photos",
+    title: "Use AI",
     detail: "Copy a prompt",
     image: photo("ai_photos_card.jpg"),
-    parts: [{ id: "1", title: "AI photos" }],
+    label: "TASK 6 OF 6",
+    showChevron: true,
+    parts: [
+      { id: "1", title: "Photo prompts", kind: "ai" },
+      { id: "2", title: "Bio and caption", kind: "words" },
+    ],
   },
 ];
 
@@ -949,23 +955,50 @@ function renderLearn() {
   </div>`);
 }
 
+// The badges in one row, then the words the artisan wrote while practising,
+// each with more ideas to copy. Same as lib/features/me/screens/me_screen.dart.
 function renderMe() {
   const tiles = TASKS.map((task) => {
     const on = isTaskDone(task);
-    const inner = `<div class="medal">${on ? svg.medal : svg.lockBadge}</div><p>${esc(t(task.title))}</p>`;
-    return on
-      ? `<button type="button" class="badge on" data-act="open-work" data-id="${task.id}">${inner}</button>`
-      : `<div class="badge">${inner}</div>`;
+    return `<div class="badge ${on ? "on" : ""}"><div class="medal">${on ? svg.medal : svg.lockBadge}</div><p>${esc(t(task.title))}</p></div>`;
   }).join("");
+  const work = state.work || {};
+  const nothing = `<p class="ai-note">${esc(t("Nothing saved yet."))}</p>`;
+  const heading = (text) => `<h2 class="me-heading">${esc(t(text))}</h2>`;
+  const sub = (text) => `<p class="me-sub">${esc(t(text))}</p>`;
+  const captions = savedCaptions();
   return screen(`<div class="stack">
     <div class="scroll pad-20">
       <h1 class="hello" style="margin-top:8px">${esc(t("Me"))}</h1>
       <p class="lede">${esc(t("Finish Learn tasks to unlock your badges."))}</p>
       <p class="kicker" style="margin-top:22px">${esc(t("YOUR BADGES"))}</p>
       <div class="badges">${tiles}</div>
+      ${heading("Saved captions")}
+      ${captions.length ? captions.map((caption) => workCard(caption)).join("") : nothing}
+      ${sub("Caption ideas")}
+      ${CAPTION_IDEAS.map((idea) => workCard(t(idea))).join("")}
+      ${heading("Saved bio")}
+      ${work.bio ? workCard(work.bio, work.name) : nothing}
+      ${sub("Bio ideas")}
+      ${BIO_IDEAS.map((idea) => workCard(t(idea))).join("")}
     </div>
     ${nav("me")}
   </div>`);
+}
+
+const KEPT_CAPTIONS = 5;
+
+// Most recent first. Work saved before captions were kept as a list still
+// shows, as its one caption.
+function savedCaptions() {
+  const work = state.work || {};
+  if (Array.isArray(work.captions)) return work.captions;
+  return work.caption ? [work.caption] : [];
+}
+
+function saveCaption(text) {
+  const list = [text, ...savedCaptions().filter((item) => item !== text)];
+  saveWork({ caption: text, captions: list.slice(0, KEPT_CAPTIONS) });
 }
 
 function displaysFor(name) {
@@ -1631,7 +1664,7 @@ function renderAi() {
   const ai = state.ai;
   const head = `<div class="lesson-head">
       ${backBtn()}
-      <p class="lesson-kicker">${esc(t("AI photos").toUpperCase())}</p>
+      <p class="lesson-kicker">${esc(t("Photo prompts").toUpperCase())}</p>
       <span></span>
     </div>`;
   const heading = (title, sub) => `<h1 class="pick-title">${esc(t(title))}</h1><p class="pick-sub">${esc(t(sub))}</p>`;
@@ -1686,7 +1719,167 @@ function renderAi() {
     <div class="foot">
       ${ai.copyFailed ? `<p class="ai-note strong ai-copy-failed">${esc(t("Could not copy. Select the words and copy them."))}</p>` : ""}
       <button class="btn" type="button" data-act="ai-copy">${ai.copied ? "&#10003; " : ""}${esc(t(ai.copied ? "Prompt copied" : "Copy prompt"))}</button>
-      <button class="ai-done" type="button" data-act="finish-ai">${esc(t("Done"))}</button>
+      <button class="ai-done" type="button" data-act="finish-ai">${esc(t(aiFinishLabel("1")))}</button>
+    </div>
+  </div>`);
+}
+
+// Bio and caption: the second part of Use AI. The artisan tells us a few
+// things, and we write the prompt for their own AI tool. Same words as
+// lib/features/learn/data/ai_words.dart.
+const AI_WORDS_QUESTIONS = {
+  bio: [
+    ["name", "Your name", "Rina Das", false],
+    ["from", "Where are you from?", "Sualkuchi, Assam", true],
+    ["make", "What do you make?", "Handwoven Muga silk sarees", true],
+    ["story", "Your story", "Weaving for 15 years, taught by my mother", false],
+    ["buy", "How can people buy?", "DM to order. Ships across India.", false],
+  ],
+  caption: [
+    ["product", "What is in this post?", "Red Muga silk saree", true],
+    ["special", "What is special about it?", "Woven by hand in 20 days", true],
+    ["from", "Where are you from?", "Sualkuchi, Assam", false],
+    ["price", "Price", "₹4,500", false],
+    ["buy", "How can people buy?", "DM to order. Ships across India.", false],
+  ],
+};
+const AI_WORDS_LANGUAGES = ["English", "Assamese", "Odia", "Telugu", "Hindi"];
+const AI_WORDS_FACTS = {
+  name: "Name", from: "From", make: "I make", story: "My story", buy: "How to buy",
+  product: "Product", special: "What is special", price: "Price",
+};
+
+function aiWordsLanguageFor(appCode) {
+  return { as: "Assamese", or: "Odia", te: "Telugu" }[appCode] || "English";
+}
+
+function aiWordsAnswer(answers, key) {
+  const value = String(answers[key] || "").trim().replace(/\s+/g, " ");
+  return value || null;
+}
+
+function aiWordsReady(goal, answers) {
+  return AI_WORDS_QUESTIONS[goal].filter((q) => q[3]).every(([key]) => !!aiWordsAnswer(answers, key));
+}
+
+function buildAiWordsPrompt({ goal, answers, language }) {
+  const facts = AI_WORDS_QUESTIONS[goal]
+    .filter(([key]) => aiWordsAnswer(answers, key))
+    .map(([key]) => `- ${AI_WORDS_FACTS[key]}: ${aiWordsAnswer(answers, key)}`)
+    .join("\n");
+  // The AI must not add a price, a place or a story the artisan never gave.
+  const honest = "Use only these facts. Do not make anything up.";
+  if (goal === "bio") {
+    return `Write 3 Instagram bio options for my handloom page.\n\nAbout me:\n${facts}\n\nKeep each bio under 150 characters, in 3 or 4 short lines. Use simple, warm words and 1 or 2 emojis. Write in ${language}.\n\n${honest}`;
+  }
+  const ending = aiWordsAnswer(answers, "buy") ? "End with how to buy" : "End by asking people to message me to order";
+  return `Write 3 Instagram caption options for my post.\n\nAbout the post:\n${facts}\n\nStart with a line that makes people stop. Keep it to 4 short lines. ${ending}, then add 5 hashtags. Use simple, warm words. Write in ${language}.\n\n${honest}`;
+}
+
+// Kept while the page is open, so a caption after a bio does not ask
+// "Where are you from?" twice.
+const aiWordsAnswers = {};
+
+function openWords() {
+  if (!aiWordsAnswers.name && state.work && state.work.name) aiWordsAnswers.name = state.work.name;
+  state.words = { step: 0, goal: null, language: aiWordsLanguageFor(code()), copied: false, copyFailed: false };
+  push("words");
+}
+
+function wordsPromptText() {
+  return buildAiWordsPrompt({ goal: state.words.goal, answers: aiWordsAnswers, language: state.words.language });
+}
+
+function wordsCanContinue() {
+  const words = state.words;
+  if (!words.goal) return false;
+  return words.step === 0 || aiWordsReady(words.goal, aiWordsAnswers);
+}
+
+// Done on either Use AI part. The first time through it goes on to the other
+// part, and the end of the last part earns the badge. After that the parts
+// are tools to come back to, so Done simply closes them.
+function aiLeadsToNextPart(partId) {
+  return partId === "1" && !isTaskDone(taskById("ai_photos"));
+}
+
+function aiFinishLabel(partId) {
+  return aiLeadsToNextPart(partId) ? "Next part · " + partById(taskById("ai_photos"), "2").title : "Done";
+}
+
+function finishAiPart(partId) {
+  const task = taskById("ai_photos");
+  if (isTaskDone(task)) return back();
+  const leads = aiLeadsToNextPart(partId);
+  markPart(task.id, partId);
+  if (isTaskDone(task)) return showBadge(task.id);
+  if (leads) {
+    state.stack.pop();
+    return openWords();
+  }
+  back();
+}
+
+function renderWords() {
+  const words = state.words;
+  const head = `<div class="lesson-head">
+      ${backBtn()}
+      <p class="lesson-kicker">${esc(t("Bio and caption").toUpperCase())}</p>
+      <span></span>
+    </div>`;
+  const heading = (title, sub) => `<h1 class="pick-title">${esc(t(title))}</h1><p class="pick-sub">${esc(t(sub))}</p>`;
+  const continueFoot = `<div class="foot">${readyBtn("Continue", "words-next", wordsCanContinue())}</div>`;
+
+  if (words.step === 0) {
+    const rows = [
+      ["bio", "Bio", "A few lines at the top of your page", '<circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'],
+      ["caption", "Caption", "The words under a post", '<path d="M4 6h16M4 11h16M4 16h10"/>'],
+    ].map(([key, title, detail, icon]) =>
+      aiRow({ title, detail, icon, on: words.goal === key, act: "words-goal", attrs: `data-name="${key}"` }),
+    ).join("");
+    return screen(`<div class="pad-20 stack">${head}
+      ${heading("What do you want?", "Tap one")}
+      <div class="ai-body" data-scroll>${rows}</div>
+      ${continueFoot}
+    </div>`);
+  }
+
+  if (words.step === 1) {
+    const fields = AI_WORDS_QUESTIONS[words.goal].map(([key, label, hint, needed]) => `<div class="field plain">
+        <label for="words-${key}">${esc(t(label))}${needed ? "" : ` <small class="optional">${esc(t("Optional"))}</small>`}</label>
+        <div class="box"><input id="words-${key}" class="words-input" data-key="${key}" type="text" autocomplete="off" placeholder="${esc(t(hint))}" value="${esc(aiWordsAnswers[key] || "")}"></div>
+      </div>`).join("");
+    return screen(`<div class="pad-20 stack">${head}
+      ${heading(words.goal === "bio" ? "Tell us about you" : "Tell us about the post", "We put this in the prompt")}
+      <div class="ai-body" data-scroll>
+        ${fields}
+        <p class="ai-label">${esc(t("Write it in"))}</p>
+        ${aiChips(AI_WORDS_LANGUAGES, (language) => language === words.language, "words-lang")}
+      </div>
+      ${continueFoot}
+    </div>`);
+  }
+
+  const steps = ["Open your AI tool", "Paste the prompt and send", "Pick the one you like best"].map((line, index) =>
+    `<div class="ai-step"><i>${index + 1}</i><span>${esc(t(line))}</span></div>`,
+  ).join("");
+  const checks = ["Is every fact true?", "Does it sound like you?"].map((line) =>
+    `<div class="ai-step"><svg class="ai-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg><span>${esc(t(line))}</span></div>`,
+  ).join("");
+  return screen(`<div class="pad-20 stack">${head}
+    ${heading("Your prompt", "Copy it and paste it into your AI tool")}
+    <div class="ai-body" data-scroll>
+      <div class="ai-prompt">${esc(wordsPromptText())}</div>
+      <p class="ai-label">${esc(t("How to use it"))}</p>
+      ${steps}
+      <p class="ai-label">${esc(t("Check before you post"))}</p>
+      ${checks}
+      <p class="ai-note">${esc(t("Change any word you like. It is your page."))}</p>
+    </div>
+    <div class="foot">
+      ${words.copyFailed ? `<p class="ai-note strong ai-copy-failed">${esc(t("Could not copy. Select the words and copy them."))}</p>` : ""}
+      <button class="btn" type="button" data-act="words-copy">${words.copied ? "&#10003; " : ""}${esc(t(words.copied ? "Prompt copied" : "Copy prompt"))}</button>
+      <button class="ai-done" type="button" data-act="finish-words">${esc(t("Done"))}</button>
     </div>
   </div>`);
 }
@@ -1718,8 +1911,8 @@ function aiCopyNow(text) {
   return copied;
 }
 
-function aiCopyAnswer(ai, worked) {
-  if (worked) saveWork({ aiPrompt: buildAiPrompt(ai) });
+function aiCopyAnswer(ai, worked, text = buildAiPrompt(ai), view = "ai") {
+  if (worked) saveWork({ aiPrompt: text });
   ai.copied = worked;
   ai.copyFailed = !worked;
   render({ keepScroll: true });
@@ -1736,22 +1929,28 @@ function aiCopyAnswer(ai, worked) {
   clearTimeout(aiCopiedTimer);
   aiCopiedTimer = setTimeout(() => {
     ai.copied = false;
-    if (state.ai === ai && current().name === "ai") render({ keepScroll: true });
+    if ((state.ai === ai || state.words === ai) && current().name === view) render({ keepScroll: true });
   }, 2500);
 }
 
 let aiCopiedTimer;
 
-function aiCopy() {
-  const ai = state.ai;
-  const text = aiPromptText();
-  if (aiCopyNow(text)) return aiCopyAnswer(ai, true);
+function copyPrompt(holder, text, view) {
+  if (aiCopyNow(text)) return aiCopyAnswer(holder, true, text, view);
   if (navigator.clipboard && navigator.clipboard.writeText) {
     const giveUp = new Promise((resolve) => setTimeout(() => resolve(false), 3000));
-    Promise.race([navigator.clipboard.writeText(text).then(() => true, () => false), giveUp]).then((worked) => aiCopyAnswer(ai, worked));
+    Promise.race([navigator.clipboard.writeText(text).then(() => true, () => false), giveUp]).then((worked) => aiCopyAnswer(holder, worked, text, view));
     return;
   }
-  aiCopyAnswer(ai, false);
+  aiCopyAnswer(holder, false, text, view);
+}
+
+function aiCopy() {
+  copyPrompt(state.ai, aiPromptText(), "ai");
+}
+
+function wordsCopy() {
+  copyPrompt(state.words, wordsPromptText(), "words");
 }
 
 // Saved work: what the artisan wrote while practising, shown under an earned
@@ -1805,51 +2004,6 @@ function workRow(label, value) {
   return value ? `<small>${esc(t(label))}</small><p class="work-text strong">${esc(value)}</p>` : "";
 }
 
-function renderWork(view) {
-  const task = taskById(view.id);
-  const work = state.work || {};
-  const lines = {
-    photography: "Sharp photos sell better",
-    set_up_page: "You practiced your name, bio, category, and pro page on Instagram.",
-    create_post: "You practiced Post, Story, and Reel on Instagram.",
-    posting_plan: "People remember you",
-    read_numbers: "You can read views, likes, saves and messages.",
-    ai_photos: "You can use AI and keep your product the same.",
-  };
-  const heading = (text) => `<p class="ai-label">${esc(t(text))}</p>`;
-  const nothing = `<p class="ai-note">${esc(t("Nothing saved yet."))}</p>`;
-  let body = "";
-  if (task.id === "set_up_page") {
-    const details = workRow("Name", work.name) + workRow("Username", work.username) + workRow("Category", work.category && t(work.category));
-    body = heading("Your work")
-      + (details ? `<div class="work-card details">${details}</div>` : "")
-      + (work.bio ? workCard(work.bio, "Bio") : "")
-      + (details || work.bio ? "" : nothing)
-      + heading("Bio ideas")
-      + BIO_IDEAS.map((idea) => workCard(t(idea))).join("");
-  }
-  if (task.id === "create_post") {
-    body = heading("Your caption")
-      + (work.caption ? workCard(work.caption) : nothing)
-      + heading("Caption ideas")
-      + CAPTION_IDEAS.map((idea) => workCard(t(idea))).join("");
-  }
-  if (task.id === "ai_photos") {
-    body = heading("Your last prompt") + (work.aiPrompt ? workCard(work.aiPrompt) : nothing);
-  }
-  return screen(`<div class="pad-20 stack">
-    <div class="lesson-head">${backBtn()}<span></span><span></span></div>
-    <div class="scroll work" data-scroll>
-      <div class="work-top">
-        <div class="medal">${svg.medal}</div>
-        <h1>${esc(t(task.title))}</h1>
-        <p>${esc(t(lines[task.id] || "Done"))}</p>
-      </div>
-      ${body}
-    </div>
-  </div>`);
-}
-
 function workCopy(text) {
   const answer = (worked) => {
     if (!worked) return toast(t("Could not copy. Select the words and copy them."));
@@ -1858,7 +2012,7 @@ function workCopy(text) {
     clearTimeout(workCopiedTimer);
     workCopiedTimer = setTimeout(() => {
       state.workCopied = null;
-      if (current().name === "work") render({ keepScroll: true });
+      if (current().name === "main" && state.tab === "me") render({ keepScroll: true });
     }, 2500);
   };
   if (aiCopyNow(text)) return answer(true);
@@ -2602,7 +2756,7 @@ function renderBadge(view) {
     create_post: "You practiced Post, Story, and Reel on Instagram.",
     posting_plan: "People remember you",
     read_numbers: "You can read views, likes, saves and messages.",
-    ai_photos: "You can use AI and keep your product the same.",
+    ai_photos: "You can use AI for photos, bios and captions.",
   };
   const action = upcoming
     ? `<button class="btn" data-act="next-task" data-id="${upcoming.id}">${esc(t("Next task: " + upcoming.title))}</button>
@@ -2640,7 +2794,7 @@ function render(options) {
     tryit: () => renderTry(view),
     products: renderProducts,
     ai: renderAi,
-    work: () => renderWork(view),
+    words: renderWords,
     caption: renderCaption,
     "create-types": renderCreateTypes,
     "ig-post": () => renderIgPost(view),
@@ -3260,7 +3414,6 @@ document.getElementById("phone").addEventListener("click", (event) => {
     return;
   }
   if (act === "open-task") {
-    if (node.dataset.id === "ai_photos") return openAi();
     return push("task", { id: node.dataset.id });
   }
   if (act.startsWith("ai-") && act !== "ai-next" && act !== "ai-copy") {
@@ -3286,14 +3439,25 @@ document.getElementById("phone").addEventListener("click", (event) => {
     return;
   }
   if (act === "ai-copy") return aiCopy();
-  if (act === "finish-ai") {
-    // The first finish earns the badge. After that this stays a tool to come
-    // back to, so Done simply closes it.
-    const task = taskById("ai_photos");
-    if (isTaskDone(task)) return back();
-    markPart(task.id, "1");
-    return showBadge(task.id);
+  if (act === "finish-ai") return finishAiPart("1");
+  if (act === "finish-words") return finishAiPart("2");
+  if (act === "words-goal") {
+    state.words.goal = node.dataset.name;
+    render({ keepScroll: true });
+    return;
   }
+  if (act === "words-lang") {
+    state.words.language = node.dataset.name;
+    render({ keepScroll: true });
+    return;
+  }
+  if (act === "words-next") {
+    if (!wordsCanContinue()) return;
+    state.words.step += 1;
+    render();
+    return;
+  }
+  if (act === "words-copy") return wordsCopy();
   if (act === "open-part") {
     if (node.disabled) return;
     if (node.dataset.locked === "1") {
@@ -3302,6 +3466,8 @@ document.getElementById("phone").addEventListener("click", (event) => {
     }
     const task = taskById(node.dataset.task);
     const part = partById(task, node.dataset.part);
+    if (part.kind === "ai") return openAi();
+    if (part.kind === "words") return openWords();
     if (part.kind === "numbers" || part.kind === "guide" || part.lessonTitle) {
       push("lesson", { task: task.id, part: part.id });
     }
@@ -3395,13 +3561,12 @@ document.getElementById("phone").addEventListener("click", (event) => {
     return;
   }
   if (act === "caption-next") {
-    saveWork({ caption: state.captionDraft.trim() });
+    saveCaption(state.captionDraft.trim());
     // Swaps this page only, so Back from the next page returns to the photos.
     const view = state.stack.pop();
     push("did-post", { kind: view.kind, photo: view.photo });
     return;
   }
-  if (act === "open-work") return push("work", { id: node.dataset.id });
   if (act === "work-copy") return workCopy(node.dataset.text);
   if (act === "posted-yes") {
     finishCreateKind(current().kind);
@@ -3636,10 +3801,6 @@ document.getElementById("phone").addEventListener("click", (event) => {
   if (act === "next-task") {
     state.earned = false;
     state.tab = "learn";
-    if (node.dataset.id === "ai_photos") {
-      state.stack = [{ name: "main" }];
-      return openAi();
-    }
     state.stack = [{ name: "main" }, { name: "task", id: node.dataset.id }];
     render();
     return;
@@ -3652,6 +3813,17 @@ document.getElementById("phone").addEventListener("click", (event) => {
 });
 
 // Typing must not rebuild the page, or the cursor would be lost.
+document.getElementById("phone").addEventListener("input", (event) => {
+  if (!event.target.classList.contains("words-input")) return;
+  aiWordsAnswers[event.target.dataset.key] = event.target.value;
+  const next = document.querySelector('[data-act="words-next"]');
+  if (!next) return;
+  const ready = wordsCanContinue();
+  next.disabled = !ready;
+  next.classList.toggle("wait", !ready);
+  next.classList.toggle("shadowed", !ready);
+});
+
 document.getElementById("phone").addEventListener("input", (event) => {
   if (event.target.id !== "caption-text") return;
   state.captionDraft = event.target.value;

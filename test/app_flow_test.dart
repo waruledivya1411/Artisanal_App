@@ -329,7 +329,7 @@ void main() {
     await tester.pump();
     expect(find.text('Badge earned'), findsOneWidget);
     expect(find.text('Read the numbers'), findsWidgets);
-    expect(find.text('Next task: AI photos'), findsOneWidget);
+    expect(find.text('Next task: Use AI'), findsOneWidget);
     await tester.tap(find.text('Go to home'));
     await tester.pumpAndSettle();
     // The Learn home, with its list of tasks and its bottom bar.

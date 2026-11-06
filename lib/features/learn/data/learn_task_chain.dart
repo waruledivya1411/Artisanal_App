@@ -24,7 +24,7 @@ class LearnTaskChain {
     createPostTaskId: 3,
     postingPlanTaskId: 3,
     readNumbersTaskId: 3,
-    aiPhotosTaskId: 1,
+    aiPhotosTaskId: 2,
   };
 
   static int get totalTasks => taskOrder.length;
@@ -35,7 +35,7 @@ class LearnTaskChain {
     createPostTaskId: 'Create a post',
     postingPlanTaskId: 'Posting plan',
     readNumbersTaskId: 'Read the numbers',
-    aiPhotosTaskId: 'AI photos',
+    aiPhotosTaskId: 'Use AI',
   };
 
   static String titleFor(String taskId) => _titles[taskId] ?? taskId;
@@ -47,7 +47,7 @@ class LearnTaskChain {
     createPostTaskId: 'You practiced Post, Story, and Reel on Instagram.',
     postingPlanTaskId: 'People remember you',
     readNumbersTaskId: 'You can read views, likes, saves and messages.',
-    aiPhotosTaskId: 'You can use AI and keep your product the same.',
+    aiPhotosTaskId: 'You can use AI for photos, bios and captions.',
   };
 
   /// The line under a badge.

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
+import 'package:artisnal_app/features/learn/data/saved_work.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
-import 'package:artisnal_app/features/me/screens/badge_work_screen.dart';
+import 'package:artisnal_app/features/me/widgets/copy_card.dart';
 
+/// The badges in one row, then the words the artisan wrote while practising,
+/// each with more ideas to copy.
 class MeScreen extends StatefulWidget {
   const MeScreen({super.key, required this.locale});
 
@@ -23,25 +26,30 @@ class MeScreen extends StatefulWidget {
 
 class _MeScreenState extends State<MeScreen> {
   final _progress = LearnProgress.instance;
+  final _work = SavedWork.instance;
 
   @override
   void initState() {
     super.initState();
-    _progress.addListener(_onProgress);
+    _progress.addListener(_onChange);
+    _work.addListener(_onChange);
   }
 
   @override
   void dispose() {
-    _progress.removeListener(_onProgress);
+    _progress.removeListener(_onChange);
+    _work.removeListener(_onChange);
     super.dispose();
   }
 
-  void _onProgress() {
+  void _onChange() {
     if (mounted) setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final captions = _work.captions;
+    final bio = _work.bio;
     return ColoredBox(
       color: MeScreen.background,
       child: SafeArea(
@@ -61,11 +69,7 @@ class _MeScreenState extends State<MeScreen> {
             const SizedBox(height: 6),
             Text(
               tr('Finish Learn tasks to unlock your badges.'),
-              style: appType(
-                color: MeScreen.muted,
-                fontSize: 14,
-                height: 1.4,
-              ),
+              style: appType(color: MeScreen.muted, fontSize: 14, height: 1.4),
             ),
             const SizedBox(height: 22),
             Text(
@@ -78,39 +82,98 @@ class _MeScreenState extends State<MeScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: LearnTaskChain.taskOrder.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.82,
+            // One row; it scrolls sideways when the screen is narrow.
+            SizedBox(
+              height: 120,
+              child: ListView.separated(
+                key: const ValueKey('badge-row'),
+                scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
+                itemCount: LearnTaskChain.taskOrder.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final taskId = LearnTaskChain.taskOrder[index];
+                  return SizedBox(
+                    width: 92,
+                    child: _BadgeTile(
+                      title: LearnTaskChain.titleFor(taskId),
+                      unlocked: _progress.isLearnTaskComplete(taskId),
+                    ),
+                  );
+                },
               ),
-              itemBuilder: (context, index) {
-                final taskId = LearnTaskChain.taskOrder[index];
-                final title = LearnTaskChain.titleFor(taskId);
-                final unlocked = _progress.isLearnTaskComplete(taskId);
-                return Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: unlocked
-                        ? () => Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => BadgeWorkScreen(taskId: taskId),
-                            ),
-                          )
-                        : null,
-                    child: _BadgeTile(title: title, unlocked: unlocked),
-                  ),
-                );
-              },
             ),
+            const _Heading('Saved captions'),
+            if (captions.isEmpty)
+              const _NothingYet()
+            else
+              for (final caption in captions) CopyCard(text: caption),
+            const _SubHeading('Caption ideas'),
+            for (final idea in captionIdeas) CopyCard(text: tr(idea)),
+            const _Heading('Saved bio'),
+            if (bio == null || bio.isEmpty)
+              const _NothingYet()
+            else
+              CopyCard(label: _work.name, text: bio),
+            const _SubHeading('Bio ideas'),
+            for (final idea in bioIdeas) CopyCard(text: tr(idea)),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Heading extends StatelessWidget {
+  const _Heading(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 28, bottom: 10),
+      child: Text(
+        tr(text),
+        style: appType(
+          color: MeScreen.ink,
+          fontSize: 20,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+}
+
+class _SubHeading extends StatelessWidget {
+  const _SubHeading(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 14, bottom: 10),
+      child: Text(
+        tr(text),
+        style: appType(
+          color: MeScreen.muted,
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class _NothingYet extends StatelessWidget {
+  const _NothingYet();
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      tr('Nothing saved yet.'),
+      style: appType(color: MeScreen.muted, fontSize: 14),
     );
   }
 }
@@ -145,8 +208,8 @@ class _BadgeTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 52,
-              height: 52,
+              width: 48,
+              height: 48,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: unlocked
@@ -161,23 +224,23 @@ class _BadgeTile extends StatelessWidget {
               child: Icon(
                 unlocked ? Icons.military_tech_rounded : Icons.lock_rounded,
                 color: unlocked ? Colors.white : MeScreen.muted,
-                size: unlocked ? 28 : 22,
+                size: unlocked ? 26 : 20,
               ),
             ),
             const SizedBox(height: 8),
             Flexible(
               child: Text(
-              tr(title),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: appType(
-                color: unlocked ? MeScreen.ink : MeScreen.muted,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                height: 1.2,
+                tr(title),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: appType(
+                  color: unlocked ? MeScreen.ink : MeScreen.muted,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  height: 1.2,
+                ),
               ),
-            ),
             ),
           ],
         ),

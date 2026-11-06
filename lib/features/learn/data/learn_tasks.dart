@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:artisnal_app/features/learn/screens/ai_photos_screen.dart';
 import 'package:artisnal_app/features/learn/screens/check_part_screen.dart';
 import 'package:artisnal_app/features/learn/screens/display_picker_screen.dart';
 import 'package:artisnal_app/features/learn/screens/find_numbers_screen.dart';
@@ -394,6 +395,30 @@ TaskPartsScreen postingPlanTask(String locale) {
             wrongReason: 'The same photo again gets boring',
           ),
         ),
+      ),
+    ],
+  );
+}
+
+/// Two parts that each make a prompt to copy: one for photos, one for the
+/// words on the page. The task id stays the same so earlier progress counts.
+TaskPartsScreen aiTask(String locale) {
+  return TaskPartsScreen(
+    locale: locale,
+    taskId: aiPhotosTaskId,
+    taskLabel: 'TASK 6 OF 6',
+    title: 'Use AI',
+    showChevron: true,
+    parts: [
+      TaskPart(
+        '1',
+        'Photo prompts',
+        open: (_) => AiPhotosScreen(locale: locale),
+      ),
+      TaskPart(
+        '2',
+        'Bio and caption',
+        open: (_) => AiWordsScreen(locale: locale),
       ),
     ],
   );

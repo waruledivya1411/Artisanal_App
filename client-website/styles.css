@@ -1047,13 +1047,18 @@ h1.hello {
 .ig-posts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 10px; }
 .ig-posts img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
 
+/* One row; it scrolls sideways when the screen is narrow. */
 .badges {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  margin: 12px -20px 0;
+  padding: 2px 20px 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.badges::-webkit-scrollbar { display: none; }
 .badge {
+  flex: 0 0 92px;
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -1080,6 +1085,8 @@ h1.hello {
 }
 .badge p { margin: 0; font-size: 11px; font-weight: 700; line-height: 1.2; color: var(--muted); }
 .badge.on p { color: var(--ink); }
+.me-heading { margin: 28px 0 10px; color: var(--ink); font-size: 20px; font-weight: 800; }
+.me-sub { margin: 14px 0 10px; color: var(--muted); font-size: 14px; font-weight: 700; }
 
 .pick-title {
   margin: 18px 0 0;
@@ -2593,6 +2600,7 @@ a.btn { text-decoration: none; }
   font-weight: 600;
   cursor: pointer;
 }
+.field label .optional { margin-left: 4px; color: var(--muted); font-size: 12px; font-weight: 500; }
 .ai-chip.on {
   background: var(--teal);
   border-color: var(--teal);

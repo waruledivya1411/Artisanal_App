@@ -4,9 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:artisnal_app/core/l10n/app_text.dart';
 import 'package:artisnal_app/features/learn/data/ai_prompts.dart';
-import 'package:artisnal_app/features/learn/data/learn_progress.dart';
-import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
-import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
 import 'package:artisnal_app/features/learn/data/products.dart';
 import 'package:artisnal_app/features/learn/screens/ai_photos_screen.dart';
 
@@ -380,80 +377,5 @@ void main() {
     await t.pump();
     expect(find.text('What do you want?'), findsOneWidget);
     expect(t.takeException(), isNull);
-  });
-
-  test('AI photos is the sixth task and follows Read the numbers', () {
-    expect(LearnTaskChain.totalTasks, 6);
-    expect(LearnTaskChain.taskOrder.last, aiPhotosTaskId);
-    expect(LearnTaskChain.nextTaskTitle(readNumbersTaskId), 'AI photos');
-    expect(LearnTaskChain.nextTaskId(aiPhotosTaskId), isNull);
-  });
-
-  testWidgets('Done earns the badge once, then simply closes', (t) async {
-    AppLang.current = 'en-US';
-    LearnProgress.instance.reset();
-    addTearDown(LearnProgress.instance.reset);
-    t.view.physicalSize = const Size(390, 1400);
-    t.view.devicePixelRatio = 1;
-    addTearDown(t.view.resetPhysicalSize);
-
-    Future<void> reachPrompt() async {
-      await t.tap(find.text('Open'));
-      await t.pumpAndSettle();
-      await t.tap(find.text('Saree'));
-      await t.pump();
-      await t.tap(find.text('Continue'));
-      await t.pump();
-      await t.tap(find.text('Clean background'));
-      await t.pump();
-      await t.tap(find.text('Continue'));
-      await t.pump();
-    }
-
-    await t.pumpWidget(
-      MaterialApp(
-        home: Builder(
-          builder: (context) => Scaffold(
-            body: Center(
-              child: TextButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const AiPhotosScreen(locale: 'en-US'),
-                  ),
-                ),
-                child: const Text('Open'),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    // Reaching the prompt alone does not finish the task.
-    await reachPrompt();
-    expect(LearnProgress.instance.isLearnTaskComplete(aiPhotosTaskId), isFalse);
-
-    await t.tap(find.text('Done'));
-    await t.pump();
-    await t.pump(const Duration(milliseconds: 400));
-    expect(LearnProgress.instance.isLearnTaskComplete(aiPhotosTaskId), isTrue);
-    expect(find.text('Badge earned'), findsOneWidget);
-    expect(
-      find.text('You can use AI and keep your product the same.'),
-      findsOneWidget,
-    );
-
-    // Leave the badge, then a second run earns no second badge.
-    await t.pump(const Duration(milliseconds: 400));
-    t.state<NavigatorState>(find.byType(Navigator)).pop();
-    await t.pump();
-    await t.pump(const Duration(milliseconds: 400));
-    await t.pump();
-    await reachPrompt();
-    await t.tap(find.text('Done'));
-    await t.pump();
-    await t.pump(const Duration(milliseconds: 400));
-    expect(find.text('Badge earned'), findsNothing);
-    expect(find.text('Open'), findsOneWidget);
   });
 }
