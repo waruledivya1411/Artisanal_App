@@ -509,18 +509,6 @@ h1.hello {
   line-height: 1.15;
 }
 .task-gap { height: 16px; }
-.task-bars {
-  display: flex;
-  gap: 6px;
-  margin: 12px 0 14px;
-}
-.task-bars i {
-  flex: 1;
-  height: 7px;
-  border-radius: 4px;
-  background: #edf2ef;
-}
-.task-bars i.on { background: var(--teal); }
 .part {
   width: 100%;
   background: #fff;
@@ -618,19 +606,6 @@ h1.hello {
   letter-spacing: 0.8px;
   line-height: 1.2;
 }
-.lesson-bars {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-top: 14px;
-}
-.lesson-bars i {
-  display: block;
-  height: 7px;
-  border-radius: 4px;
-  background: var(--teal);
-}
-.lesson-bars i.off { background: #edf2ef; }
 .lesson-stage {
   flex: 1;
   min-height: 0;
@@ -1285,18 +1260,6 @@ h1.hello {
   font-weight: 800;
 }
 .num-kicker.find { margin-top: 14px; }
-.step-bars {
-  display: flex;
-  gap: 6px;
-  margin-top: 10px;
-}
-.step-bars i {
-  flex: 1;
-  height: 6px;
-  border-radius: 4px;
-  background: #edf2ef;
-}
-.step-bars i.on { background: var(--teal); }
 .num-title { margin-top: 16px; }
 .num-sub {
   margin: 6px 0 0;
@@ -2395,9 +2358,6 @@ a.btn { text-decoration: none; }
 }
 
 .guide-kicker { letter-spacing: 0.8px; }
-.guide-bars { display: flex; gap: 6px; margin-top: 14px; }
-.guide-bars i { flex: 1; height: 7px; border-radius: 4px; background: var(--track); }
-.guide-bars i.on { background: var(--teal); }
 .guide-title { margin: 16px 0 0; font-size: 26px; font-weight: 800; letter-spacing: -0.4px; line-height: 1.2; }
 .guide-sub { margin: 6px 0 0; color: var(--muted); font-size: 15px; line-height: 1.35; }
 .guide-card {

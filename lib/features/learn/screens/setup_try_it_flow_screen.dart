@@ -13,17 +13,25 @@ import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:artisnal_app/core/l10n/app_text.dart';
 
+/// The two practices in Set up your page: name and bio belong to the first
+/// part, and what you sell and the finished page belong to Professional.
+enum SetupPractice { nameAndBio, professional }
+
 class SetupTryItFlowScreen extends StatefulWidget {
-  const SetupTryItFlowScreen({super.key, required this.locale});
+  const SetupTryItFlowScreen({
+    super.key,
+    required this.locale,
+    required this.practice,
+  });
 
   final String locale;
+  final SetupPractice practice;
 
   static const int stepCount = 5;
   static const Color background = Color(0xFFF6F7F4);
   static const Color teal = Color(0xFF1B7574);
   static const Color ink = Color(0xFF152322);
   static const Color muted = Color(0xFF4F5F5D);
-  static const Color track = Color(0xFFEDF2EF);
 
   @override
   State<SetupTryItFlowScreen> createState() => _SetupTryItFlowScreenState();
@@ -34,17 +42,24 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
     if (mounted) setState(() {});
   });
 
-  int _step = 0;
+  late int _step = _firstStep;
   String? _selectedHandle;
   String? _customHandle;
-  Uint8List? _profilePhotoBytes;
 
-  late final TextEditingController _nameController =
-      TextEditingController(text: 'Divya Warule');
-  late final TextEditingController _usernameController =
-      TextEditingController(text: 'divya.weaves');
+  /// Chosen in the first practice and shown on the finished page in the second.
+  static Uint8List? _profilePhotoBytes;
+
+  bool get _isNameAndBio => widget.practice == SetupPractice.nameAndBio;
+  int get _firstStep => _isNameAndBio ? 0 : 3;
+
+  late final TextEditingController _nameController = TextEditingController(
+    text: SavedWork.instance.name ?? 'Divya Warule',
+  );
+  late final TextEditingController _usernameController = TextEditingController(
+    text: SavedWork.instance.username ?? 'divya.weaves',
+  );
   late final TextEditingController _bioController = TextEditingController(
-    text: tr('Handwoven cloth · Sualkuchi, Assam'),
+    text: SavedWork.instance.bio ?? tr('Handwoven cloth · Sualkuchi, Assam'),
   );
 
   final _picker = ImagePicker();
@@ -52,11 +67,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
   String _sellCategoryId = 'clothing';
   bool _showCategoryOnPage = true;
 
-  static const _bioTags = [
-    'Muga silk',
-    'Order on WhatsApp',
-    'Since 2010',
-  ];
+  static const _bioTags = ['Muga silk', 'Order on WhatsApp', 'Since 2010'];
 
   static const _suggestions = <_NameSuggestion>[
     _NameSuggestion('divya.weaves', best: true),
@@ -121,15 +132,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
 
   void _back() {
     _speech.stop();
-    if (_step == 4) {
-      setState(() => _step = 3);
-      return;
-    }
-    if (_step == 3) {
-      setState(() => _step = 1);
-      return;
-    }
-    if (_step > 0) {
+    if (_step > _firstStep) {
       setState(() => _step--);
       return;
     }
@@ -160,17 +163,23 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
 
   void _next() {
     _speech.stop();
-    if (_step < SetupTryItFlowScreen.stepCount - 1) {
-      if (_step == 0) {
-        _usernameController.text = _effectiveHandle ?? 'divya.weaves';
-        setState(() => _step++);
-        return;
-      }
-      if (_step == 1) {
-        setState(() => _step = 3);
-        return;
-      }
-      setState(() => _step++);
+    if (_step == 0) {
+      _usernameController.text = _effectiveHandle ?? 'divya.weaves';
+      setState(() => _step = 1);
+      return;
+    }
+    if (_step == 1) {
+      // The end of the name and bio practice.
+      SavedWork.instance.savePage(
+        name: _nameController.text.trim(),
+        username: _usernameController.text.trim(),
+        bio: _bioController.text.trim(),
+      );
+      _finishTryIt();
+      return;
+    }
+    if (_step == 3) {
+      setState(() => _step = 4);
       return;
     }
     _finishTryIt();
@@ -187,12 +196,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
 
   void _showSetUpPageBadge() {
     _speech.stop();
-    SavedWork.instance.savePage(
-      name: _nameController.text.trim(),
-      username: _usernameController.text.trim(),
-      category: _selectedCategoryTitle,
-      bio: _bioController.text.trim(),
-    );
+    SavedWork.instance.savePage(category: _selectedCategoryTitle);
     final step = LessonStep.maybeOf(context);
     final nextTaskTitle = step?.nextLearnTaskTitle;
     final lessonNavigator = Navigator.of(context);
@@ -333,7 +337,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
                         ),
                       ),
                       Text(
-                        tr('TASK 2 · ${_step + 1} OF ${SetupTryItFlowScreen.stepCount}'),
+                        tr('TASK 2 · ${_step - _firstStep + 1} OF 2'),
                         style: appType(
                           color: SetupTryItFlowScreen.teal,
                           fontSize: 12,
@@ -354,31 +358,15 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    for (var i = 0; i < SetupTryItFlowScreen.stepCount; i++) ...[
-                      if (i > 0) const SizedBox(width: 6),
-                      Expanded(
-                        child: Container(
-                          height: 7,
-                          decoration: BoxDecoration(
-                            color: i <= _step
-                                ? SetupTryItFlowScreen.teal
-                                : SetupTryItFlowScreen.track,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
                 const SizedBox(height: 14),
                 ..._headerSection,
                 const SizedBox(height: 14),
                 Expanded(child: _stepBody),
                 const SizedBox(height: 12),
-                if (_step == 4) _buildNextTaskButton() else _buildPrimaryNextButton(),
+                if (_step == 4)
+                  _buildNextTaskButton()
+                else
+                  _buildPrimaryNextButton(),
               ],
             ),
           ),
@@ -387,10 +375,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
     );
   }
 
-  Widget _buildPrimaryNextButton({
-    VoidCallback? onTap,
-    String label = 'Next',
-  }) {
+  Widget _buildPrimaryNextButton({VoidCallback? onTap, String label = 'Next'}) {
     final enabled = onTap != null || _canContinue;
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -398,9 +383,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
         boxShadow: enabled ? kPrimaryButtonShadow : null,
       ),
       child: Material(
-        color: enabled
-            ? SetupTryItFlowScreen.teal
-            : const Color(0xFF8DBAB9),
+        color: enabled ? SetupTryItFlowScreen.teal : const Color(0xFF8DBAB9),
         borderRadius: BorderRadius.circular(18),
         child: InkWell(
           onTap: enabled ? (onTap ?? _next) : null,
@@ -438,10 +421,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
     if (nextTitle == null) {
       return _buildPrimaryNextButton(onTap: _finishTryIt, label: 'Done');
     }
-    return _buildPrimaryNextButton(
-      onTap: _showSetUpPageBadge,
-      label: 'Finish',
-    );
+    return _buildPrimaryNextButton(onTap: _showSetUpPageBadge, label: 'Finish');
   }
 
   bool get _canContinue {
@@ -637,10 +617,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
       return Center(
         child: Text(
           tr('Step ${_step + 1}'),
-          style: appType(
-            color: SetupTryItFlowScreen.muted,
-            fontSize: 16,
-          ),
+          style: appType(color: SetupTryItFlowScreen.muted, fontSize: 16),
         ),
       );
     }
@@ -648,11 +625,7 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
     return ListView(
       children: [
         if (_customHandle != null) ...[
-          _NameCard(
-            handle: _customHandle!,
-            selected: true,
-            onTap: () {},
-          ),
+          _NameCard(handle: _customHandle!, selected: true, onTap: () {}),
           const SizedBox(height: 10),
         ],
         for (final suggestion in _suggestions)
@@ -661,8 +634,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
             child: _NameCard(
               handle: suggestion.handle,
               best: suggestion.best,
-              selected: _customHandle == null &&
-                  _selectedHandle == suggestion.handle,
+              selected:
+                  _customHandle == null && _selectedHandle == suggestion.handle,
               onTap: () => setState(() {
                 _customHandle = null;
                 _selectedHandle = suggestion.handle;
@@ -841,16 +814,8 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
         icon: Icons.sell_outlined,
         best: true,
       ),
-      _SellCategory(
-        id: 'artist',
-        title: 'Artist',
-        icon: Icons.brush_outlined,
-      ),
-      _SellCategory(
-        id: 'shop',
-        title: 'Shop',
-        icon: Icons.storefront_outlined,
-      ),
+      _SellCategory(id: 'artist', title: 'Artist', icon: Icons.brush_outlined),
+      _SellCategory(id: 'shop', title: 'Shop', icon: Icons.storefront_outlined),
       _SellCategory(
         id: 'community',
         title: 'Community',
@@ -993,15 +958,9 @@ class _SetupTryItFlowScreenState extends State<SetupTryItFlowScreen> {
                     Expanded(
                       child: Row(
                         children: const [
-                          Expanded(
-                            child: _MiniStat('0', 'posts'),
-                          ),
-                          Expanded(
-                            child: _MiniStat('12', 'followers'),
-                          ),
-                          Expanded(
-                            child: _MiniStat('30', 'following'),
-                          ),
+                          Expanded(child: _MiniStat('0', 'posts')),
+                          Expanded(child: _MiniStat('12', 'followers')),
+                          Expanded(child: _MiniStat('30', 'following')),
                         ],
                       ),
                     ),
@@ -1339,10 +1298,7 @@ class _FieldLabel extends StatelessWidget {
 }
 
 class _OutlinedField extends StatelessWidget {
-  const _OutlinedField({
-    required this.controller,
-    this.maxLines = 1,
-  });
+  const _OutlinedField({required this.controller, this.maxLines = 1});
 
   final TextEditingController controller;
   final int maxLines;
@@ -1360,7 +1316,10 @@ class _OutlinedField extends StatelessWidget {
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: Color(0xFFE4EEEC)),

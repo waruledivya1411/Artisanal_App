@@ -149,13 +149,13 @@ void main() {
     await tester.tap(find.text('Set up your page'));
     await tester.pumpAndSettle();
     expect(find.text('TASK 2 OF 6'), findsOneWidget);
-    expect(find.text('Good name'), findsOneWidget);
+    expect(find.text('Good name and bio'), findsOneWidget);
     expect(find.text('Clear photo'), findsOneWidget);
     expect(find.text('Professional'), findsOneWidget);
     expect(find.text('Try it'), findsNothing);
-    await tester.tap(find.text('Good name'));
+    await tester.tap(find.text('Good name and bio'));
     await tester.pumpAndSettle();
-    expect(find.text('TASK 2 · PART 1 · GOOD NAME'), findsOneWidget);
+    expect(find.text('TASK 2 · PART 1 · NAME AND BIO'), findsOneWidget);
     expect(find.text('Short name with your craft'), findsOneWidget);
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
@@ -166,7 +166,16 @@ void main() {
     expect(find.text('Easy to say and find'), findsOneWidget);
     expect(find.text('Short'), findsOneWidget);
     expect(find.text('Long'), findsOneWidget);
-    await tester.tap(find.text('Next part · Clear photo'));
+    // The name and bio practice belongs to this part.
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('Pick your name'), findsOneWidget);
+    expect(find.text('TASK 2 · 1 OF 2'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('PRACTICE · LIKE INSTAGRAM'), findsOneWidget);
+    expect(find.text('Bio'), findsOneWidget);
+    await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
     expect(find.text('TASK 2 · PART 2 · CLEAR PHOTO'), findsOneWidget);
     expect(find.text('Use your face or your loom'), findsOneWidget);
@@ -193,10 +202,10 @@ void main() {
     expect(find.text('Personal'), findsOneWidget);
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
-    expect(find.text('Pick your name'), findsOneWidget);
-    expect(find.text('Short. Easy to say.'), findsOneWidget);
-    expect(find.text('@ divya.weaves'), findsOneWidget);
-    expect(find.text('Best'), findsOneWidget);
+    // Professional has its own practice, with no name or bio in it.
+    expect(find.text('TASK 2 · 1 OF 2'), findsOneWidget);
+    expect(find.text('PRACTICE · LIKE INSTAGRAM'), findsNothing);
+    expect(find.text('Bio'), findsNothing);
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
     expect(find.text('TASK 2 OF 6'), findsOneWidget);

@@ -180,15 +180,41 @@ void main() {
     await t.pumpAndSettle();
   }
 
-  testWidgets('only the Photography page drops its progress bars', (t) async {
-    await open(t, (_) => photographyTask('en-US'));
-    expect(find.text('Hold steady'), findsOneWidget);
-    expect(find.byKey(const ValueKey('task-progress-bars')), findsNothing);
+  // Step lines were small bars; only the Learn home keeps one.
+  Finder stepLines() => find.byWidgetPredicate((widget) {
+    if (widget is! Container) return false;
+    final height = widget.constraints?.maxHeight;
+    return height == 6 || height == 7;
   });
 
-  testWidgets('other task pages keep their progress bars', (t) async {
+  testWidgets('task pages and lessons have no step lines', (t) async {
+    LearnProgress.instance.completePart(postingPlanTaskId, 0);
+    LearnProgress.instance.completePart(postingPlanTaskId, 1);
     await open(t, (_) => postingPlanTask('en-US'));
-    expect(find.byKey(const ValueKey('task-progress-bars')), findsOneWidget);
+    expect(find.text('Mix posts'), findsOneWidget);
+    expect(stepLines(), findsNothing);
+
+    await t.tap(find.text('Mix posts'));
+    await t.pumpAndSettle();
+    expect(stepLines(), findsNothing);
+
+    await t.tap(find.text('Next'));
+    await t.pumpAndSettle();
+    expect(find.text('Which is better?'), findsOneWidget);
+    expect(stepLines(), findsNothing);
+  });
+
+  testWidgets('the numbers pages have no step lines', (t) async {
+    await open(
+      t,
+      (_) => const FindNumbersScreen(
+        locale: 'en-US',
+        taskId: readNumbersTaskId,
+        partCount: 3,
+      ),
+    );
+    expect(find.text('Find your numbers'), findsOneWidget);
+    expect(stepLines(), findsNothing);
   });
 
   testWidgets('Posting plan ends on a badge that can go home', (t) async {
@@ -240,7 +266,7 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(find.text('Next'));
       await t.pumpAndSettle();
-      expect(find.text('Pick your name'), findsOneWidget);
+      expect(find.text('Pick your name'), findsNothing);
       for (var i = 0; i < 6 && find.text('Finish').evaluate().isEmpty; i++) {
         await t.tap(find.byIcon(Icons.chevron_right_rounded).last);
         await t.pumpAndSettle();

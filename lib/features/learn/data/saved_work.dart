@@ -7,18 +7,22 @@ import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 
 /// Ready-made bios to copy. Instagram allows 150 characters.
 const bioIdeas = <String>[
-  'Handwoven in Sualkuchi, Assam · Sarees and mekhela sador · Order on WhatsApp',
-  'Weaving by hand since 2010 · Sualkuchi, Assam · Message me to order',
-  'Every piece made by hand on my own loom · Assam · Message me to order',
-  'Handloom from Assam, woven by me · New pieces every week · Order on WhatsApp',
+  'From my loom in Sualkuchi to your wardrobe · Made by hand, one piece at a time · Message me to order',
+  'No two pieces are the same · Slow, handwoven cloth from Assam · Message me to order',
+  'A weaver, not a factory · Real hands, real thread · Sualkuchi, Assam',
+  'Cloth that takes days to weave and years to wear · Handloom from Assam',
+  'See the loom, meet the weaver · New pieces and behind the scenes · Order on WhatsApp',
+  'I weave what I love, you wear what lasts · Handmade in Assam · Message me to order',
 ];
 
 /// Ready-made captions to copy.
 const captionIdeas = <String>[
-  'Woven by hand in Sualkuchi, Assam. Every motif takes hours on the loom. Message me to order. #handloom #assam',
-  'New on my loom. Soft, handwoven and ready to wear. Message me for the price. #handwoven #assam',
-  'Made for your special day. Woven by hand, one thread at a time. Order on WhatsApp. #handloom #sualkuchi',
-  'Save this post for your next festival. Handwoven in Assam, made by me. #handloom #madeinassam',
+  'This one took days on my loom. I counted every motif by hand, thread by thread. Want to see it closer? Message me. #handloom #assam',
+  'Look closely at the border. That small pattern is where I spent the most time. This is what handwoven means. #handwoven #weaverslife',
+  'Which colour would you wear to your next celebration? Tell me in the comments and I will show you more. #handloom #assam',
+  'A gift made by hand says more. Looking for someone special? Message me and I will help you choose. #handmadegifts #assam',
+  'When you buy this, you support one weaver and one loom in Assam. Thank you for choosing handmade. #supportartisans #handloom',
+  'Morning light, my loom and this cloth. This is how my day begins. What does yours look like? #weaverslife #madeinassam',
 ];
 
 /// What the artisan wrote while practising, kept on this device so an earned
@@ -42,17 +46,18 @@ class SavedWork extends ChangeNotifier {
 
   bool get hasPage => bio != null || name != null || username != null;
 
+  /// Each part of the task saves what it has just had written.
   void savePage({
-    required String name,
-    required String username,
-    required String category,
-    required String bio,
+    String? name,
+    String? username,
+    String? category,
+    String? bio,
   }) {
     _update({
-      'name': name,
-      'username': username,
-      'category': category,
-      'bio': bio,
+      'name': ?name,
+      'username': ?username,
+      'category': ?category,
+      'bio': ?bio,
     });
   }
 

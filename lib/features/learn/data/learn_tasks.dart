@@ -159,8 +159,9 @@ TaskPartsScreen photographyTask(String locale) {
           partLabel: 'PART 5 · LIGHT FOR COTTON',
           title: 'Cotton: soft light from the front',
           line:
-              'Cotton and eri soak up light. Soft light from the front shows them evenly.',
-          image: 'assets/images/lessons/photography/cotton_front_light_straight.jpg',
+              'Cotton soaks up light. Soft light from the front shows it evenly.',
+          image:
+              'assets/images/lessons/photography/cotton_light_front_glow.jpg',
           nextBuilder: (_) => CheckPartScreen(
             locale: locale,
             partLabel: 'PART 5 · LIGHT FOR COTTON',
@@ -184,8 +185,9 @@ TaskPartsScreen photographyTask(String locale) {
           locale: locale,
           partLabel: 'PART 6 · LIGHT FOR SILK',
           title: 'Silk: soft light from the side',
-          line: 'Mulberry and muga throw light back. Soft light lets them glow.',
-          image: 'assets/images/lessons/photography/silk_light_art.jpg',
+          line:
+              'Mulberry and muga throw light back. Soft light lets them glow.',
+          image: 'assets/images/lessons/photography/silk_light_side_glow.jpg',
           nextBuilder: (_) => CheckPartScreen(
             locale: locale,
             partLabel: 'PART 6 · LIGHT FOR SILK',
@@ -216,15 +218,16 @@ TaskPartsScreen setUpPageTask(String locale) {
     parts: [
       TaskPart(
         '1',
-        'Good name',
+        'Good name and bio',
         open: (_) => LearnPartScreen(
           locale: locale,
-          partLabel: 'TASK 2 · PART 1 · GOOD NAME',
+          partLabel: 'TASK 2 · PART 1 · NAME AND BIO',
           title: 'Short name with your craft',
+          line: 'Then say what you make in your bio.',
           image: 'assets/images/lessons/set_up_page/good_name_art.jpg',
           nextBuilder: (_) => CheckPartScreen(
             locale: locale,
-            partLabel: 'TASK 2 · PART 1 · GOOD NAME',
+            partLabel: 'TASK 2 · PART 1 · NAME AND BIO',
             wrong: const CheckOption(
               text: '@divya_w_\n1987_xyz',
               label: 'Long',
@@ -233,6 +236,16 @@ TaskPartsScreen setUpPageTask(String locale) {
             rightReason: 'Easy to say and find',
             wrongReason: 'Long names are hard to remember',
           ),
+        ),
+      ),
+      // Practice straight after the lesson: pick the name, then write the bio.
+      TaskPart(
+        '1b',
+        'Practice',
+        showOnList: false,
+        open: (_) => SetupTryItFlowScreen(
+          locale: locale,
+          practice: SetupPractice.nameAndBio,
         ),
       ),
       TaskPart(
@@ -270,7 +283,10 @@ TaskPartsScreen setUpPageTask(String locale) {
         '4',
         'Try it',
         showOnList: false,
-        open: (_) => SetupTryItFlowScreen(locale: locale),
+        open: (_) => SetupTryItFlowScreen(
+          locale: locale,
+          practice: SetupPractice.professional,
+        ),
       ),
     ],
   );
@@ -369,7 +385,8 @@ TaskPartsScreen postingPlanTask(String locale) {
               label: 'Same photo',
             ),
             right: const CheckOption(
-              image: 'assets/images/lessons/posting_plan/posts_mixed_cloth_work.jpg',
+              image:
+                  'assets/images/lessons/posting_plan/posts_mixed_cloth_work.jpg',
               contain: true,
               label: 'Mixed',
             ),

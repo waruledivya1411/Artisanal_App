@@ -130,8 +130,6 @@ class _NumbersMeanScreenState extends State<NumbersMeanScreen> {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 10),
-                const _StepBar(filled: 1),
                 const SizedBox(height: 16),
                 Text(
                   tr('What they mean'),
@@ -373,34 +371,6 @@ class _NumberTile extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _StepBar extends StatelessWidget {
-  const _StepBar({required this.filled});
-
-  final int filled;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        for (var i = 0; i < 2; i++) ...[
-          Expanded(
-            child: Container(
-              height: 6,
-              decoration: BoxDecoration(
-                color: i < filled
-                    ? NumbersMeanScreen.teal
-                    : const Color(0xFFEDF2EF),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-          if (i != 1) const SizedBox(width: 6),
-        ],
-      ],
     );
   }
 }

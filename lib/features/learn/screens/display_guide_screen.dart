@@ -109,8 +109,6 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _header(),
-                  const SizedBox(height: 14),
-                  _progress(),
                   const SizedBox(height: 16),
                   Text(
                     tr(_step.title),
@@ -191,27 +189,6 @@ class _DisplayGuideScreenState extends State<DisplayGuideScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _progress() {
-    return Row(
-      children: [
-        for (var i = 0; i < _steps.length; i++) ...[
-          Expanded(
-            child: Container(
-              height: 7,
-              decoration: BoxDecoration(
-                color: i <= _index
-                    ? DisplayGuideScreen.teal
-                    : DisplayGuideScreen.track,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-          if (i != _steps.length - 1) const SizedBox(width: 6),
-        ],
-      ],
     );
   }
 

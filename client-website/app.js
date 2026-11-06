@@ -172,6 +172,7 @@ function partKey(task, part) {
 }
 
 function isPartDone(task, part) {
+  if (task === "set_up_page" && part === "1b" && state.progress[partKey(task, "4")]) return true;
   return !!state.progress[partKey(task, part)];
 }
 
@@ -432,8 +433,8 @@ const TASKS = [
         { id: "5", title: "Light for cotton", label: "PART 5 · LIGHT FOR COTTON" },
         {
           lessonTitle: "Cotton: soft light from the front",
-          line: "Cotton and eri soak up light. Soft light from the front shows them evenly.",
-          image: photo("cotton_front_light_straight.jpg"),
+          line: "Cotton soaks up light. Soft light from the front shows it evenly.",
+          image: photo("cotton_light_front_glow.jpg"),
           wrong: { image: photo("cotton_side_light.jpg"), label: "Hard light from the side" },
           right: { image: photo("cotton_soft_front.jpg"), label: "Soft light from the front" },
           rightReason: "Soft front light shows the weave evenly",
@@ -445,7 +446,7 @@ const TASKS = [
         {
           lessonTitle: "Silk: soft light from the side",
           line: "Mulberry and muga throw light back. Soft light lets them glow.",
-          image: photo("silk_light_art.jpg"),
+          image: photo("silk_light_side_glow.jpg"),
           wrong: { image: photo("silk_glare.jpg"), label: "Direct sun" },
           right: { image: photo("silk_soft_light.jpg"), label: "Soft light" },
           rightReason: "Soft light makes silk glow",
@@ -464,9 +465,11 @@ const TASKS = [
     showChevron: true,
     parts: [
       lesson(
-        { id: "1", title: "Good name", label: "TASK 2 · PART 1 · GOOD NAME" },
+        { id: "1", title: "Good name and bio", label: "TASK 2 · PART 1 · NAME AND BIO" },
         {
           lessonTitle: "Short name with your craft",
+          line: "Then say what you make in your bio.",
+          then: "try-name",
           image: setup("good_name_art.jpg"),
           wrong: { text: "@divya_w_\n1987_xyz", label: "Long" },
           right: { text: "@divya\n.weaves", label: "Short" },
@@ -474,6 +477,8 @@ const TASKS = [
           wrongReason: "Long names are hard to remember",
         },
       ),
+      // Practice straight after the lesson: pick the name, then write the bio.
+      lesson({ id: "1b", title: "Practice", label: "TRY IT", hidden: true }, { kind: "tryit" }),
       lesson(
         { id: "2", title: "Clear photo", label: "TASK 2 · PART 2 · CLEAR PHOTO" },
         {
@@ -495,7 +500,7 @@ const TASKS = [
           right: { profile: "business", label: "Professional" },
           rightReason: "Buyers can message you",
           wrongReason: "Personal pages miss business tools",
-          then: "tryit",
+          then: "try-professional",
         },
       ),
       lesson({ id: "4", title: "Try it", label: "TRY IT", hidden: true }, { kind: "tryit" }),
@@ -1214,9 +1219,6 @@ function guideKicker(name) {
 function renderShootGuide(view) {
   const steps = guideFor(view.key, view.product);
   const step = steps[state.guideIndex] || steps[0];
-  const bars = steps
-    .map((_, index) => `<i class="${index <= state.guideIndex ? "on" : ""}"></i>`)
-    .join("");
   const spoken = [step.title, step.subtitle, step.caption].filter(Boolean).map((line) => t(line)).join(". ");
   const picture = step.example
     ? `<div class="guide-example"><img src="${img(view.file, 900)}" alt="" decoding="async" fetchpriority="high"></div>`
@@ -1230,7 +1232,6 @@ function renderShootGuide(view) {
       <p class="lesson-kicker guide-kicker">${esc(guideKicker(view.display))}</p>
       <span></span>
     </div>
-    <div class="guide-bars">${bars}</div>
     <h1 class="guide-title">${esc(t(step.title))}</h1>
     <p class="guide-sub">${esc(t(step.subtitle))}</p>
     <div class="guide-card">${picture}</div>
@@ -1742,16 +1743,20 @@ function aiCopy() {
 // badge along with good bios and captions to copy. Same words as
 // lib/features/learn/data/saved_work.dart.
 const BIO_IDEAS = [
-  "Handwoven in Sualkuchi, Assam · Sarees and mekhela sador · Order on WhatsApp",
-  "Weaving by hand since 2010 · Sualkuchi, Assam · Message me to order",
-  "Every piece made by hand on my own loom · Assam · Message me to order",
-  "Handloom from Assam, woven by me · New pieces every week · Order on WhatsApp",
+  "From my loom in Sualkuchi to your wardrobe · Made by hand, one piece at a time · Message me to order",
+  "No two pieces are the same · Slow, handwoven cloth from Assam · Message me to order",
+  "A weaver, not a factory · Real hands, real thread · Sualkuchi, Assam",
+  "Cloth that takes days to weave and years to wear · Handloom from Assam",
+  "See the loom, meet the weaver · New pieces and behind the scenes · Order on WhatsApp",
+  "I weave what I love, you wear what lasts · Handmade in Assam · Message me to order",
 ];
 const CAPTION_IDEAS = [
-  "Woven by hand in Sualkuchi, Assam. Every motif takes hours on the loom. Message me to order. #handloom #assam",
-  "New on my loom. Soft, handwoven and ready to wear. Message me for the price. #handwoven #assam",
-  "Made for your special day. Woven by hand, one thread at a time. Order on WhatsApp. #handloom #sualkuchi",
-  "Save this post for your next festival. Handwoven in Assam, made by me. #handloom #madeinassam",
+  "This one took days on my loom. I counted every motif by hand, thread by thread. Want to see it closer? Message me. #handloom #assam",
+  "Look closely at the border. That small pattern is where I spent the most time. This is what handwoven means. #handwoven #weaverslife",
+  "Which colour would you wear to your next celebration? Tell me in the comments and I will show you more. #handloom #assam",
+  "A gift made by hand says more. Looking for someone special? Message me and I will help you choose. #handmadegifts #assam",
+  "When you buy this, you support one weaver and one loom in Assam. Thank you for choosing handmade. #supportartisans #handloom",
+  "Morning light, my loom and this cloth. This is how my day begins. What does yours look like? #weaverslife #madeinassam",
 ];
 const WORK_KEY = "cs-work";
 
@@ -1922,9 +1927,6 @@ function renderTask(view) {
       </button>`;
     })
     .join("");
-  const bars = listed
-    .map((_, index) => `<i class="${index < doneCount ? "on" : ""}"></i>`)
-    .join("");
   return screen(`<div class="stack">
     <div class="scroll pad-20">
       <div class="lesson-head">
@@ -1933,7 +1935,7 @@ function renderTask(view) {
         <span></span>
       </div>
       <h1 class="task-title">${esc(t(task.title))}</h1>
-      ${task.id === "photography" ? `<div class="task-gap"></div>` : `<div class="task-bars">${bars}</div>`}
+      <div class="task-gap"></div>
       ${rows}
     </div>
     ${nav("learn")}
@@ -2135,7 +2137,6 @@ function renderLesson(view) {
       <p class="lesson-kicker">${esc(t(part.label))}</p>
       <span></span>
     </div>
-    <div class="lesson-bars"><i></i><i class="off"></i></div>
     <div class="lesson-stage">
       <div class="lesson-frame"><img src="${img(part.image, 900)}" alt="" decoding="async" fetchpriority="high"></div>
       <h1 class="lesson-title">${esc(t(part.lessonTitle))}</h1>
@@ -2211,7 +2212,6 @@ function renderNumbers() {
       <span></span>
     </div>
     <p class="num-kicker">${esc(t("Read the numbers"))}</p>
-    <div class="step-bars"><i class="on"></i><i></i></div>
     <h1 class="task-title num-title">${esc(t("What they mean"))}</h1>
     <p class="num-sub">${esc(t("4 numbers to watch"))}</p>
     <div class="numbers">${tiles}</div>
@@ -2251,7 +2251,6 @@ function renderFind() {
       <span></span>
     </div>
     <p class="num-kicker find">${esc(t("Read the numbers"))}</p>
-    <div class="step-bars"><i class="on"></i><i class="on"></i></div>
     <h1 class="find-title">${esc(t("Find your numbers"))}</h1>
     <div class="scroll find-scroll">
       ${igPreview(true, false, { highlight: false, tappable: false })}
@@ -2291,7 +2290,6 @@ function renderCheck(view) {
       <p class="lesson-kicker">${esc(t(part.label))}</p>
       <span></span>
     </div>
-    <div class="lesson-bars"><i></i><i></i></div>
     <h1 class="check-title">${esc(t("Which is better?"))}</h1>
     <p class="lede" style="margin-top:4px">${esc(t("Tap one"))}</p>
     <div class="check-body">
@@ -2389,17 +2387,14 @@ function renderTry() {
       <div><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#1B7574"/><path d="M7.6 12.2l2.8 2.8 6-6.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg><span>${esc(t("Contact button"))}</span></div>
     </article>`;
   }
-  const appStep = [0, 1, 3, 4][step] || 0;
-  const bars = Array.from({ length: 5 }, (_, index) => `<i class="${index <= appStep ? "on" : ""}"></i>`).join("");
   const next = step < 3 ? nextChevron("Next", "try-next") : btn("Done", "try-next");
-  const label = "TASK 2 · " + (appStep + 1) + " OF 5";
+  const label = "TASK 2 · " + (step % 2 + 1) + " OF 2";
   return screen(`<div class="pad-20 stack">
     <div class="lesson-head">
       ${backBtn()}
       <p class="lesson-kicker">${esc(t(label))}</p>
       <span></span>
     </div>
-    <div class="task-bars">${bars}</div>
     ${head}
     <div class="scroll try-scroll">${body}</div>
     <div class="foot">${next}</div>
@@ -3102,7 +3097,7 @@ function finishCurrentPart() {
 }
 
 function checkNextLabel(task, part) {
-  if (part.then === "tryit") return "Next";
+  if (part.then) return "Next";
   const visible = listedParts(task);
   const index = visible.findIndex((item) => item.id === part.id);
   const following = index >= 0 ? visible[index + 1] : null;
@@ -3116,16 +3111,17 @@ function afterCheck() {
   const task = taskById(view.task);
   const part = partById(task, view.part);
   markPart(task.id, part.id);
-  if (part.then === "tryit") {
-    state.tryStep = 0;
-    state.tryHandle = "divya.weaves";
+  if (part.then) {
+    // Picks up what was written in the first practice.
+    const work = state.work || {};
+    state.tryStep = part.then === "try-name" ? 0 : 2;
+    state.tryHandle = work.username || "divya.weaves";
     state.tryCustom = "";
     state.tryOwn = false;
-    state.tryDisplayName = "Divya Warule";
-    state.tryUsername = "";
-    state.tryBio = null;
-    state.tryPhoto = "";
-    push("tryit", { task: task.id, part: "4" });
+    state.tryDisplayName = work.name || "Divya Warule";
+    state.tryUsername = work.username || "";
+    state.tryBio = work.bio == null ? null : work.bio;
+    push("tryit", { task: task.id, part: part.then === "try-name" ? "1b" : "4" });
     return;
   }
   const visible = listedParts(task);
@@ -3176,7 +3172,7 @@ document.getElementById("phone").addEventListener("click", (event) => {
       render();
       return;
     }
-    if (current().name === "tryit" && state.tryStep > 0) {
+    if (current().name === "tryit" && state.tryStep > (current().part === "4" ? 2 : 0)) {
       captureFields();
       state.tryStep -= 1;
       render();
@@ -3463,26 +3459,29 @@ document.getElementById("phone").addEventListener("click", (event) => {
       state.tryUsername = state.tryName;
     }
     if (state.tryStep === 1 && state.tryUsername) state.tryName = state.tryUsername.replace(/^@/, "");
+    const view = current();
+    const username = (state.tryUsername || state.tryCustom || state.tryHandle || "").replace(/^@/, "");
+    if (view.part === "1b" && state.tryStep === 1) {
+      // The end of the name and bio practice: on to the next part.
+      saveWork({ name: state.tryDisplayName || "", username, bio: profileBio() });
+      markPart(view.task, view.part);
+      state.stack = [
+        { name: "main" },
+        { name: "task", id: view.task },
+        { name: "lesson", task: view.task, part: "2" },
+      ];
+      render();
+      return;
+    }
     if (state.tryStep < 3) {
       state.tryStep += 1;
       render();
       return;
     }
-    saveWork({
-      name: state.tryDisplayName || "",
-      username: (state.tryUsername || state.tryCustom || state.tryHandle || "").replace(/^@/, ""),
-      category: state.tryCategory || "",
-      bio: profileBio(),
-    });
-    const view = current();
-    markPart(view.task, view.part);
+    saveWork({ category: state.tryCategory || "" });
     const task = taskById(view.task);
-    if (isTaskDone(task)) {
-      showBadge(task.id);
-      return;
-    }
-    state.stack = [{ name: "main" }];
-    render();
+    task.parts.forEach((part) => markPart(task.id, part.id));
+    showBadge(task.id);
     return;
   }
   if (act === "pick-product") {

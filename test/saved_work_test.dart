@@ -8,7 +8,9 @@ import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
 import 'package:artisnal_app/features/learn/data/saved_work.dart';
+import 'package:artisnal_app/features/learn/screens/setup_try_it_flow_screen.dart';
 import 'package:artisnal_app/features/learn/screens/write_caption_screen.dart';
+import 'package:artisnal_app/features/learn/widgets/lesson_step.dart';
 import 'package:artisnal_app/features/me/screens/badge_work_screen.dart';
 import 'package:artisnal_app/features/me/screens/me_screen.dart';
 
@@ -24,7 +26,7 @@ void main() {
   });
 
   Future<void> pumpTall(WidgetTester t, Widget home) async {
-    t.view.physicalSize = const Size(390, 1600);
+    t.view.physicalSize = const Size(800, 1600);
     t.view.devicePixelRatio = 1;
     addTearDown(t.view.resetPhysicalSize);
     await t.pumpWidget(MaterialApp(home: home));
@@ -138,6 +140,70 @@ void main() {
     expect(find.text('Photography'), findsOneWidget);
     expect(find.text('Sharp photos sell better'), findsOneWidget);
     expect(find.text('Copy'), findsNothing);
+  });
+
+  testWidgets('name and bio are practised together and saved', (t) async {
+    var finished = false;
+    await pumpTall(
+      t,
+      LessonStep(
+        nextTitle: 'Clear photo',
+        learnTaskId: setUpPageTaskId,
+        locale: 'en-US',
+        onFinished: () => finished = true,
+        child: const SetupTryItFlowScreen(
+          locale: 'en-US',
+          practice: SetupPractice.nameAndBio,
+        ),
+      ),
+    );
+    expect(find.text('Pick your name'), findsOneWidget);
+    await t.tap(find.text('Next'));
+    await t.pumpAndSettle();
+    expect(find.text('PRACTICE · LIKE INSTAGRAM'), findsOneWidget);
+    expect(find.text('Bio'), findsOneWidget);
+    expect(find.textContaining('professional'), findsNothing);
+
+    await t.enterText(find.byType(TextField).last, 'My own bio');
+    await t.pump();
+    await t.tap(find.text('Next'));
+    await t.pumpAndSettle();
+    expect(finished, isTrue);
+    expect(SavedWork.instance.bio, 'My own bio');
+    expect(SavedWork.instance.username, 'divya.weaves');
+  });
+
+  testWidgets('the professional practice has no name or bio to fill', (
+    t,
+  ) async {
+    SavedWork.instance.savePage(
+      name: 'Divya',
+      username: 'divya.real',
+      bio: 'My own bio',
+    );
+    await pumpTall(
+      t,
+      LessonStep(
+        nextTitle: null,
+        nextLearnTaskTitle: 'Create a post',
+        learnTaskId: setUpPageTaskId,
+        locale: 'en-US',
+        onFinished: () {},
+        child: const SetupTryItFlowScreen(
+          locale: 'en-US',
+          practice: SetupPractice.professional,
+        ),
+      ),
+    );
+    expect(find.text('PRACTICE · LIKE INSTAGRAM'), findsNothing);
+    expect(find.text('Pick your name'), findsNothing);
+    expect(find.byType(TextField), findsNothing);
+
+    // The finished page shows what was written in the first practice.
+    await t.tap(find.text('Next'));
+    await t.pumpAndSettle();
+    expect(find.text('My own bio'), findsOneWidget);
+    expect(find.text('Finish'), findsOneWidget);
   });
 
   testWidgets('writing a caption saves it and moves on', (t) async {

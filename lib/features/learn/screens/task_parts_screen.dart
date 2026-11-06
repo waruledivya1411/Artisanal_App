@@ -14,12 +14,7 @@ import 'package:artisnal_app/core/l10n/app_text.dart';
 enum TaskPartState { done, current, pending }
 
 class TaskPart {
-  const TaskPart(
-    this.number,
-    this.title, {
-    this.open,
-    this.showOnList = true,
-  });
+  const TaskPart(this.number, this.title, {this.open, this.showOnList = true});
 
   final String number;
   final String title;
@@ -51,7 +46,6 @@ class TaskPartsScreen extends StatefulWidget {
   static const Color teal = Color(0xFF1B7574);
   static const Color ink = Color(0xFF152322);
   static const Color mint = Color(0xFFEDF4F0);
-  static const Color track = Color(0xFFEDF2EF);
   static const Color done = Color(0xFF1E7B45);
   static const Color chevron = Color(0xFF4F5F5D);
 
@@ -212,17 +206,14 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
   }
 
   List<int> get _listedPartIndices => [
-        for (var i = 0; i < widget.parts.length; i++)
-          if (widget.parts[i].showOnList) i,
-      ];
+    for (var i = 0; i < widget.parts.length; i++)
+      if (widget.parts[i].showOnList) i,
+  ];
 
   @override
   Widget build(BuildContext context) {
     final parts = widget.parts;
     final listed = _listedPartIndices;
-    final completed = _progress.completedParts(widget.taskId);
-    final doneCount =
-        listed.where((i) => i < completed).length.clamp(0, listed.length);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -293,28 +284,6 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
                         letterSpacing: -0.4,
                       ),
                     ),
-                    if (widget.taskId != 'photography') ...[
-                    const SizedBox(height: 12),
-                    Row(
-                      key: const ValueKey('task-progress-bars'),
-                      children: [
-                        for (var li = 0; li < listed.length; li++) ...[
-                          Expanded(
-                            child: Container(
-                              height: 7,
-                              decoration: BoxDecoration(
-                                color: li < doneCount
-                                    ? TaskPartsScreen.teal
-                                    : TaskPartsScreen.track,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
-                          ),
-                          if (li != listed.length - 1) const SizedBox(width: 6),
-                        ],
-                      ],
-                    ),
-                    ],
                     const SizedBox(height: 14),
                     for (final i in listed) ...[
                       GestureDetector(
@@ -323,8 +292,7 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
                         child: _PartCard(
                           part: parts[i],
                           state: _stateOf(i),
-                          showChevron:
-                              widget.showChevron && _mayOpenPart(i),
+                          showChevron: widget.showChevron && _mayOpenPart(i),
                         ),
                       ),
                       const SizedBox(height: 13),

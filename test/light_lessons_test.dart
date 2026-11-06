@@ -24,7 +24,7 @@ void main() {
 
     expect(
       screen(4).line,
-      'Cotton and eri soak up light. Soft light from the front shows them evenly.',
+      'Cotton soaks up light. Soft light from the front shows it evenly.',
     );
     expect(
       screen(5).line,

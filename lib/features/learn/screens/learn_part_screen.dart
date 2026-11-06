@@ -31,7 +31,6 @@ class LearnPartScreen extends StatefulWidget {
   static const Color background = Color(0xFFF6F7F4);
   static const Color teal = Color(0xFF1B7574);
   static const Color ink = Color(0xFF152322);
-  static const Color track = Color(0xFFEDF2EF);
 
   @override
   State<LearnPartScreen> createState() => _LearnPartScreenState();
@@ -130,30 +129,6 @@ class _LearnPartScreenState extends State<LearnPartScreen> {
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 7,
-                        decoration: BoxDecoration(
-                          color: LearnPartScreen.teal,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Container(
-                        height: 7,
-                        decoration: BoxDecoration(
-                          color: LearnPartScreen.track,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
                 const SizedBox(height: 15),
                 Expanded(

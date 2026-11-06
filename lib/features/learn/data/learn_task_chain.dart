@@ -20,7 +20,7 @@ class LearnTaskChain {
   /// Parts required to count a Learn home task as fully done (badge / last step).
   static const partCounts = <String, int>{
     photographyTaskId: 6,
-    setUpPageTaskId: 4,
+    setUpPageTaskId: 5,
     createPostTaskId: 3,
     postingPlanTaskId: 3,
     readNumbersTaskId: 3,

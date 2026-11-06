@@ -184,8 +184,6 @@ class _FindNumbersScreenState extends State<FindNumbersScreen>
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    const _StepBar(filled: 2),
                     const SizedBox(height: 14),
                     Text(
                       tr('Find your numbers'),
@@ -605,34 +603,6 @@ class _Step extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _StepBar extends StatelessWidget {
-  const _StepBar({required this.filled});
-
-  final int filled;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        for (var i = 0; i < 2; i++) ...[
-          Expanded(
-            child: Container(
-              height: 6,
-              decoration: BoxDecoration(
-                color: i < filled
-                    ? FindNumbersScreen.teal
-                    : const Color(0xFFEDF2EF),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-          if (i != 1) const SizedBox(width: 6),
-        ],
-      ],
     );
   }
 }

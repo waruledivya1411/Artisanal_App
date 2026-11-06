@@ -285,23 +285,6 @@ class _CheckPartScreenState extends State<CheckPartScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    for (var i = 0; i < 2; i++) ...[
-                      Expanded(
-                        child: Container(
-                          height: 7,
-                          decoration: BoxDecoration(
-                            color: CheckPartScreen.teal,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ),
-                      if (i == 0) const SizedBox(width: 6),
-                    ],
-                  ],
-                ),
                 const SizedBox(height: 18),
                 Text(
                   tr('Which is better?'),
