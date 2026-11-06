@@ -1462,6 +1462,7 @@ const AI_SCENES = {
     ],
     "props": [
       ["Mannequin", "Show this saree worn on a full-length plain mannequin, standing in a bright, simple room."],
+      ["Real model", "Show a real woman wearing this saree, traditionally draped, with neat front pleats and the pallu over her shoulder, against a plain background.", true],
       ["Wooden hanger", "Hang this saree on a wooden hanger against a plain wall, with the pallu falling in front."],
       ["Chair", "Drape this saree over the back of a wooden chair, with the pallu hanging down."],
       ["Festive setting", "Place this saree, neatly folded, on a wooden table with a brass lamp and a few flowers beside it."]
@@ -1475,6 +1476,7 @@ const AI_SCENES = {
     ],
     "props": [
       ["Mannequin", "Show the mekhela and sador worn on a full-length plain mannequin, standing in a bright, simple room."],
+      ["Real model", "Show a real woman wearing it in Assamese style: mekhela pleated at the waist, sador over the shoulder, standing.", true],
       ["Wooden hanger", "Hang the mekhela and sador on two wooden hangers against a plain wall."],
       ["Chair", "Drape the sador over the back of a wooden chair, with the folded mekhela on the seat."],
       ["Festive setting", "Place the mekhela and sador, neatly folded, on a wooden table with a brass lamp and a few flowers beside them."]
@@ -1560,8 +1562,12 @@ function buildAiPrompt({ product, goal, scene }) {
     const wish = goal === "clean" ? "Replace only the background with a plain off-white wall." : "Make the light soft and even, and remove harsh shadows. Keep the true colours.";
     return `Edit my photo. ${wish}\n\nDo not change the ${short}: keep the same motifs, border, colours and weave. No text.`;
   }
-  const line = aiChoicesFor(product, goal).find(([label]) => label === scene)[1];
-  return `Photo 1 shows my handwoven ${word} in full. Photo 2 shows its motif up close.\n\n${line}\n\nCopy the motifs, border, colours and weave exactly from my photos. Do not redesign anything. Realistic photo, soft natural light, no people, no text.`;
+  const [, line, withModel] = aiChoicesFor(product, goal).find(([label]) => label === scene);
+  // A real model wears the product, so this one must not say "no people".
+  const ending = withModel
+    ? `It must be this exact ${short}, not a similar one. Do not redesign anything. Realistic photo, soft natural light, no text.`
+    : "Do not redesign anything. Realistic photo, soft natural light, no people, no text.";
+  return `Photo 1 shows my handwoven ${word} in full. Photo 2 shows its motif up close.\n\n${line}\n\nCopy the motifs, border, colours and weave exactly from my photos. ${ending}`;
 }
 
 const AI_GOALS = [

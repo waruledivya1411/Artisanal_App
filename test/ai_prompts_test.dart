@@ -53,9 +53,16 @@ void main() {
 
   test('each product offers exactly the props chosen for it', () {
     const expected = {
-      'Saree': ['Mannequin', 'Wooden hanger', 'Chair', 'Festive setting'],
+      'Saree': [
+        'Mannequin',
+        'Real model',
+        'Wooden hanger',
+        'Chair',
+        'Festive setting',
+      ],
       'Mekhala sador': [
         'Mannequin',
+        'Real model',
         'Wooden hanger',
         'Chair',
         'Festive setting',
@@ -72,6 +79,52 @@ void main() {
         reason: product,
       );
     });
+  });
+
+  test('only the real model prompt shows a person wearing the saree', () {
+    for (final product in photographyProducts) {
+      for (final goal in [AiGoal.newDisplay, AiGoal.addProps]) {
+        final choices = goal == AiGoal.newDisplay
+            ? aiDisplaysFor(product.name)
+            : aiPropsFor(product.name);
+        for (final choice in choices) {
+          final prompt = buildAiPrompt(
+            product: product.name,
+            goal: goal,
+            scene: choice.label,
+          );
+          final isModel =
+              const {'Saree', 'Mekhala sador'}.contains(product.name) &&
+              choice.label == 'Real model';
+          expect(choice.withModel, isModel, reason: choice.label);
+          expect(prompt.contains('no people'), !isModel, reason: prompt);
+        }
+      }
+    }
+    final prompt = buildAiPrompt(
+      product: 'Saree',
+      goal: AiGoal.addProps,
+      scene: 'Real model',
+    );
+    expect(prompt, contains('real woman wearing this saree'));
+    expect(prompt, contains('pallu over her shoulder'));
+    expect(prompt, contains('It must be this exact saree, not a similar one.'));
+    expect(prompt, contains('exactly from my photos'));
+    expect(prompt, endsWith('no text.'));
+
+    final mekhala = buildAiPrompt(
+      product: 'Mekhala sador',
+      goal: AiGoal.addProps,
+      scene: 'Real model',
+    );
+    expect(mekhala, contains('real woman wearing it in Assamese style'));
+    expect(mekhala, contains('mekhela pleated at the waist'));
+    expect(mekhala, contains('sador over the shoulder'));
+    expect(
+      mekhala,
+      contains('It must be this exact mekhela sador set, not a similar one.'),
+    );
+    expect(mekhala, isNot(contains('no people')));
   });
 
   test('a scene never names another product', () {

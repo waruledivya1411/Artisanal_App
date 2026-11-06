@@ -9,10 +9,14 @@ enum AiGoal { cleanBackground, betterLight, newDisplay, addProps }
 /// Something the artisan can tap: its [label] on screen, and its [line], which
 /// is the words it adds to the prompt or the help under the label.
 class AiChoice {
-  const AiChoice(this.label, this.line);
+  const AiChoice(this.label, this.line, {this.withModel = false});
 
   final String label;
   final String line;
+
+  /// The picture shows a person wearing the product, so the prompt must not
+  /// say "no people".
+  final bool withModel;
 }
 
 class _Scenes {
@@ -67,6 +71,11 @@ const _scenes = <String, _Scenes>{
         'Show this saree worn on a full-length plain mannequin, standing in a bright, simple room.',
       ),
       AiChoice(
+        'Real model',
+        'Show a real woman wearing this saree, traditionally draped, with neat front pleats and the pallu over her shoulder, against a plain background.',
+        withModel: true,
+      ),
+      AiChoice(
         'Wooden hanger',
         'Hang this saree on a wooden hanger against a plain wall, with the pallu falling in front.',
       ),
@@ -99,6 +108,11 @@ const _scenes = <String, _Scenes>{
       AiChoice(
         'Mannequin',
         'Show the mekhela and sador worn on a full-length plain mannequin, standing in a bright, simple room.',
+      ),
+      AiChoice(
+        'Real model',
+        'Show a real woman wearing it in Assamese style: mekhela pleated at the waist, sador over the shoulder, standing.',
+        withModel: true,
       ),
       AiChoice(
         'Wooden hanger',
@@ -274,11 +288,18 @@ String buildAiPrompt({
   String editOnePhoto(String wish) =>
       'Edit my photo. $wish\n\n'
       'Do not change the $short: keep the same motifs, border, colours and weave. No text.';
-  String makeFromTwoPhotos(List<AiChoice> choices) =>
-      'Photo 1 shows my handwoven $word in full. '
-      'Photo 2 shows its motif up close.\n\n'
-      '${choices.firstWhere((item) => item.label == scene).line}\n\n'
-      'Copy the motifs, border, colours and weave exactly from my photos. Do not redesign anything. Realistic photo, soft natural light, no people, no text.';
+  String makeFromTwoPhotos(List<AiChoice> choices) {
+    final choice = choices.firstWhere((item) => item.label == scene);
+    // A real model wears the product, so this one must not say "no people".
+    final ending = choice.withModel
+        ? 'It must be this exact $short, not a similar one. Do not redesign anything. Realistic photo, soft natural light, no text.'
+        : 'Do not redesign anything. Realistic photo, soft natural light, no people, no text.';
+    return 'Photo 1 shows my handwoven $word in full. '
+        'Photo 2 shows its motif up close.\n\n'
+        '${choice.line}\n\n'
+        'Copy the motifs, border, colours and weave exactly from my photos. $ending';
+  }
+
   return switch (goal) {
     AiGoal.cleanBackground => editOnePhoto(
       'Replace only the background with a plain off-white wall.',
