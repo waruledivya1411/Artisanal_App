@@ -119,7 +119,9 @@ class _AiWordsScreenState extends State<AiWordsScreen>
         1 => _questionsStep(),
         _ => _promptStep(),
       },
-      bottom: _step < 2
+      bottom: _step == 0
+          ? const []
+          : _step == 1
           ? [
               _button(
                 label: 'Continue',
@@ -144,9 +146,13 @@ class _AiWordsScreenState extends State<AiWordsScreen>
   }
 
   Widget _goalStep() {
+    // A tap opens that one straight away.
     void pick(AiWordsGoal goal) {
       HapticFeedback.selectionClick();
-      setState(() => _goal = goal);
+      setState(() {
+        _goal = goal;
+        _step = 1;
+      });
     }
 
     return ListView(

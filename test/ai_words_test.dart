@@ -146,11 +146,21 @@ void main() {
 
     // Part 2: pick, answer, copy.
     expect(find.text('BIO AND CAPTION'), findsOneWidget);
+    // Nothing to press after picking: a tap opens it.
+    expect(find.text('Continue'), findsNothing);
+    await t.tap(find.text('Caption'));
+    await t.pump();
+    expect(find.text('Tell us about the post'), findsOneWidget);
+    expect(find.text('What is in this post?'), findsOneWidget);
+    expect(find.textContaining('Your story'), findsNothing);
+    await t.tap(find.byIcon(Icons.arrow_back_rounded));
+    await t.pump();
+    expect(find.text('What do you want?'), findsOneWidget);
     await t.tap(find.text('Bio'));
     await t.pump();
-    await t.tap(find.text('Continue'));
-    await t.pump();
     expect(find.text('Tell us about you'), findsOneWidget);
+    expect(find.textContaining('Your story'), findsOneWidget);
+    expect(find.text('What is in this post?'), findsNothing);
     expect(find.text('Write it in'), findsOneWidget);
     expect(find.text('English'), findsOneWidget);
 
@@ -203,7 +213,6 @@ void main() {
     await t.pumpAndSettle();
     await t.tap(find.text('Caption'));
     await t.pump();
-    await tapContinue();
     // Where they are from is remembered from the bio.
     expect(find.text('Sualkuchi'), findsOneWidget);
     await t.enterText(find.byKey(const ValueKey('ai-words-product')), 'Saree');

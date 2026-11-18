@@ -434,7 +434,7 @@ const TASKS = [
         {
           lessonTitle: "Cotton: soft light from the front",
           line: "Cotton soaks up light. Soft light from the front shows it evenly.",
-          image: photo("cotton_light_front_glow.jpg"),
+          image: photo("cotton_light_front_even.jpg"),
           wrong: { image: photo("cotton_side_light.jpg"), label: "Hard light from the side" },
           right: { image: photo("cotton_soft_front.jpg"), label: "Soft light from the front" },
           rightReason: "Soft front light shows the weave evenly",
@@ -446,7 +446,7 @@ const TASKS = [
         {
           lessonTitle: "Silk: soft light from the side",
           line: "Mulberry and muga throw light back. Soft light lets them glow.",
-          image: photo("silk_light_side_glow.jpg"),
+          image: photo("silk_light_side_even.jpg"),
           wrong: { image: photo("silk_glare.jpg"), label: "Direct sun" },
           right: { image: photo("silk_soft_light.jpg"), label: "Soft light" },
           rightReason: "Soft light makes silk glow",
@@ -1840,7 +1840,6 @@ function renderWords() {
     return screen(`<div class="pad-20 stack">${head}
       ${heading("What do you want?", "Tap one")}
       <div class="ai-body" data-scroll>${rows}</div>
-      ${continueFoot}
     </div>`);
   }
 
@@ -3341,6 +3340,11 @@ document.getElementById("phone").addEventListener("click", (event) => {
       render();
       return;
     }
+    if (current().name === "words" && state.words.step > 0) {
+      state.words.step -= 1;
+      render();
+      return;
+    }
     if (current().name === "tryit" && state.tryStep > (current().part === "4" ? 2 : 0)) {
       captureFields();
       state.tryStep -= 1;
@@ -3442,8 +3446,10 @@ document.getElementById("phone").addEventListener("click", (event) => {
   if (act === "finish-ai") return finishAiPart("1");
   if (act === "finish-words") return finishAiPart("2");
   if (act === "words-goal") {
+    // A tap opens that one straight away.
     state.words.goal = node.dataset.name;
-    render({ keepScroll: true });
+    state.words.step = 1;
+    render();
     return;
   }
   if (act === "words-lang") {
