@@ -31,7 +31,7 @@ class PickPhotoGuideScreen extends StatefulWidget {
     'assets/images/lessons/read_numbers/reply_cloth_post.jpg',
     'assets/images/lessons/photography/fabric_steady.jpg',
     'assets/images/lessons/read_numbers/post_only_likes.jpg',
-    'assets/images/lessons/photography/fabric_window.jpg',
+    'assets/images/lessons/photography/fabric_window_even.jpg',
   ];
 
   @override

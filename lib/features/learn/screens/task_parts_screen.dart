@@ -33,6 +33,7 @@ class TaskPartsScreen extends StatefulWidget {
     required this.title,
     required this.parts,
     this.showChevron = false,
+    this.anyOrder = false,
   });
 
   final String locale;
@@ -41,6 +42,9 @@ class TaskPartsScreen extends StatefulWidget {
   final String title;
   final List<TaskPart> parts;
   final bool showChevron;
+
+  /// Every part can be opened and finished in any order.
+  final bool anyOrder;
 
   static const Color background = Color(0xFFF6F7F4);
   static const Color teal = Color(0xFF1B7574);
@@ -109,7 +113,33 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
     );
   }
 
+  /// The first part not done yet, for tasks done in any order.
+  int? get _firstOpenPart {
+    for (var i = 0; i < widget.parts.length; i++) {
+      if (!_progress.isPartDone(widget.taskId, i)) return i;
+    }
+    return null;
+  }
+
+  /// In a task done in any order: another part still to do, preferring the
+  /// one after [index].
+  int? _otherOpenPart(int index) {
+    for (var step = 1; step < widget.parts.length; step++) {
+      final i = (index + step) % widget.parts.length;
+      if (_canOpen(i) && !_progress.isPartDone(widget.taskId, i)) return i;
+    }
+    return null;
+  }
+
   TaskPartState _stateOf(int index) {
+    if (widget.anyOrder) {
+      if (_progress.isPartDone(widget.taskId, index)) {
+        return TaskPartState.done;
+      }
+      return index == _firstOpenPart
+          ? TaskPartState.current
+          : TaskPartState.pending;
+    }
     final completed = _progress.completedParts(widget.taskId);
     if (index < completed) return TaskPartState.done;
     if (index == completed) return TaskPartState.current;
@@ -127,9 +157,11 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
   }
 
   Route<void> _routeFor(int index) {
-    final next = index + 1;
-    final isLastPart = _lastOpenPartIndex() == index;
-    final hasNext = _canOpen(next);
+    final next = widget.anyOrder ? (_otherOpenPart(index) ?? -1) : index + 1;
+    final isLastPart = widget.anyOrder
+        ? next < 0
+        : _lastOpenPartIndex() == index;
+    final hasNext = next >= 0 && _canOpen(next);
     final nextHidden = hasNext && !widget.parts[next].showOnList;
     return MaterialPageRoute<void>(
       builder: (_) => LessonStep(
@@ -147,6 +179,21 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
   }
 
   void _finish(int index) {
+    if (widget.anyOrder) {
+      final next = _otherOpenPart(index);
+      _progress.markPartDone(widget.taskId, index);
+      final listRoute = ModalRoute.of(context);
+      final navigator = Navigator.of(context);
+      if (next != null) {
+        navigator.pushAndRemoveUntil(
+          _routeFor(next),
+          (route) => route == listRoute,
+        );
+      } else {
+        navigator.popUntil((route) => route == listRoute);
+      }
+      return;
+    }
     var done = _progress.completedParts(widget.taskId);
     while (done < index) {
       _progress.completePart(widget.taskId, done);
@@ -168,7 +215,7 @@ class _TaskPartsScreenState extends State<TaskPartsScreen> {
 
   bool _mayOpenPart(int index) {
     if (!_canOpen(index)) return false;
-    if (widget.taskId == 'set_up_page') return true;
+    if (widget.anyOrder || widget.taskId == 'set_up_page') return true;
     return _stateOf(index) != TaskPartState.pending;
   }
 

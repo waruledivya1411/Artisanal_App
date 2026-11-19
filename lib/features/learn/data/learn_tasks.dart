@@ -109,7 +109,7 @@ TaskPartsScreen photographyTask(String locale) {
           locale: locale,
           partLabel: 'PART 3 · WINDOW LIGHT',
           title: 'Stand near a window',
-          image: 'assets/images/lessons/photography/window_light_art.jpg',
+          image: 'assets/images/lessons/photography/window_light_soft.jpg',
           nextBuilder: (_) => CheckPartScreen(
             locale: locale,
             partLabel: 'PART 3 · WINDOW LIGHT',
@@ -118,7 +118,7 @@ TaskPartsScreen photographyTask(String locale) {
               label: 'Dark corner',
             ),
             right: const CheckOption(
-              image: 'assets/images/lessons/photography/fabric_window.jpg',
+              image: 'assets/images/lessons/photography/fabric_window_even.jpg',
               label: 'Near window',
             ),
             rightReason: 'True colours by the window',
@@ -162,16 +162,16 @@ TaskPartsScreen photographyTask(String locale) {
           line:
               'Cotton soaks up light. Soft light from the front shows it evenly.',
           image:
-              'assets/images/lessons/photography/cotton_light_front_even.jpg',
+              'assets/images/lessons/photography/cotton_light_front_soft.jpg',
           nextBuilder: (_) => CheckPartScreen(
             locale: locale,
             partLabel: 'PART 5 · LIGHT FOR COTTON',
             wrong: const CheckOption(
-              image: 'assets/images/lessons/photography/cotton_side_light.jpg',
+              image: 'assets/images/lessons/photography/cotton_hang_side_light.jpg',
               label: 'Hard light from the side',
             ),
             right: const CheckOption(
-              image: 'assets/images/lessons/photography/cotton_soft_front.jpg',
+              image: 'assets/images/lessons/photography/cotton_hang_soft_front.jpg',
               label: 'Soft light from the front',
             ),
             rightReason: 'Soft front light shows the weave evenly',
@@ -188,7 +188,7 @@ TaskPartsScreen photographyTask(String locale) {
           title: 'Silk: soft light from the side',
           line:
               'Mulberry and muga throw light back. Soft light lets them glow.',
-          image: 'assets/images/lessons/photography/silk_light_side_even.jpg',
+          image: 'assets/images/lessons/photography/silk_light_side_soft.jpg',
           nextBuilder: (_) => CheckPartScreen(
             locale: locale,
             partLabel: 'PART 6 · LIGHT FOR SILK',
@@ -409,6 +409,7 @@ TaskPartsScreen aiTask(String locale) {
     taskLabel: 'TASK 6 OF 6',
     title: 'Use AI',
     showChevron: true,
+    anyOrder: true,
     parts: [
       TaskPart(
         '1',

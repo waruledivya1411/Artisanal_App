@@ -7,8 +7,11 @@ import 'package:artisnal_app/features/learn/data/ai_words.dart';
 import 'package:artisnal_app/features/learn/data/learn_progress.dart';
 import 'package:artisnal_app/features/learn/data/learn_task_chain.dart';
 import 'package:artisnal_app/features/learn/data/learn_tasks.dart';
+import 'package:artisnal_app/features/learn/screens/ai_photos_screen.dart';
 
 void main() {
+  setUp(AiWordsScreen.forgetAnswers);
+
   test('a bio prompt carries only what the artisan said', () {
     final prompt = buildAiWordsPrompt(
       goal: AiWordsGoal.bio,
@@ -82,6 +85,87 @@ void main() {
     expect(LearnTaskChain.taskOrder.last, aiPhotosTaskId);
     expect(LearnTaskChain.nextTaskTitle(readNumbersTaskId), 'Use AI');
     expect(LearnTaskChain.partCounts[aiPhotosTaskId], 2);
+  });
+
+  test('parts done out of order count once all are done', () {
+    LearnProgress.instance.reset();
+    addTearDown(LearnProgress.instance.reset);
+    final progress = LearnProgress.instance;
+    progress.markPartDone(aiPhotosTaskId, 1);
+    expect(progress.isPartDone(aiPhotosTaskId, 1), isTrue);
+    expect(progress.isPartDone(aiPhotosTaskId, 0), isFalse);
+    expect(progress.isLearnTaskComplete(aiPhotosTaskId), isFalse);
+    progress.markPartDone(aiPhotosTaskId, 0);
+    expect(progress.completedParts(aiPhotosTaskId), 2);
+    expect(progress.isLearnTaskComplete(aiPhotosTaskId), isTrue);
+  });
+
+  testWidgets('bio and caption can be done first, then photo prompts', (
+    t,
+  ) async {
+    AppLang.current = 'en-US';
+    LearnProgress.instance.reset();
+    addTearDown(LearnProgress.instance.reset);
+    t.view.physicalSize = const Size(390, 1400);
+    t.view.devicePixelRatio = 1;
+    addTearDown(t.view.resetPhysicalSize);
+    t.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async => null,
+    );
+    final progress = LearnProgress.instance;
+    await t.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: TextButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => aiTask('en-US')),
+                ),
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await t.tap(find.text('Open'));
+    await t.pumpAndSettle();
+
+    // Straight into the second part, with nothing done.
+    await t.tap(find.text('Bio and caption'));
+    await t.pumpAndSettle();
+    expect(find.text('BIO AND CAPTION'), findsOneWidget);
+    await t.tap(find.text('Bio'));
+    await t.pump();
+    await t.enterText(find.byKey(const ValueKey('ai-words-from')), 'Assam');
+    await t.enterText(find.byKey(const ValueKey('ai-words-make')), 'Sarees');
+    await t.pump();
+    await t.tap(find.text('Continue'));
+    await t.pump();
+    await t.tap(find.text('Next part · Photo prompts'));
+    await t.pumpAndSettle();
+    expect(progress.isPartDone(aiPhotosTaskId, 1), isTrue);
+    expect(progress.isPartDone(aiPhotosTaskId, 0), isFalse);
+    expect(progress.isLearnTaskComplete(aiPhotosTaskId), isFalse);
+
+    // Then the first part, which now earns the badge.
+    expect(find.text('PHOTO PROMPTS'), findsOneWidget);
+    await t.tap(find.text('Saree'));
+    await t.pump();
+    await t.tap(find.text('Continue'));
+    await t.pump();
+    await t.tap(find.text('Clean background'));
+    await t.pump();
+    await t.tap(find.text('Continue'));
+    await t.pump();
+    await t.tap(find.text('Done'));
+    await t.pump();
+    await t.pump(const Duration(milliseconds: 400));
+    expect(progress.isLearnTaskComplete(aiPhotosTaskId), isTrue);
+    expect(find.text('Badge earned'), findsOneWidget);
+    expect(t.takeException(), isNull);
   });
 
   testWidgets('photo prompts lead to bio and caption, which earns the badge', (

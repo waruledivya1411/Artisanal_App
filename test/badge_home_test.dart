@@ -135,11 +135,11 @@ void main() {
           locale: 'en-US',
           partLabel: 'PART',
           wrong: const CheckOption(
-            image: 'assets/images/lessons/photography/cotton_side_light.jpg',
+            image: 'assets/images/lessons/photography/cotton_hang_side_light.jpg',
             label: 'Wrong one',
           ),
           right: const CheckOption(
-            image: 'assets/images/lessons/photography/cotton_soft_front.jpg',
+            image: 'assets/images/lessons/photography/cotton_hang_soft_front.jpg',
             label: 'Right one',
           ),
           rightReason: 'Yes',

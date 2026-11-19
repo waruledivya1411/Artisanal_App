@@ -11,8 +11,13 @@ class LearnProgress extends ChangeNotifier {
   static final LearnProgress instance = LearnProgress._();
 
   static const _key = 'learn-progress';
+  static const _anyOrderKey = 'learn-parts-done';
 
   final Map<String, int> _completed = {};
+
+  /// Parts finished out of order, in tasks whose parts can be done in any
+  /// order. [_completed] still counts the parts done from the start.
+  final Map<String, Set<int>> _doneOutOfOrder = {};
   SharedPreferences? _prefs;
 
   /// Brings back finished parts, and keeps later ones on this device.
@@ -25,13 +30,50 @@ class LearnProgress extends ChangeNotifier {
       for (final entry in decoded.entries) {
         if (entry.value is int) _completed['${entry.key}'] = entry.value as int;
       }
-      notifyListeners();
     }
+    final rawParts = prefs.getString(_anyOrderKey);
+    final parts = rawParts == null ? null : jsonDecode(rawParts);
+    if (parts is Map) {
+      for (final entry in parts.entries) {
+        if (entry.value is List) {
+          _doneOutOfOrder['${entry.key}'] = {
+            for (final index in entry.value as List)
+              if (index is int) index,
+          };
+        }
+      }
+    }
+    notifyListeners();
   }
 
   void _changed() {
     _prefs?.setString(_key, jsonEncode(_completed));
+    _prefs?.setString(
+      _anyOrderKey,
+      jsonEncode({
+        for (final entry in _doneOutOfOrder.entries)
+          entry.key: entry.value.toList()..sort(),
+      }),
+    );
     notifyListeners();
+  }
+
+  bool isPartDone(String taskId, int index) =>
+      index < completedParts(taskId) ||
+      (_doneOutOfOrder[taskId]?.contains(index) ?? false);
+
+  /// For tasks whose parts can be done in any order: marks one part, and
+  /// counts the task done once every part is.
+  void markPartDone(String taskId, int index) {
+    if (isPartDone(taskId, index)) return;
+    final done = _doneOutOfOrder.putIfAbsent(taskId, () => {})..add(index);
+    var count = completedParts(taskId);
+    while (done.remove(count)) {
+      count++;
+    }
+    _completed[taskId] = count;
+    if (done.isEmpty) _doneOutOfOrder.remove(taskId);
+    _changed();
   }
 
   int completedParts(String taskId) => _completed[taskId] ?? 0;
@@ -68,6 +110,7 @@ class LearnProgress extends ChangeNotifier {
   @visibleForTesting
   void reset() {
     _completed.clear();
+    _doneOutOfOrder.clear();
     _prefs = null;
     notifyListeners();
   }

@@ -360,7 +360,7 @@ const GALLERY = [
   "lessons/read_numbers/reply_cloth_post.jpg",
   "lessons/photography/fabric_steady.jpg",
   "lessons/read_numbers/post_only_likes.jpg",
-  "lessons/photography/fabric_window.jpg",
+  "lessons/photography/fabric_window_even.jpg",
 ];
 
 function createDone(kind) {
@@ -411,9 +411,9 @@ const TASKS = [
         { id: "3", title: "Window light", label: "PART 3 · WINDOW LIGHT" },
         {
           lessonTitle: "Stand near a window",
-          image: photo("window_light_art.jpg"),
+          image: photo("window_light_soft.jpg"),
           wrong: { image: photo("fabric_dark.jpg"), label: "Dark corner" },
-          right: { image: photo("fabric_window.jpg"), label: "Near window" },
+          right: { image: photo("fabric_window_even.jpg"), label: "Near window" },
           rightReason: "True colours by the window",
           wrongReason: "A dark corner makes colours dull",
         },
@@ -434,9 +434,9 @@ const TASKS = [
         {
           lessonTitle: "Cotton: soft light from the front",
           line: "Cotton soaks up light. Soft light from the front shows it evenly.",
-          image: photo("cotton_light_front_even.jpg"),
-          wrong: { image: photo("cotton_side_light.jpg"), label: "Hard light from the side" },
-          right: { image: photo("cotton_soft_front.jpg"), label: "Soft light from the front" },
+          image: photo("cotton_light_front_soft.jpg"),
+          wrong: { image: photo("cotton_hang_side_light.jpg"), label: "Hard light from the side" },
+          right: { image: photo("cotton_hang_soft_front.jpg"), label: "Soft light from the front" },
           rightReason: "Soft front light shows the weave evenly",
           wrongReason: "Side light leaves dark shadows",
         },
@@ -446,7 +446,7 @@ const TASKS = [
         {
           lessonTitle: "Silk: soft light from the side",
           line: "Mulberry and muga throw light back. Soft light lets them glow.",
-          image: photo("silk_light_side_even.jpg"),
+          image: photo("silk_light_side_soft.jpg"),
           wrong: { image: photo("silk_glare.jpg"), label: "Direct sun" },
           right: { image: photo("silk_soft_light.jpg"), label: "Soft light" },
           rightReason: "Soft light makes silk glow",
@@ -690,6 +690,8 @@ const TASKS = [
     image: photo("ai_photos_card.jpg"),
     label: "TASK 6 OF 6",
     showChevron: true,
+    // Either part can be opened and finished first.
+    anyOrder: true,
     parts: [
       { id: "1", title: "Photo prompts", kind: "ai" },
       { id: "2", title: "Bio and caption", kind: "words" },
@@ -1799,12 +1801,16 @@ function wordsCanContinue() {
 // Done on either Use AI part. The first time through it goes on to the other
 // part, and the end of the last part earns the badge. After that the parts
 // are tools to come back to, so Done simply closes them.
+function aiOtherPart(partId) {
+  return partById(taskById("ai_photos"), partId === "1" ? "2" : "1");
+}
+
 function aiLeadsToNextPart(partId) {
-  return partId === "1" && !isTaskDone(taskById("ai_photos"));
+  return !isTaskDone(taskById("ai_photos")) && !isPartDone("ai_photos", aiOtherPart(partId).id);
 }
 
 function aiFinishLabel(partId) {
-  return aiLeadsToNextPart(partId) ? "Next part · " + partById(taskById("ai_photos"), "2").title : "Done";
+  return aiLeadsToNextPart(partId) ? "Next part · " + aiOtherPart(partId).title : "Done";
 }
 
 function finishAiPart(partId) {
@@ -1815,7 +1821,7 @@ function finishAiPart(partId) {
   if (isTaskDone(task)) return showBadge(task.id);
   if (leads) {
     state.stack.pop();
-    return openWords();
+    return aiOtherPart(partId).kind === "words" ? openWords() : openAi();
   }
   back();
 }
@@ -1878,7 +1884,7 @@ function renderWords() {
     <div class="foot">
       ${words.copyFailed ? `<p class="ai-note strong ai-copy-failed">${esc(t("Could not copy. Select the words and copy them."))}</p>` : ""}
       <button class="btn" type="button" data-act="words-copy">${words.copied ? "&#10003; " : ""}${esc(t(words.copied ? "Prompt copied" : "Copy prompt"))}</button>
-      <button class="ai-done" type="button" data-act="finish-words">${esc(t("Done"))}</button>
+      <button class="ai-done" type="button" data-act="finish-words">${esc(t(aiFinishLabel("2")))}</button>
     </div>
   </div>`);
 }
@@ -2077,8 +2083,11 @@ function renderTask(view) {
   const play = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 7.2v9.6L17.2 12 9 7.2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
   const rows = listed
     .map((part, index) => {
-      const status = index < doneCount ? "done" : index === doneCount ? "current" : "pending";
-      const openable = task.id === "set_up_page" || status !== "pending";
+      const firstOpen = listed.findIndex((item) => !isPartDone(task.id, item.id));
+      const status = task.anyOrder
+        ? (isPartDone(task.id, part.id) ? "done" : index === firstOpen ? "current" : "pending")
+        : index < doneCount ? "done" : index === doneCount ? "current" : "pending";
+      const openable = task.anyOrder || task.id === "set_up_page" || status !== "pending";
       const chevron = task.showChevron && openable && status === "pending";
       const need = listed[doneCount] ? listed[doneCount].title : part.title;
       const side = status === "done"

@@ -7,6 +7,10 @@ class AiWordsScreen extends StatefulWidget {
 
   final String locale;
 
+  /// Forgets the answers kept while the app is open.
+  @visibleForTesting
+  static void forgetAnswers() => _AiWordsScreenState._remembered.clear();
+
   @override
   State<AiWordsScreen> createState() => _AiWordsScreenState();
 }
