@@ -224,12 +224,10 @@ class _Credit extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              'assets/images/onboarding/sutra_mark_white.png',
+              'assets/images/onboarding/sutra_mark.png',
               key: const ValueKey('sutra-mark'),
               width: 30,
               height: 30,
-              color: Colors.white.withValues(alpha: 0.92),
-              colorBlendMode: BlendMode.modulate,
             ),
             const SizedBox(height: 10),
             Text.rich(

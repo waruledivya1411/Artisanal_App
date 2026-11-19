@@ -130,7 +130,7 @@ img { max-width: 100%; display: block; }
   opacity: 0;
   animation: splash-fade 500ms 1600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-.splash-credit img { width: 30px; height: 30px; opacity: 0.92; }
+.splash-credit img { width: 30px; height: 30px; }
 .splash-credit p { margin: 0; color: #fff; text-align: center; }
 .splash-credit span { font-size: 10.5px; letter-spacing: 2.2px; opacity: 0.75; margin-right: 8px; }
 .splash-credit b { font-size: 12px; font-weight: 700; letter-spacing: 3.6px; }
