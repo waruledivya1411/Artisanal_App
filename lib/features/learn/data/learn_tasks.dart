@@ -193,11 +193,11 @@ TaskPartsScreen photographyTask(String locale) {
             locale: locale,
             partLabel: 'PART 6 · LIGHT FOR SILK',
             wrong: const CheckOption(
-              image: 'assets/images/lessons/photography/silk_glare.jpg',
+              image: 'assets/images/lessons/photography/silk_hang_glare.jpg',
               label: 'Direct sun',
             ),
             right: const CheckOption(
-              image: 'assets/images/lessons/photography/silk_soft_light.jpg',
+              image: 'assets/images/lessons/photography/silk_hang_soft.jpg',
               label: 'Soft light',
             ),
             rightReason: 'Soft light makes silk glow',
