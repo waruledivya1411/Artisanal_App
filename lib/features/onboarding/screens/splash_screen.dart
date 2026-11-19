@@ -103,64 +103,95 @@ class _SplashScreenState extends State<SplashScreen>
       ),
       child: Scaffold(
         backgroundColor: SplashScreen.background,
-        body: Align(
-          alignment: const Alignment(0, 0.18),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: AnimatedBuilder(
-              animation: _animation,
-              builder: (context, _) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Semantics(
-                    key: const ValueKey('splash-title'),
-                    label: title,
-                    child: ExcludeSemantics(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            for (final (index, letter) in letters.indexed)
-                              _letter(letter, index, titleStyle),
-                          ],
-                        ),
-                      ),
-                    ),
+        body: Stack(
+          children: [
+            Positioned.fill(child: _centre(width, title, titleStyle, letters)),
+            // A small studio-style credit at the bottom.
+            Positioned(
+              left: 20,
+              right: 20,
+              bottom: 0,
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 28),
+                  child: AnimatedBuilder(
+                    animation: _animation,
+                    builder: (context, child) =>
+                        Opacity(opacity: _progress(1600, 2100), child: child),
+                    child: const _Credit(),
                   ),
-                  SizedBox(height: width * 0.035),
-                  // The line grows out from the middle.
-                  Transform.scale(
-                    scaleX: _progress(1000, 1450),
-                    child: Container(
-                      width: width * 0.3,
-                      height: 3,
-                      decoration: BoxDecoration(
-                        color: SplashScreen.gold,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: width * 0.04),
-                  Opacity(
-                    opacity: _progress(1400, 2100),
-                    child: Transform.translate(
-                      offset: Offset(0, 12 * (1 - _progress(1400, 2100))),
-                      child: Text(
-                        tr('Show your craft to the world'),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: (width * 0.045).clamp(14.0, 20.0),
-                          fontWeight: FontWeight.w500,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _centre(
+    double width,
+    String title,
+    TextStyle titleStyle,
+    List<String> letters,
+  ) {
+    return Align(
+      alignment: const Alignment(0, 0.18),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: AnimatedBuilder(
+          animation: _animation,
+          builder: (context, _) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Semantics(
+                key: const ValueKey('splash-title'),
+                label: title,
+                child: ExcludeSemantics(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (final (index, letter) in letters.indexed)
+                          _letter(letter, index, titleStyle),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: width * 0.035),
+              // The line grows out from the middle.
+              Transform.scale(
+                scaleX: _progress(1000, 1450),
+                child: Container(
+                  width: width * 0.3,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: SplashScreen.gold,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              SizedBox(height: width * 0.04),
+              Opacity(
+                opacity: _progress(1400, 2100),
+                child: Transform.translate(
+                  offset: Offset(0, 12 * (1 - _progress(1400, 2100))),
+                  child: Text(
+                    tr('Show your craft to the world'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: (width * 0.045).clamp(14.0, 20.0),
+                      fontWeight: FontWeight.w500,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -175,6 +206,59 @@ class _SplashScreenState extends State<SplashScreen>
       child: Transform.translate(
         offset: Offset(0, style.fontSize! * 0.55 * (1 - shown)),
         child: Text(letter == ' ' ? ' ' : letter, style: style),
+      ),
+    );
+  }
+}
+
+/// "Directed by SUTRA", with the SUTRA mark above it.
+class _Credit extends StatelessWidget {
+  const _Credit();
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Directed by SUTRA',
+      child: ExcludeSemantics(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/images/onboarding/sutra_mark_white.png',
+              key: const ValueKey('sutra-mark'),
+              width: 30,
+              height: 30,
+              color: Colors.white.withValues(alpha: 0.92),
+              colorBlendMode: BlendMode.modulate,
+            ),
+            const SizedBox(height: 10),
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'DIRECTED BY  ',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.75),
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 2.2,
+                    ),
+                  ),
+                  const TextSpan(
+                    text: 'SUTRA',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 3.6,
+                    ),
+                  ),
+                ],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

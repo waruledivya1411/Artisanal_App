@@ -50,6 +50,20 @@ void main() {
     await t.pump();
     expect(opacityOf(t, 'C'), 1);
     expect(opacityOf(t, 'Show your craft to the world'), 1);
+    // The SUTRA credit sits at the bottom, under everything else.
+    expect(find.byKey(const ValueKey('sutra-mark')), findsOneWidget);
+    final credit = find.text('DIRECTED BY  SUTRA', findRichText: true);
+    expect(credit, findsOneWidget);
+    expect(
+      t.getTopLeft(credit).dy,
+      greaterThan(
+        t.getBottomLeft(find.text('Show your craft to the world')).dy,
+      ),
+    );
+    expect(
+      t.getBottomLeft(credit).dy,
+      lessThanOrEqualTo(t.view.physicalSize.height / t.view.devicePixelRatio),
+    );
     await t.pump(const Duration(seconds: 4));
   });
 

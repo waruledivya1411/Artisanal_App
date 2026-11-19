@@ -852,6 +852,10 @@ function renderSplash() {
       <h1 aria-label="${esc(title)}"><span class="splash-letters" aria-hidden="true">${letters}</span></h1>
       <i class="splash-line"></i>
       <p class="splash-line-text">${esc(t("Show your craft to the world"))}</p>
+      <div class="splash-credit" aria-label="Directed by SUTRA">
+        <img src="${IMG}onboarding/sutra_mark_white.png" alt="">
+        <p aria-hidden="true"><span>DIRECTED BY</span><b>SUTRA</b></p>
+      </div>
     </div>`,
     "teal",
   );
